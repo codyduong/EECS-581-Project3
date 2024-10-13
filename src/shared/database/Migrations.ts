@@ -1,12 +1,12 @@
-import { Migrations } from "shared/documentservice/DocumentService.Types"
+import { Migrations } from "shared/documentservice/DocumentService.Types";
 
 const Migrations = [
   {
     backwardsCompatible: true,
     migrate: (d) => {
-      return d
-    }
-  }
-] satisfies Migrations
+      return d;
+    },
+  },
+] satisfies Migrations;
 
-export default Migrations
+export default Migrations;

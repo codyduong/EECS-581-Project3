@@ -1,4 +1,3 @@
-
 export function findFirstSibling(instance: Instance, siblingName: string): Instance | undefined {
   return instance.Parent?.FindFirstChild(siblingName);
 }
@@ -7,12 +6,11 @@ export function findFirstSibling(instance: Instance, siblingName: string): Insta
 export function ffcd(instance: Instance, ...childNames: (string | number)[]): Instance | undefined {
   let res = instance;
   for (const childName of childNames) {
-    const t = res.FindFirstChild(childName)
+    const t = res.FindFirstChild(childName);
     if (!t) {
-      return undefined
+      return undefined;
     }
-    res = t
+    res = t;
   }
-  return res
-
+  return res;
 }

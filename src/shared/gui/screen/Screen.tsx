@@ -1,12 +1,12 @@
 import React from "@rbxts/react";
 import DebugFrame from "./DebugFrame";
 
-interface ScreenProps {
-
-}
+interface ScreenProps {}
 
 export default function Screen(props: ScreenProps): JSX.Element {
-  return <>
-    <DebugFrame />
-  </>
+  return (
+    <>
+      <DebugFrame />
+    </>
+  );
 }
