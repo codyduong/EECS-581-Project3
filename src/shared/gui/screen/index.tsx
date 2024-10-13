@@ -3,9 +3,11 @@ import { createPortal } from "@rbxts/react-roblox";
 import Screen from "./Screen";
 
 export default function ScreenGui(_props: unknown): JSX.Element {
-  const screenGui = script.FindFirstChild("ScreenGui") as ScreenGui;
+  const screenGui = script.FindFirstChild("ScreenGui")?.Clone() as ScreenGui;
   const localPlayer = game.GetService("Players").LocalPlayer;
   screenGui.Parent = localPlayer.FindFirstChild("PlayerGui");
+
+  print("running");
 
   return createPortal(<Screen />, screenGui);
 }
