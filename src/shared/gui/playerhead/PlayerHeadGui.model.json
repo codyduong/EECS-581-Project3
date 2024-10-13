@@ -1,0 +1,12 @@
+{
+  "ClassName": "BillboardGui",
+  "Properties": {
+    "Name": "PlayerHeadGui",
+    "Size": {
+      "UDim2": [[0, 200], [0, 100]]
+    },
+    "StudsOffset": [0, 2, 0],
+    "ClipsDescendants": true,
+    "Active": true
+  }
+}
