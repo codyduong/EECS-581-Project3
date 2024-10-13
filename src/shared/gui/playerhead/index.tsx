@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "@rbxts/react";
+import React from "@rbxts/react";
 import { createPortal } from "@rbxts/react-roblox";
 import PlayerHead from "./PlayerHead";
 import { usePlayers } from "shared/contexts/PlayersContext";
@@ -9,22 +9,35 @@ function getHead(character: Model | undefined) {
 
 export default function PlayerHeadGui(_props: unknown): JSX.Element {
   const players = usePlayers();
-  // const [billboards, setBillboards] = useState<{ player: Player; billboardGui: BillboardGui }[]>([]);
-  const [reload, setReload] = useState(false);
+  const userIds = players.map((player) => player.UserId);
 
-  useEffect(() => {
-    print(players);
-  }, [players]);
+  const playerGui = game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui");
 
+  const existingBillboards = playerGui
+    ?.GetChildren()
+    .filter(
+      (child): child is BillboardGui =>
+        child.Name.split("_")[0] === "PlayerHeadGui" && child.ClassName === "BillboardGui",
+    );
+
+  // cleanup billboards that no longer have a player
+  existingBillboards?.forEach((billboard) => {
+    const userId = billboard.GetAttribute("player") as number;
+    if (!userIds.includes(userId)) {
+      billboard.Destroy();
+    }
+  });
+
+  // create or use existing billboards and point to player head
   const billboards = players
     .map((player) => {
-      const playerGui = game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui");
       const billboardName = `PlayerHeadGui_${player.UserId}`;
 
       const oldBillboard = playerGui?.FindFirstChild(billboardName) as BillboardGui;
       const billboardGui = oldBillboard ?? (script.FindFirstChild("PlayerHeadGui")?.Clone() as BillboardGui);
       billboardGui.Name = billboardName;
       billboardGui.Parent = playerGui;
+      billboardGui.SetAttribute("player", player.UserId);
 
       const adornee = getHead(player?.Character);
       if (adornee) {
