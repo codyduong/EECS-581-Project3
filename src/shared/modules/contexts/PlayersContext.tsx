@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
-import { findFirstSibling } from "shared/utils";
+import { findFirstSibling } from "shared/modules/utils";
 
 const PlayersContextActual = createContext<Player[]>([]);
 

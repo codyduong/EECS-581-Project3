@@ -1,4 +1,4 @@
-import { remoteEvent as playersRemoteEvent } from "shared/contexts/PlayersContext";
+import { remoteEvent as playersRemoteEvent } from "shared/modules/contexts/PlayersContext";
 
 const players: number[] = [];
 

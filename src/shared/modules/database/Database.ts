@@ -2,7 +2,7 @@
  * Wrapper around DocumentService to provide events to client
  */
 
-import DocumentService from "shared/documentservice/DocumentService";
+import DocumentService from "shared/modules/documentservice/DocumentService";
 import { check, DataSchema } from "./DataScheme";
 
 const foo = DocumentService.DocumentStore;
@@ -21,12 +21,12 @@ const userId = game.GetService("Players").PlayerAdded.Connect((player) => {
   print(userId, document);
   document.Steal();
   document.Open();
-  const data = document.Update(() => {
-    return {
-      coins: 0,
-    };
-  });
-  document.Save();
-  const data2 = document.Read();
-  print(data, data2);
+  // const data = document.Update(() => {
+  //   return {
+  //     coins: 0,
+  //   };
+  // });
+  // document.Save();
+  // const data2 = document.Read();
+  // print(data, data2);
 });

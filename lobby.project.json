@@ -1,19 +1,19 @@
 {
-	"name": "itemors",
+	"name": "lobby",
+	"servePort": 34872,
+	"servePlaceIds": [129960798081914],
 	"globIgnorePaths": [
 		"**/package.json",
 		"**/tsconfig.json"
 	],
 	"tree": {
 		"$className": "DataModel",
-		"ServerScriptService": {
-			"$className": "ServerScriptService",
-			"TS": {
-				"$path": "out/server"
-			}
-		},
-		"ReplicatedStorage": {
+		"ReplicatedStorage": { 
 			"$className": "ReplicatedStorage",
+			"$path": "out/lobby/modules/",
+			"shared": {
+				"$path": "out/shared/modules/"
+			},
 			"rbxts_include": {
 				"$path": "include",
 				"node_modules": {
@@ -25,15 +25,22 @@
 			},
 			"Packages": {
 				"$path": "Packages"
-			},
-			"$path": "out/shared"
+			}
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"$path": "out/lobby/server/",
+			"shared": {
+				"$path": "out/shared/server/"
+			}
 		},
 		"StarterPlayer": {
 			"$className": "StarterPlayer",
 			"StarterPlayerScripts": {
 				"$className": "StarterPlayerScripts",
-				"TS": {
-					"$path": "out/client"
+				"$path": "out/lobby/client/",
+				"shared": {
+					"$path": "out/shared/client"
 				}
 			}
 		},

@@ -1,7 +1,7 @@
 import React from "@rbxts/react";
 import { createPortal } from "@rbxts/react-roblox";
 import PlayerHead from "./PlayerHead";
-import { usePlayers } from "shared/contexts/PlayersContext";
+import { usePlayers } from "shared/modules/contexts/PlayersContext";
 
 function getHead(character: Model | undefined) {
   return character?.GetChildren().find((child): child is MeshPart => child.Name === "Head" && child.IsA("MeshPart"));
