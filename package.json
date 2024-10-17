@@ -9,7 +9,11 @@
     "ci:ts:lobby": "rbxtsc -w --rojo lobby.project.json -p tsconfig.lobby.json --logTruthyChanges --verbose",
     "ci:ts:game": "rbxtsc -w --rojo game.project.json -p tsconfig.game.json --logTruthyChanges --verbose",
     "ci:rojo:lobby": "sleep 1 && rojo serve lobby.project.json --address 0.0.0.0 -v",
-    "ci:rojo:game": "sleep 1 && rojo serve game.project.json --address 0.0.0.0 -v"
+    "ci:rojo:game": "sleep 1 && rojo serve game.project.json --address 0.0.0.0 -v",
+    "build": "yarn build:lobby && yarn build:game",
+    "build:lobby": "rbxtsc build --rojo lobby.project.json -p tsconfig.lobby.json --logTruthyChanges --verbose",
+    "build:game": "rbxtsc build --rojo game.project.json -p tsconfig.game.json --logTruthyChanges --verbose",
+    "lint": "node scripts/lint.mjs"
   },
   "devDependencies": {
     "@rbxts/compiler-types": "^3.0.0-types.0",

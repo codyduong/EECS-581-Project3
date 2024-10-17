@@ -1,0 +1,55 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+    paths:
+      - '**.ts'
+      - '**.tsx'
+      - '.github/workflows/lint.yml'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  generate-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: image=moby/buildkit:latest
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        run: |
+          docker buildx build --file Dockerfile.base \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --output=type=docker \
+            -t ghcr.io/${{ github.repository_owner }}/itemated:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/itemated:latest
+
+  build:
+    needs: generate-image
+    runs-on: ubuntu-latest
+    container:
+      image: itemated
+    steps:
+      - name: Build lobby
+        run: yarn build:lobby
+        continue-on-error: true
+
+      - name: Build game
+        run: yarn build:game
+        continue-on-error: true
