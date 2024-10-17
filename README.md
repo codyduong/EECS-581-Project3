@@ -1,5 +1,7 @@
 # itemors
 
+Universe Id: 6663533248
+
 | Place Id                                                        | Place Name - Description                              |
 | --------------------------------------------------------------- | ----------------------------------------------------- |
 | [129960798081914](https://www.roblox.com/games/129960798081914) | Itemated - primary lobby and place to join experience |

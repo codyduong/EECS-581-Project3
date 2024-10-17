@@ -1,8 +1,7 @@
 {
-  "name": "itemors",
+  "name": "itemated",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
   "scripts": {
     "ci:watch:lobby": "concurrently --restart-tries 3 --restart-after exponential -p \"[{name}]\" -n \"TS,ROJO\" -c \"bgBlue.bold,bgRed.bold\" \"yarn ci:ts:lobby\" \"yarn ci:rojo:lobby\"",
     "ci:watch:game": "concurrently --restart-tries 3 --restart-after exponential -p \"[{name}]\" -n \"TS,ROJO\" -c \"bgBlue.bold,bgRed.bold\" \"yarn ci:ts:game\" \"yarn ci:rojo:game\"",
