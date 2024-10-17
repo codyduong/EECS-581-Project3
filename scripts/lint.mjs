@@ -15,7 +15,7 @@ try {
   if (changedFiles.trim() === "") {
     console.log("There are no files to lint");
   } else {
-    const eslintCommand = `yarn eslint --config .eslintrc ${changedFiles}`;
+    const eslintCommand = `yarn eslint --config eslint.config.mjs ${changedFiles}`;
     execSync(eslintCommand, { stdio: "inherit" });
   }
 } catch (err) {

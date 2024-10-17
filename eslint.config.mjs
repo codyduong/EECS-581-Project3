@@ -25,7 +25,7 @@ export default [
       sourceType: "module",
       project: "./tsconfig.json",
     },
-    ignorePatterns: ["/out"],
+    ignorePatterns: ["/out", "**/*.mjs"],
     plugins: ["@typescript-eslint", "roblox-ts", "prettier"],
     rules: {
       "prettier/prettier": "warn",

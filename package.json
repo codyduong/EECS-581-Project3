@@ -13,7 +13,7 @@
     "build": "yarn build:lobby && yarn build:game",
     "build:lobby": "rbxtsc build --rojo lobby.project.json -p tsconfig.lobby.json --logTruthyChanges --verbose",
     "build:game": "rbxtsc build --rojo game.project.json -p tsconfig.game.json --logTruthyChanges --verbose",
-    "lint": "eslint --config .eslintrc",
+    "lint": "eslint --config eslint.config.mjs",
     "ci:lint": "node scripts/lint.mjs"
   },
   "devDependencies": {
