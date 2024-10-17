@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "typeRoots": ["node_modules/@rbxts"],
+    "outDir": "out_game",
+		"tsBuildInfoFile": "out_game/tsconfig.tsbuildinfo"
+  },
+  "exclude": ["src/lobby/**/*"]
+}

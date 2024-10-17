@@ -1,0 +1,7 @@
+FROM itemated
+
+EXPOSE 34873
+
+COPY . .
+
+CMD ["yarn", "ci:watch:game"]

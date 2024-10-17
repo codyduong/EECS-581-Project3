@@ -4,14 +4,19 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "rbxtsc",
-    "watch": "rbxtsc -w"
+    "ci:watch:lobby": "concurrently --restart-tries 3 --restart-after exponential -p \"[{name}]\" -n \"TS,ROJO\" -c \"bgBlue.bold,bgRed.bold\" \"yarn ci:ts:lobby\" \"yarn ci:rojo:lobby\"",
+    "ci:watch:game": "concurrently --restart-tries 3 --restart-after exponential -p \"[{name}]\" -n \"TS,ROJO\" -c \"bgBlue.bold,bgRed.bold\" \"yarn ci:ts:game\" \"yarn ci:rojo:game\"",
+    "ci:ts:lobby": "rbxtsc -w --rojo lobby.project.json -p tsconfig.lobby.json --logTruthyChanges --verbose",
+    "ci:ts:game": "rbxtsc -w --rojo game.project.json -p tsconfig.game.json --logTruthyChanges --verbose",
+    "ci:rojo:lobby": "sleep 1 && rojo serve lobby.project.json --address 0.0.0.0 -v",
+    "ci:rojo:game": "sleep 1 && rojo serve game.project.json --address 0.0.0.0 -v"
   },
   "devDependencies": {
     "@rbxts/compiler-types": "^3.0.0-types.0",
     "@rbxts/types": "^1.0.811",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
+    "concurrently": "^9.0.1",
     "eslint": "^9.12.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-define-config": "^2.1.0",

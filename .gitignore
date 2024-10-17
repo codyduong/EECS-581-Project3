@@ -3,3 +3,5 @@
 /include
 *.tsbuildinfo
 /Packages
+/out_lobby
+/out_game

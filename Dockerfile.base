@@ -1,0 +1,25 @@
+FROM node:18-slim
+
+RUN apt-get update && apt-get install -y wget unzip && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ENV AFTMAN_VERSION=0.3.0
+RUN wget -q https://github.com/LPGhatguy/aftman/releases/download/v${AFTMAN_VERSION}/aftman-${AFTMAN_VERSION}-linux-x86_64.zip \
+    && unzip aftman-${AFTMAN_VERSION}-linux-x86_64.zip -d aftman \
+    && rm aftman-${AFTMAN_VERSION}-linux-x86_64.zip \
+    && ./aftman/aftman self-install \
+    && rm -rf aftman
+
+ENV PATH="/root/.aftman/bin:$PATH"
+
+COPY aftman.toml ./
+RUN aftman install --no-trust-check
+
+COPY wally.lock wally.toml ./
+RUN wally install
+
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+EXPOSE 34872

@@ -1,14 +1,14 @@
 {
-	"name": "lobby",
-	"servePort": 34872,
+	"name": "game",
+	"servePort": 34873,
 	"servePlaceIds": [
-		129960798081914,
-		113026681654376,
-		109985485201818,
-		97095846823877
+		127544595844329,
+		125665205874769,
+		125743289479388,
+		117826945510743
 	],
 	"globIgnorePaths": [
-		"src/game",
+		"src/lobby",
 		"**/package.json",
 		"**/tsconfig.json"
 	],
@@ -16,9 +16,9 @@
 		"$className": "DataModel",
 		"ReplicatedStorage": { 
 			"$className": "ReplicatedStorage",
-			"$path": "out_lobby/lobby/modules/",
+			"$path": "out_game/game/modules/",
 			"shared": {
-				"$path": "out_lobby/shared/modules/"
+				"$path": "out_game/shared/modules/"
 			},
 			"rbxts_include": {
 				"$path": "include",
@@ -35,18 +35,18 @@
 		},
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
-			"$path": "out_lobby/lobby/server/",
+			"$path": "out_game/game/server/",
 			"shared": {
-				"$path": "out_lobby/shared/server/"
+				"$path": "out_game/shared/server/"
 			}
 		},
 		"StarterPlayer": {
 			"$className": "StarterPlayer",
 			"StarterPlayerScripts": {
 				"$className": "StarterPlayerScripts",
-				"$path": "out_lobby/lobby/client/",
+				"$path": "out_game/game/client/",
 				"shared": {
-					"$path": "out_lobby/shared/client"
+					"$path": "out_game/shared/client"
 				}
 			}
 		},

@@ -1,0 +1,33 @@
+services:
+  lobby:
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.lobby
+    ports:
+      - '34872:34872'
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./package.json
+  game:
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.game
+    ports:
+      - '34873:34873'
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./package.json

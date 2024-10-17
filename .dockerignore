@@ -1,0 +1,6 @@
+node_modules/
+Packages/
+out_lobby/
+out_game/
+include/
+.vscode/
