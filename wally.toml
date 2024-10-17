@@ -6,3 +6,4 @@ realm = "shared"
 
 [dependencies]
 DocumentService = "anthony0br/documentservice@1.1.2"
+Guard = "red-blox/guard@^1.0.0"

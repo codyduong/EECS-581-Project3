@@ -1,17 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
-import { findFirstSibling } from "shared/modules/utils";
+import playersEvent from "shared/modules/events/PlayersEvent";
 
 const PlayersContextActual = createContext<Player[]>([]);
-
-export const remoteEvent = findFirstSibling(script, "PlayersContextRemoteEvent") as RemoteEvent<
-  (userIds: number[]) => void
->;
 
 interface PlayersContextProps {
   children: React.ReactNode;
 }
 
-export default function PlayersContext({ children }: PlayersContextProps): JSX.Element {
+function PlayersContext({ children }: PlayersContextProps): JSX.Element {
   const [playersConn, setPlayersConn] = useState<
     {
       player: Player;
@@ -20,7 +16,7 @@ export default function PlayersContext({ children }: PlayersContextProps): JSX.E
   >([]);
 
   useEffect(() => {
-    const event = remoteEvent.OnClientEvent.Connect((userIds) => {
+    const event = playersEvent.OnClientEvent.Connect((userIds) => {
       // print("event received: ", userIds);
       // print("current players: ", playersConn);
 
@@ -94,3 +90,5 @@ export function usePlayers(): Player[] {
   const players = useContext(PlayersContextActual);
   return players;
 }
+
+export default PlayersContext;

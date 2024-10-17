@@ -29,4 +29,11 @@ export type Migrations = {
 
 export type Transform<T> = (data: T) => T;
 
-// export type
+export interface DataStoreInterface {
+  UpdateAsync(
+    key: string,
+    callback: (v: LuaTuple<[data: unknown, DataStoreKeyInfo]>) => LuaTuple<[unknown, number[]?, unknown?]>,
+  ): LuaTuple<[unknown, DataStoreKeyInfo]>;
+  GetAsync(key: string, options: DataStoreGetOptions): LuaTuple<[unknown, DataStoreKeyInfo]>;
+  RemoveAsync(key: string): LuaTuple<[unknown, DataStoreKeyInfo]>;
+}

@@ -10,4 +10,9 @@ dependencies = []
 [[package]]
 name = "duong/itemors"
 version = "0.1.0"
-dependencies = [["DocumentService", "anthony0br/documentservice@1.1.2"]]
+dependencies = [["DocumentService", "anthony0br/documentservice@1.1.2"], ["Guard", "red-blox/guard@1.0.1"]]
+
+[[package]]
+name = "red-blox/guard"
+version = "1.0.1"
+dependencies = []

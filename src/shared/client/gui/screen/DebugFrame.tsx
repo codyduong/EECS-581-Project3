@@ -1,8 +1,13 @@
 import React from "@rbxts/react";
+import { usePlayerData } from "../contexts/PlayerDataContext";
 
 interface DebugFrameProps {}
 
 export default function DebugFrame(props: DebugFrameProps): JSX.Element {
+  const data = usePlayerData();
+
+  print(data);
+
   return (
     <frame Size={new UDim2(0, 100, 0, 500)}>
       <uilistlayout FillDirection={"Vertical"} />

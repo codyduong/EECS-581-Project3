@@ -7,7 +7,5 @@ export default function ScreenGui(_props: unknown): JSX.Element {
   const localPlayer = game.GetService("Players").LocalPlayer;
   screenGui.Parent = localPlayer.FindFirstChild("PlayerGui");
 
-  print("running");
-
   return createPortal(<Screen />, screenGui);
 }
