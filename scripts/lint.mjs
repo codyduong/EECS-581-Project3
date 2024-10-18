@@ -9,7 +9,7 @@ try {
   const diffCommand = `git diff --name-only ${commit} --diff-filter=ACMRTUXB`;
   let changedFiles = execSync(diffCommand, { encoding: "utf-8" })
     .split("\n")
-    .filter((file) => /\.(js|jsx|ts|tsx)$/.test(file))
+    .filter((file) => /\.(mjs|tsx?)$/.test(file))
     .join(" ");
 
   if (changedFiles.trim() === "") {
