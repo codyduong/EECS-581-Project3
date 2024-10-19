@@ -1,6 +1,6 @@
 {
   "ClassName": "RemoteEvent",
   "Properties": {
-    "Name": "PlayerDataEvent"
+    "Name": "PlayerDataRE"
   }
 }
