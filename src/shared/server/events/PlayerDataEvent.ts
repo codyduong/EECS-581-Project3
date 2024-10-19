@@ -39,6 +39,7 @@ export function setupPlayerDataEvent(): void {
       }
 
       player.Kick(`Failed to load data: ${result.reason}. Please screenshot and report this issue to a developer`);
+      return;
     }
 
     document.HookAfter("Update", () => {
@@ -60,10 +61,16 @@ export function setupPlayerDataEvent(): void {
   });
 
   playerDataEvent.OnServerEvent.Connect((player: Player) => {
-    const document = playerIdsToDocuments[player.UserId];
+    let document = playerIdsToDocuments[player.UserId];
+    let tries = 0;
 
-    if (!document) {
-      player.Kick("Failed to get document. Please screenshot and report this issue to a developer");
+    while (!document) {
+      if (tries > 10) {
+        player.Kick("Failed to get document. Please screenshot and report this issue to a developer");
+        return;
+      }
+      document = playerIdsToDocuments[player.UserId];
+      wait(0.5);
     }
 
     const data = document!.GetCache();
