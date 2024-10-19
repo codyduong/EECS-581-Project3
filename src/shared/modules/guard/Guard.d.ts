@@ -1,11 +1,13 @@
 /**
- * Typescript type declarations for Guard:
- * https://github.com/red-blox/util
- * https://util.redblox.dev/guard.html
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @file Contains type definitions for {@link https://util.redblox.dev/guard.html red-blox/guard}
  */
 
 export type Check<T> = (Value: unknown) => T;
 
+/**
+ * @see {@link https://util.redblox.dev/guard.html}
+ */
 declare const Module: {
   Any: Check<unknown>;
   Boolean: Check<boolean>;

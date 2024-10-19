@@ -1,3 +1,18 @@
+--[[
+
+This is a file which points to red-blox/guard
+
+- https://github.com/red-blox/Util/
+- https://util.redblox.dev/guard.html
+
+It also contains some module augmentations to improve behavior
+
+Contains no function annotations as those are handled by ts type definitions
+
+Authored by: Cody Duong <cody.qd@gmail.com>
+
+]]--
+
 export type Check<T> = (Value: unknown) -> T
 
 local function Record(record: { [any]: Check<any> }): Check<{ [any]: any }>

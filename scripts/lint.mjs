@@ -1,6 +1,8 @@
 /**
- * This script only lints the changed files using git diff. It is useful in large projects
- * to avoid checking unnecessary files, where we assume files not changed already conform.
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @license MIT
+ * @file This script only lints the changed files using git diff. It is useful in large projects
+ *       to avoid checking unnecessary files, where we assume files not changed already conform.
  */
 import { execSync } from "child_process";
 

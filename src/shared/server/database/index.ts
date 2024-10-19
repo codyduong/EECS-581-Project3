@@ -1,9 +1,15 @@
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @file Contains utility functionality
+ */
+
 import { Document } from "shared/modules/documentservice/DocumentService.Document";
 
 /**
  * Attempts to open a Document that supports session locking. Errors if not a session-lockable document.
  *
- * Modified from: https://github.com/anthony0br/DocumentService/blob/2bc4e6f053757b8ee0cc3d762aaa3c2d5755bc4a/docs/opening.md
+ * Modified from:
+ * https://github.com/anthony0br/DocumentService/blob/2bc4e6f053757b8ee0cc3d762aaa3c2d5755bc4a/docs/opening.md
  *
  * @param document The document to open
  * @param {number} [timeout=1600] Timeout in ms

@@ -1,10 +1,15 @@
+/**
+ * PlayersDataContext provides {@link PlayerData} information
+ *
+ * - From a technical level, due to Roblox's client/server boundary seperation, we connect to a shared event in
+ *   {@link playerDataEvent}, which the server will load a cached version of PlayerData into, and we will consume here
+ *   in this context
+ */
+
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
 import { PlayerData } from "shared/modules/database/PlayerData";
 import playerDataEvent from "shared/modules/events/PlayerDataEvent";
 
-/**
- * Client-side module code for loading information from server
- */
 const PlayerDataContextActual = createContext<PlayerData>(undefined!);
 
 interface PlayerDataContextProps {
