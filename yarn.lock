@@ -530,6 +530,11 @@ eslint-define-config@^2.1.0:
   resolved "https://registry.yarnpkg.com/eslint-define-config/-/eslint-define-config-2.1.0.tgz#9708b3efd57637b6fb685d9c2fb6285b9acfbd71"
   integrity sha512-QUp6pM9pjKEVannNAbSJNeRuYwW3LshejfyBBpjeMGaJjaDUpVps4C6KVR8R7dWZnD3i0synmrE36znjTkJvdQ==
 
+eslint-plugin-no-relative-import-paths@^1.5.5:
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-no-relative-import-paths/-/eslint-plugin-no-relative-import-paths-1.5.5.tgz#c1cf7fed05943b1ec038e29086b190f14f42ed6e"
+  integrity sha512-UjudFFdBbv93v0CsVdEKcMLbBzRIjeK2PubTctX57tgnHxZcMj1Jm8lDBWoETnPxk0S5g5QLSltEM+511yL4+w==
+
 eslint-plugin-prettier@^5.2.1:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-5.2.1.tgz#d1c8f972d8f60e414c25465c163d16f209411f95"
