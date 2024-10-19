@@ -26,9 +26,10 @@ export default [
       project: "./tsconfig.json",
     },
     ignorePatterns: ["/out", "**/*.mjs"],
-    plugins: ["@typescript-eslint", "roblox-ts", "prettier"],
+    plugins: ["@typescript-eslint", "roblox-ts", "prettier", "no-relative-import-paths"],
     rules: {
       "prettier/prettier": "warn",
+      "no-relative-import-paths/no-relative-import-paths": ["error", { allowSameFolder: true, rootDir: "src" }],
     },
   }),
   {
