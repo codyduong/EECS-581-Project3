@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "@rbxts/react";
+import React, { useState } from "@rbxts/react";
 
 interface PlayerHeadProps {
   initialCount?: number;

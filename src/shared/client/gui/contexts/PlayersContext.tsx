@@ -1,3 +1,7 @@
+/**
+ * PlayersContext provides reliable information about {@link Player Players} in an experience
+ */
+
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
 import playersEvent from "shared/modules/events/PlayersEvent";
 

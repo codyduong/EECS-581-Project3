@@ -1,12 +1,23 @@
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @file Sets up asynchronous communication about {@link PlayerData} between client and server using {@link RemoteEvent}
+ *
+ * @see {@link https://create.roblox.com/docs/reference/engine/classes/RemoteEvent RemoteEvent | Documentation - Roblox Creator Hub}
+ */
+
 import { stealOpenRetry } from "shared/server/database";
 import { PlayerData } from "shared/modules/database/PlayerData";
 import { Document } from "shared/modules/documentservice/DocumentService.Document";
 import playerDataEvent from "shared/modules/events/PlayerDataEvent";
 import playerDataDocumentStore from "shared/server/database/PlayerData";
 
+/** Cache {@link Document documents} */
 const playerIdsToDocuments: Record<number, Document<PlayerData> | undefined> = {};
 
 let hasSetup = false;
+/**
+ * @throws if setup more than once
+ */
 export function setupPlayerDataEvent(): void {
   game.GetService("Players").PlayerAdded.Connect((player: Player) => {
     assert(hasSetup === false);

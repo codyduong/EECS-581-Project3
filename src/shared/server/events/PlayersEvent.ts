@@ -1,7 +1,17 @@
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @file Sets up asynchronous communication about {@link Player}'s between client and server using {@link RemoteEvent}
+ *
+ * @see {@link https://create.roblox.com/docs/reference/engine/classes/RemoteEvent RemoteEvent | Documentation - Roblox Creator Hub}
+ */
+
 import playersEvent from "shared/modules/events/PlayersEvent";
 import { assertServer } from "shared/modules/utils";
 
 let hasSetup = false;
+/**
+ * @throws if setup more than once
+ */
 export function setupPlayersEvent(): void {
   assertServer();
   assert(hasSetup === false);
