@@ -1,5 +1,5 @@
 import React from "@rbxts/react";
-import { usePlayerData } from "../contexts/PlayerDataContext";
+import { usePlayerData } from "shared/client/gui/contexts/PlayerDataContext";
 
 interface DebugFrameProps {}
 
