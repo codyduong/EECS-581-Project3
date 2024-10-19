@@ -1,5 +1,4 @@
-import { Document } from "../documentservice/DocumentService.Document";
-import { assertServer } from "../utils";
+import { Document } from "shared/modules/documentservice/DocumentService.Document";
 
 /**
  * Attempts to open a Document that supports session locking. Errors if not a session-lockable document.
@@ -10,8 +9,6 @@ import { assertServer } from "../utils";
  * @param {number} [timeout=1600] Timeout in ms
  */
 export function stealOpenRetry<T>(document: Document<T>, timeout: number = 1600): ReturnType<Document<T>["Open"]> {
-  assertServer();
-
   let result = document.Open();
   let startTime = os.clock();
   if (!result.success && result.reason === "SessionLockedError") {

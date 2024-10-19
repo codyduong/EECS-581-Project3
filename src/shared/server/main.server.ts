@@ -1,3 +1,3 @@
-import setupEvents from "shared/modules/events";
+import setupEvents from "shared/server/events";
 
 setupEvents();
