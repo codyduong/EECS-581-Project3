@@ -15,6 +15,14 @@ Universe Id: 6663533248
 
 ## Development
 
+You may need to run yarn install for IDE typehinting and autocompletions
+```
+# it may be necessary to run corepack enable first
+# see https://yarnpkg.com/getting-started/install
+corepack enable
+yarn install
+```
+
 ### docker-compose
 
 A docker-compose has been provided for ease of development that is platform agnostic.
@@ -36,6 +44,14 @@ docker-compose up --watch
 >
 > - http://localhost:34872/
 > - http://localhost:34873/
+
+These two ports are respectively used for syncing compiled typescript (ie. lua code)
+into Roblox Studio using Rojo. See
+[Installation | Rojo](https://rojo.space/docs/v7/getting-started/installation/#installing-the-plugin). 
+
+> [!TIP]
+> I recommend installing from Creator Store the plugin directly
+> [Rojo - Creator Store](https://create.roblox.com/store/asset/13916111004/Rojo)
 
 ### Manual
 
