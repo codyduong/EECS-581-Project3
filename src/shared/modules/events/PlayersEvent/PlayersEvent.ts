@@ -8,10 +8,8 @@
  * @see {@link https://rojo.space/docs/v6/sync-details/#json-models}
  */
 
-import { findFirstSibling } from "shared/modules/utils";
-
 export type PlayersEventCallback = (userIds: number[]) => void;
 
-const playersEvent = findFirstSibling<RemoteEvent<PlayersEventCallback>>(script, "PlayersRE", "RemoteEvent")!;
+const playersEvent = script.Parent as RemoteEvent<PlayersEventCallback>;
 
 export default playersEvent;

@@ -5,7 +5,7 @@
  * @see {@link https://create.roblox.com/docs/reference/engine/classes/RemoteEvent RemoteEvent | Documentation - Roblox Creator Hub}
  */
 
-import playersEvent from "shared/modules/events/PlayersEvent";
+import { playersEvent } from "shared/modules/events";
 import { assertServer } from "shared/modules/utils";
 
 let hasSetup = false;

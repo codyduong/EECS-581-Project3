@@ -8,7 +8,7 @@
 import { stealOpenRetry } from "shared/server/database";
 import { PlayerData } from "shared/modules/database/PlayerData";
 import { Document } from "shared/modules/documentservice/DocumentService.Document";
-import playerDataEvent from "shared/modules/events/PlayerDataEvent";
+import { playerDataEvent } from "shared/modules/events";
 import playerDataDocumentStore from "shared/server/database/PlayerData";
 
 /** Cache {@link Document documents} */
