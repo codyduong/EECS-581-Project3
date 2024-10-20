@@ -3,7 +3,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
-import playersEvent from "shared/modules/events/PlayersEvent";
+import { playersEvent } from "shared/modules/events";
 
 const PlayersContextActual = createContext<Player[]>([]);
 

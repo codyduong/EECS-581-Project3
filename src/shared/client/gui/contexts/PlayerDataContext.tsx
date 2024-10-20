@@ -8,7 +8,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
 import { PlayerData } from "shared/modules/database/PlayerData";
-import playerDataEvent from "shared/modules/events/PlayerDataEvent";
+import { playerDataEvent } from "shared/modules/events";
 
 const PlayerDataContextActual = createContext<PlayerData>(undefined!);
 
