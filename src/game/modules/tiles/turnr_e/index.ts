@@ -2,16 +2,16 @@ import { Tile } from "game/modules/Tile";
 import { toVertexMap } from "game/modules/VertexMap";
 
 const tile = {
-  name: "Forward_S",
+  name: "TurnR_E",
   vertexMap: toVertexMap([
     /* eslint-disable prettier/prettier */
     "0,1,0;1", "0,1,1;1", "0,1,2;1", "1,1,0;1", "1,1,1;1", "1,1,2;1", "2,1,0;1", "2,1,1;1", "2,1,2;1",
     "0,2,0;0", "0,2,1;0", "0,2,2;0", "1,2,0;0", "1,2,1;0", "1,2,2;0", "2,2,0;0", "2,2,1;0", "2,2,2;0",
     /* eslint-enable prettier/prettier */
   ]),
-  pathFrom: ["negativeZ"],
+  pathFrom: ["negativeX"],
   pathTo: ["positiveZ"],
-  model: script.WaitForChild("Model"),
+  model: new Instance("Model"), // TODO
 } satisfies Tile;
 
 export default tile;

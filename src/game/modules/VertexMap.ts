@@ -1,11 +1,18 @@
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @file Simple functions for VertexMaps
+ */
+
 import { Direction } from "./Tile";
 
 /** a cube subdivided into 8 smaller cubes with common vertexes moved. ie. expected 26 vertexes, 
 due to missing one in the center of all 8 smaller cubes (ie. center of larger)*/
 export type VertexMap = [VertexPlane, VertexPlane, VertexPlane];
 export type VertexPlane = [Vertex, Vertex, Vertex];
-export type Vertex = [x: boolean, y: boolean, z: boolean];
-export type VertexString = `${number},${number},${number}`;
+export type Vertex = [x: VertexType, y: VertexType, z: VertexType];
+// void and air are dinstinct types for WFC
+export type VertexType = -1 | 0 | 1;
+export type VertexString = `${number},${number},${number};${VertexType}`;
 
 export function createEmptyVertexMap(depth = 3, rows = 3, cols = 3): VertexMap {
   let result = [];
@@ -14,7 +21,7 @@ export function createEmptyVertexMap(depth = 3, rows = 3, cols = 3): VertexMap {
     for (let j = 0; j < rows; j++) {
       let colArray = [];
       for (let k = 0; k < cols; k++) {
-        colArray.push(false);
+        colArray.push(-1 as VertexType);
       }
       rowArray.push(colArray);
     }
@@ -28,8 +35,9 @@ export function toVertexStrings(grid: VertexMap): VertexString[] {
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
       for (let z = 0; z < 3; z++) {
-        if (grid[x][y][z]) {
-          flatArray.push(`${x},${y},${z}`);
+        const vertexType = grid[x][y][z];
+        if (vertexType !== 0) {
+          flatArray.push(`${x},${y},${z};${vertexType}`);
         }
       }
     }
@@ -41,8 +49,9 @@ export function toVertexMap(flatArray: VertexString[]): VertexMap {
   const grid = createEmptyVertexMap();
 
   for (const vertex of flatArray) {
-    const [x, y, z] = vertex.split(",").map((n) => tonumber(n, 10)!);
-    grid[x][y][z] = true; // Mark presence of the vertex
+    const [coords, vertexType] = vertex.split(";");
+    const [x, y, z] = coords.split(",").map((n) => tonumber(n, 10)!);
+    grid[x][y][z] = tonumber(vertexType, 10) as VertexType; // Mark presence of the vertex
   }
 
   return grid;
