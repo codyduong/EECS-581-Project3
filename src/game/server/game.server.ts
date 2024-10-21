@@ -4,6 +4,8 @@
  */
 
 import { game_info_msg } from "game/modules/game";
+import allTiles from "game/modules/tiles";
 
 // TODO @codyduong remove
 game_info_msg();
+print(allTiles);
