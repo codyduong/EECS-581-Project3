@@ -1,6 +1,9 @@
-import { VertexMap } from "./VertexMap";
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @file Tile Definitions
+ */
 
-type TileProps = {};
+import { VertexMap } from "./VertexMap";
 
 /**
  * the player spawns facing -Z (ive arbitrarily decided this is NORTH)
@@ -38,6 +41,15 @@ export interface Tile {
   pathFrom: Direction[];
   pathTo: Direction[];
   model: Instance;
+  // typically adjacency is decided automatically, but manual overrides can be described
+  adjacency_manual?: {
+    negativeX: string[];
+    positiveX: string[];
+    negativeZ: string[];
+    positiveZ: string[];
+    positiveY: string[];
+    negativeY: string[];
+  };
 }
 
 export type TileAdj = {
@@ -50,4 +62,7 @@ export type TileAdj = {
     positiveY: string[];
     negativeY: string[];
   };
+  pathFrom: Direction[];
+  pathTo: Direction[];
+  model: Instance;
 };
