@@ -3,7 +3,7 @@
  * @file Simple functions for VertexMaps
  */
 
-import { Direction } from "./Tile";
+import { Direction } from "./Direction";
 
 /** a cube subdivided into 8 smaller cubes with common vertexes moved. ie. expected 26 vertexes, 
 due to missing one in the center of all 8 smaller cubes (ie. center of larger)*/
@@ -11,6 +11,10 @@ export type VertexMap = [VertexPlane, VertexPlane, VertexPlane];
 export type VertexPlane = [Vertex, Vertex, Vertex];
 export type Vertex = [x: VertexType, y: VertexType, z: VertexType];
 // void and air are dinstinct types for WFC
+// -1 is void type
+// 0 is mesh type (default)
+// 1 is air type
+// there may be more sockets we may want to match
 export type VertexType = -1 | 0 | 1;
 export type VertexString = `${number},${number},${number};${VertexType}`;
 
@@ -57,13 +61,53 @@ export function toVertexMap(flatArray: VertexString[]): VertexMap {
   return grid;
 }
 
-export function rotateZ(grid: VertexMap): VertexMap {
+/**
+ * Note that this applies rotation in the axis and direction.
+ *
+ * IE. positiveZ would be a rotation clockwise when looking in or along the positiveZ direction, but would be a
+ *     counterclockwise rotation from the negativeZ direction.
+ */
+export function rotateCube(grid: VertexMap, axis: Direction, degree: 90 | 180 | 270): VertexMap {
   const rotated = createEmptyVertexMap();
+
+  // Define how to rotate based on the axis and degree
+  const rotateFuncs = {
+    positiveX: {
+      90: (x: number, y: number, z: number) => (rotated[x][2 - z][y] = grid[x][y][z]),
+      180: (x: number, y: number, z: number) => (rotated[x][2 - y][2 - z] = grid[x][y][z]),
+      270: (x: number, y: number, z: number) => (rotated[x][z][2 - y] = grid[x][y][z]),
+    },
+    negativeX: {
+      90: (x: number, y: number, z: number) => (rotated[x][z][2 - y] = grid[x][y][z]), // reverse direction
+      180: (x: number, y: number, z: number) => (rotated[x][2 - y][2 - z] = grid[x][y][z]),
+      270: (x: number, y: number, z: number) => (rotated[x][2 - z][y] = grid[x][y][z]), // reverse direction
+    },
+    positiveY: {
+      90: (x: number, y: number, z: number) => (rotated[z][y][2 - x] = grid[x][y][z]),
+      180: (x: number, y: number, z: number) => (rotated[2 - x][y][2 - z] = grid[x][y][z]),
+      270: (x: number, y: number, z: number) => (rotated[2 - z][y][x] = grid[x][y][z]),
+    },
+    negativeY: {
+      90: (x: number, y: number, z: number) => (rotated[2 - z][y][x] = grid[x][y][z]), // reverse direction
+      180: (x: number, y: number, z: number) => (rotated[2 - x][y][2 - z] = grid[x][y][z]),
+      270: (x: number, y: number, z: number) => (rotated[z][y][2 - x] = grid[x][y][z]), // reverse direction
+    },
+    positiveZ: {
+      90: (x: number, y: number, z: number) => (rotated[2 - y][x][z] = grid[x][y][z]),
+      180: (x: number, y: number, z: number) => (rotated[2 - x][2 - y][z] = grid[x][y][z]),
+      270: (x: number, y: number, z: number) => (rotated[y][2 - x][z] = grid[x][y][z]),
+    },
+    negativeZ: {
+      90: (x: number, y: number, z: number) => (rotated[y][2 - x][z] = grid[x][y][z]), // reverse direction
+      180: (x: number, y: number, z: number) => (rotated[2 - x][2 - y][z] = grid[x][y][z]),
+      270: (x: number, y: number, z: number) => (rotated[2 - y][x][z] = grid[x][y][z]), // reverse direction
+    },
+  };
 
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
       for (let z = 0; z < 3; z++) {
-        rotated[y][2 - x][z] = grid[x][y][z]; // 90-degree rotation
+        rotateFuncs[axis][degree](x, y, z);
       }
     }
   }
