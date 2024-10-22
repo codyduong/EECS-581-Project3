@@ -15,7 +15,8 @@ type Grid = Plane[];
 type Plane = Superposition[][];
 type Superposition = string[];
 
-export function initializeGrid(x = 25, y = 5, z = 25): Grid {
+export function initializeGrid(x = 25, y = 1, z = 25): Grid {
+  print(allTiles);
   let result = [];
   for (let i = 0; i < x; i++) {
     let ai = [];
