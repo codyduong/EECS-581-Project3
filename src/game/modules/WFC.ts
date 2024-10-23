@@ -10,8 +10,7 @@
  *   - https://marian42.de/article/wfc/
  */
 
-import { Direction, DIRECTIONS, getVector } from "./Direction";
-import { TileAdj } from "./Tile";
+import { DIRECTIONS, getVector } from "./Direction";
 import { allTiles, allTilesMap } from "./tiles";
 
 type Grid = Plane[];
