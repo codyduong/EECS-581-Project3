@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Model" referent="RBX7742DA18949E423CA25ABF73E0D29F80">
+	<Item class="Model" referent="RBXB5240B07B00D44DBA5B560DE5FE6ADD8">
 		<Properties>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -31,14 +31,14 @@
 			<token name="ModelStreamingMode">0</token>
 			<string name="Name">Grass1</string>
 			<bool name="NeedsPivotMigration">false</bool>
-			<Ref name="PrimaryPart">null</Ref>
+			<Ref name="PrimaryPart">RBXE1E25A8D056D4A3BB31D77D599B629D4</Ref>
 			<float name="ScaleFactor">1</float>
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 			<OptionalCoordinateFrame name="WorldPivotData">
 				<CFrame>
 					<X>-20</X>
-					<Y>4</Y>
+					<Y>4.00000191</Y>
 					<Z>-32</Z>
 					<R00>1</R00>
 					<R01>0</R01>
@@ -52,7 +52,7 @@
 				</CFrame>
 			</OptionalCoordinateFrame>
 		</Properties>
-		<Item class="Part" referent="RBX94134264B422418491FC47223F47A418">
+		<Item class="Part" referent="RBXE1E25A8D056D4A3BB31D77D599B629D4">
 			<Properties>
 				<bool name="Anchored">true</bool>
 				<BinaryString name="AttributesSerialize"></BinaryString>
@@ -66,7 +66,7 @@
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>-20</X>
-					<Y>1.99999857</Y>
+					<Y>2.00000048</Y>
 					<Z>-32</Z>
 					<R00>1</R00>
 					<R01>0</R01>
@@ -150,7 +150,7 @@
 				</Vector3>
 			</Properties>
 		</Item>
-		<Item class="Part" referent="RBX4CE8EED3AF9B4FE2B6348C106DBD87CA">
+		<Item class="Part" referent="RBXDC3E9206161141A09385BE527B13E545">
 			<Properties>
 				<bool name="Anchored">true</bool>
 				<BinaryString name="AttributesSerialize"></BinaryString>
@@ -164,7 +164,7 @@
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>-16.5</X>
-					<Y>3.99999809</Y>
+					<Y>4</Y>
 					<Z>-28.5</Z>
 					<R00>1</R00>
 					<R01>0</R01>

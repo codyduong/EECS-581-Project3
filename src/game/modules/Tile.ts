@@ -11,7 +11,7 @@ export interface Tile {
   vertexMap: VertexMap;
   pathFrom: Direction[];
   pathTo: Direction[];
-  model: Instance;
+  model: Model;
   // typically adjacency is decided automatically, but manual overrides can be described
   adjacency_manual?: {
     negativeX: string[];
@@ -21,6 +21,8 @@ export interface Tile {
     positiveY: string[];
     negativeY: string[];
   };
+  /** defaults to 1 */
+  weight?: 0;
 }
 
 export type TileAdj = {
@@ -35,5 +37,7 @@ export type TileAdj = {
   };
   pathFrom: Direction[];
   pathTo: Direction[];
-  model: Instance;
+  model: Model;
+  /** defaults to 1 */
+  weight?: number;
 };

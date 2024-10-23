@@ -3,6 +3,5 @@
  * @file This code is compiled and executed in the "game" place on the server
  */
 
-import { initializeGrid } from "game/modules/WFC";
-
-print(initializeGrid());
+const l = script.Parent?.FindFirstChild("wfc") as Actor;
+l.SendMessage("Fire");
