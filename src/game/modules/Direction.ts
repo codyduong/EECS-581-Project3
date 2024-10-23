@@ -32,3 +32,20 @@ export function getOppositeDirection(direction?: Direction): Direction | undefin
       error("Invalid direction");
   }
 }
+
+export function getVector(direction: Direction): [x: number, y: number, z: number] {
+  switch (direction) {
+    case "negativeX":
+      return [-1, 0, 0];
+    case "positiveX":
+      return [1, 0, 0];
+    case "negativeY":
+      return [0, -1, 0];
+    case "positiveY":
+      return [0, 1, 0];
+    case "negativeZ":
+      return [0, 0, -1];
+    case "positiveZ":
+      return [0, 0, 1];
+  }
+}

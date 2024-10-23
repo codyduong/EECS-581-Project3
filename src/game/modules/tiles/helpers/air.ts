@@ -10,8 +10,8 @@ const tile = {
     "0,2,0;0", "0,2,1;0", "0,2,2;0", "1,2,0;0", "1,2,1;0", "1,2,2;0", "2,2,0;0", "2,2,1;0", "2,2,2;0",
     /* eslint-enable prettier/prettier */
   ]),
-  pathFrom: ["positiveX"],
-  pathTo: ["negativeZ"],
+  pathFrom: [],
+  pathTo: [],
   model: new Instance("Model"), // TODO
 } satisfies Tile;
 

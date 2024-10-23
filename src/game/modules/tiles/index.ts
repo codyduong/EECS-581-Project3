@@ -12,6 +12,8 @@ import { grass1 } from "./grass";
 import { Tile, TileAdj } from "game/modules/Tile";
 import { isMatch } from "game/modules/VertexMap";
 import { DIRECTIONS, getOppositeDirection } from "game/modules/Direction";
+import { start_E, start_N, start_S, start_W } from "./start";
+import { end_N, end_E, end_S, end_W } from "./end";
 
 let allTilesBasic = [
   forward_N,
@@ -27,14 +29,22 @@ let allTilesBasic = [
   turnL_S,
   turnL_W,
   grass1,
-  air,
-  voidTile,
+  // air,
+  // voidTile,
+  start_N,
+  start_E,
+  start_S,
+  start_W,
+  end_N,
+  end_E,
+  end_S,
+  end_W,
 ] as Tile[];
 
 export const allTilesMap: Record<string, TileAdj> = {};
 
 export const allTiles = allTilesBasic.map((tile) => {
-  assert(allTilesMap[tile.name] === undefined, "Already defined tile");
+  assert(allTilesMap[tile.name] === undefined, `Already defined tile ${tile.name}`);
 
   const tileAdj: TileAdj = {
     name: tile.name,
@@ -49,6 +59,7 @@ export const allTiles = allTilesBasic.map((tile) => {
     pathFrom: table.clone(tile.pathFrom),
     pathTo: table.clone(tile.pathTo),
     model: tile.model,
+    weight: tile.weight,
   };
 
   DIRECTIONS.forEach((direction) => {
