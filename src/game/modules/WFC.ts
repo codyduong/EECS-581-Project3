@@ -10,6 +10,7 @@
  *   - https://marian42.de/article/wfc/
  */
 
+import Mutex from "shared/modules/sync/Mutex";
 import { DIRECTIONS, getVector } from "./Direction";
 import { allTiles, allTilesMap, isEnd, isPath, isStart } from "./tiles";
 
@@ -35,6 +36,7 @@ export class WaveFunctionCollapse {
   readonly z_size: number;
   readonly seed: number;
   readonly random: Random;
+  readonly mutex = new Mutex(undefined);
 
   constructor(props: WaveFunctionCollapseProps) {
     this.x_size = props.x;
@@ -132,6 +134,7 @@ export class WaveFunctionCollapse {
   }
 
   propogate(to: Coordinate, superposition: Superposition): Grid {
+    this.mutex.lock();
     const stack: { to: Coordinate; superposition: Superposition }[] = [];
     const visited: Set<string> = new Set();
 
@@ -165,9 +168,9 @@ export class WaveFunctionCollapse {
       }
 
       // Update the grid
-      task.synchronize();
+      // task.synchronize();
       this.grid[currentCoord.x][currentCoord.y][currentCoord.z] = currentSuperposition;
-      task.desynchronize();
+      // task.desynchronize();
 
       // Mark this coordinate as visited
       visited.add(key);
@@ -227,6 +230,7 @@ export class WaveFunctionCollapse {
       });
     }
 
+    this.mutex.release();
     return this.grid;
   }
 
@@ -309,6 +313,8 @@ export class WaveFunctionCollapse {
   }
 
   setupStartAndEnd() {
+    this.mutex.lock();
+
     const startPositions: Coordinate[] = [];
     // choose a random starting tile and a ending tile n distance away
     this.grid.forEach((plane, x) =>
@@ -326,11 +332,11 @@ export class WaveFunctionCollapse {
     const startSuperposition = this.grid[startPosition.x][startPosition.y][startPosition.z].filter(isStart);
     const selectedStart = startSuperposition[this.random.NextInteger(0, startSuperposition.size() - 1)];
     assert(selectedStart !== undefined, "Failed to select a start tile");
-    task.synchronize();
+    // task.synchronize();
     // parallel lua we have to wait for this result serially, and store it to ensure it is propogates correctly.
     let _ = this.propogate(startPosition, [selectedStart]);
     print(startPosition, selectedStart, this.grid);
-    task.desynchronize();
+    // task.desynchronize();
     // const endPositions = this.getCoordinatesByTaxicabDistance(
     //   startPosition,
     //   4,
@@ -360,6 +366,8 @@ export class WaveFunctionCollapse {
         }
       }
     }
+
+    this.mutex.release();
   }
 
   getPathsToCheck(): Coordinate[] {
@@ -398,23 +406,26 @@ export class WaveFunctionCollapse {
   }
 
   collapsePath(pathLength = 1): void {
+    this.mutex.lock();
+
     let positionsToCollapse = this.getPathsToCheck();
 
     // this must be done fully async or we can race condition out of the WFC.
     // task.synchronize();
+    let actualPathLength = 0;
     while (positionsToCollapse.size() > 0) {
       const collapsing = positionsToCollapse.remove(this.random.NextInteger(0, positionsToCollapse.size() - 1));
       assert(collapsing !== undefined, "how did this happen?");
       let superposition = this.grid[collapsing.x][collapsing.y][collapsing.z];
 
-      task.synchronize();
-      let actualPathLength = 0;
-      if (actualPathLength !== pathLength) {
+      // task.synchronize();
+
+      if (actualPathLength <= pathLength) {
         superposition = superposition.filter((s) => !isEnd(s));
       } else {
         superposition = superposition.filter((s) => isEnd(s));
       }
-      task.desynchronize();
+      // task.desynchronize();
 
       // we shouldn't actually collapse fully. apply a "light" wave function collapse,
       // reducing only to path, to gurantee a working path. -TODO @codyduong
@@ -422,10 +433,10 @@ export class WaveFunctionCollapse {
       const chose = superposition[this.random.NextInteger(0, superposition.size() - 1)];
       print(chose);
       assert(chose !== undefined, "uh oh");
-      task.synchronize();
+      // task.synchronize();
       let _ = this.propogate(collapsing, [chose]); // please store the result to ensure parallel lua
       actualPathLength += 1;
-      task.desynchronize();
+      // task.desynchronize();
       const toPathMaybe = [...allTilesMap[chose].pathFrom, ...allTilesMap[chose].pathTo];
       toPathMaybe.forEach((toMaybe) => {
         const [dx, dy, dz] = getVector(toMaybe);
@@ -458,6 +469,8 @@ export class WaveFunctionCollapse {
     }
 
     // task.synchronize();
+
+    this.mutex.release();
   }
 
   isCollapsable(): boolean {
@@ -473,12 +486,14 @@ export class WaveFunctionCollapse {
   }
 
   collapse(): Grid {
-    task.synchronize();
+    print(this.seed);
+    // task.synchronize();
     let _ = this.setupStartAndEnd();
     let __ = this.collapsePath();
-
+    // task.synchronize();
     print(this.grid);
     while (true) {
+      // task.synchronize();
       const c = this.lowestEntropy();
       // TODO need to switch to parallel computations
       // task.desynchronize();

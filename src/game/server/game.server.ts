@@ -5,3 +5,5 @@
 
 const l = script.Parent?.FindFirstChild("wfc") as Actor;
 l.SendMessage("Fire");
+l.SendMessage("Fire2");
+l.SendMessage("Fire3");
