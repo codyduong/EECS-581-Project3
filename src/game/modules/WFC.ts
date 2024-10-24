@@ -11,7 +11,7 @@
  */
 
 import { DIRECTIONS, getVector } from "./Direction";
-import { allTiles, allTilesMap } from "./tiles";
+import { allTiles, allTilesMap, isEnd, isPath, isStart } from "./tiles";
 
 type Grid = Plane[];
 type Plane = Superposition[][];
@@ -61,6 +61,36 @@ export class WaveFunctionCollapse {
     return true;
   }
 
+  getCoordinatesByTaxicabDistance(
+    origin: Coordinate,
+    n: number,
+    predicate: (superposition: Superposition, coordinate?: Coordinate) => boolean,
+  ): Coordinate[] {
+    const results: Coordinate[] = [];
+    const { x, y, z } = origin;
+
+    // Generate all possible combinations for dx, dy, dz such that |dx| + |dy| + |dz| == n
+    for (let dx = -n; dx <= n; dx++) {
+      for (let dy = -n; dy <= n; dy++) {
+        const dz = n - math.abs(dx) - math.abs(dy);
+        if (dz >= -n && dz <= n) {
+          const possibleCoords: Coordinate[] = [
+            { x: x + dx, y: y + dy, z: z + dz },
+            { x: x + dx, y: y + dy, z: z - dz },
+          ];
+
+          for (const coord of possibleCoords) {
+            if (this.isValidCoordinate(coord) && predicate(this.grid[coord.x][coord.y][coord.z], coord)) {
+              results.push(coord);
+            }
+          }
+        }
+      }
+    }
+
+    return results;
+  }
+
   setupGrid(): Grid {
     let result = [];
     for (let x = 0; x < this.x_size; x++) {
@@ -101,7 +131,7 @@ export class WaveFunctionCollapse {
     return result;
   }
 
-  propogate(to: Coordinate, superposition: Superposition) {
+  propogate(to: Coordinate, superposition: Superposition): Grid {
     const stack: { to: Coordinate; superposition: Superposition }[] = [];
     const visited: Set<string> = new Set();
 
@@ -135,7 +165,9 @@ export class WaveFunctionCollapse {
       }
 
       // Update the grid
+      task.synchronize();
       this.grid[currentCoord.x][currentCoord.y][currentCoord.z] = currentSuperposition;
+      task.desynchronize();
 
       // Mark this coordinate as visited
       visited.add(key);
@@ -194,6 +226,8 @@ export class WaveFunctionCollapse {
         }
       });
     }
+
+    return this.grid;
   }
 
   /** serial version -- TODO need to swap to parallel */
@@ -274,6 +308,158 @@ export class WaveFunctionCollapse {
     return lowestEntropyCoords[this.random.NextInteger(0, coordinates.size() - 1)];
   }
 
+  setupStartAndEnd() {
+    const startPositions: Coordinate[] = [];
+    // choose a random starting tile and a ending tile n distance away
+    this.grid.forEach((plane, x) =>
+      plane.forEach((row, y) =>
+        row.forEach((s, z) => {
+          if (s.find(isStart)) {
+            startPositions.push({ x, y, z });
+          }
+        }),
+      ),
+    );
+    let startPosition = startPositions[this.random.NextInteger(0, startPositions.size() - 1)];
+    startPosition = { x: 0, y: 0, z: 0 };
+    assert(startPosition !== undefined, "Failed to create start position?");
+    const startSuperposition = this.grid[startPosition.x][startPosition.y][startPosition.z].filter(isStart);
+    const selectedStart = startSuperposition[this.random.NextInteger(0, startSuperposition.size() - 1)];
+    assert(selectedStart !== undefined, "Failed to select a start tile");
+    task.synchronize();
+    // parallel lua we have to wait for this result serially, and store it to ensure it is propogates correctly.
+    let _ = this.propogate(startPosition, [selectedStart]);
+    print(startPosition, selectedStart, this.grid);
+    task.desynchronize();
+    // const endPositions = this.getCoordinatesByTaxicabDistance(
+    //   startPosition,
+    //   4,
+    //   (superposition) => superposition.find(isEnd) !== undefined,
+    // );
+    // const endPosition = endPositions[this.random.NextInteger(0, endPositions.size() - 1)];
+    // assert(endPosition !== undefined, "Failed to create end position?");
+    // const endSuperposition = this.grid[endPosition.x][endPosition.y][endPosition.z].filter(isEnd);
+    // const selectedEnd = endSuperposition[this.random.NextInteger(0, endSuperposition.size() - 1)];
+    // assert(selectedEnd !== undefined, "Failed to select a end tile");
+    // this.propogate(endPosition, [selectedEnd]);
+    // clear out any tiles that are start or ends
+    for (let x = 0; x < this.x_size; x++) {
+      for (let y = 0; y < this.y_size; y++) {
+        for (let z = 0; z < this.z_size; z++) {
+          let temp = table.clone(this.grid[x][y][z]);
+          if (temp.size() > 1) {
+            // only clear out non collapsed isStart/isEnd
+            this.grid[x][y][z] = temp.filter(
+              (t) =>
+                !(
+                  isStart(t)
+                  // || isEnd(t)
+                ),
+            );
+          }
+        }
+      }
+    }
+  }
+
+  getPathsToCheck(): Coordinate[] {
+    const paths: Coordinate[] = [];
+    this.grid.forEach((plane, x) =>
+      plane.forEach((row, y) => {
+        row.forEach((s, z) => {
+          // ie. all collapsed paths
+          if (s.size() === 1 && s.find((t) => isPath(t))) {
+            paths.push({ x, y, z });
+          }
+        });
+      }),
+    );
+
+    const positionsToCollapse: Coordinate[] = [];
+
+    // if a path has a collapsed end, then remove it
+    paths.forEach(({ x, y, z }) => {
+      const superposition = this.grid[x][y][z];
+      assert(superposition.size() === 1, "We failed to consider collapsed superpositions");
+      const tile = superposition[0];
+      const checkDirection = [...allTilesMap[tile].pathTo, ...allTilesMap[tile].pathFrom].map((direction) =>
+        getVector(direction),
+      );
+      const neighbors = checkDirection.map(([dx, dy, dz]) => ({ x: x + dx, y: y + dy, z: z + dz }));
+      neighbors.forEach((n) => {
+        const superposition = this.grid[n.x][n.y][n.z];
+        if (superposition.size() > 1) {
+          positionsToCollapse.push(n);
+        }
+      });
+    });
+
+    return positionsToCollapse;
+  }
+
+  collapsePath(pathLength = 1): void {
+    let positionsToCollapse = this.getPathsToCheck();
+
+    // this must be done fully async or we can race condition out of the WFC.
+    // task.synchronize();
+    while (positionsToCollapse.size() > 0) {
+      const collapsing = positionsToCollapse.remove(this.random.NextInteger(0, positionsToCollapse.size() - 1));
+      assert(collapsing !== undefined, "how did this happen?");
+      let superposition = this.grid[collapsing.x][collapsing.y][collapsing.z];
+
+      task.synchronize();
+      let actualPathLength = 0;
+      if (actualPathLength !== pathLength) {
+        superposition = superposition.filter((s) => !isEnd(s));
+      } else {
+        superposition = superposition.filter((s) => isEnd(s));
+      }
+      task.desynchronize();
+
+      // we shouldn't actually collapse fully. apply a "light" wave function collapse,
+      // reducing only to path, to gurantee a working path. -TODO @codyduong
+      print(superposition);
+      const chose = superposition[this.random.NextInteger(0, superposition.size() - 1)];
+      print(chose);
+      assert(chose !== undefined, "uh oh");
+      task.synchronize();
+      let _ = this.propogate(collapsing, [chose]); // please store the result to ensure parallel lua
+      actualPathLength += 1;
+      task.desynchronize();
+      const toPathMaybe = [...allTilesMap[chose].pathFrom, ...allTilesMap[chose].pathTo];
+      toPathMaybe.forEach((toMaybe) => {
+        const [dx, dy, dz] = getVector(toMaybe);
+        const dc = { x: collapsing.x + dx, y: collapsing.y + dy, z: collapsing.z + dz };
+        // only append paths we still need to collapse
+        if (this.grid[dc.x][dc.y][dc.z].size() > 1) {
+          positionsToCollapse.push(dc);
+        }
+      });
+      // if (positionsToCollapse.size() === 0) {
+      //   // there are scnearios where we have inadvertenly collapsed a tile early, which prevents this from path
+      //   positionsToCollapse = this.getPathsToCheck();
+      // }
+      // break;
+    }
+
+    // then we can fully collapse our path after propogating and checking all adjacencies
+
+    // after we after finished collapsing all paths then remove paths from spawning anywhere else
+    for (let x = 0; x < this.x_size; x++) {
+      for (let y = 0; y < this.y_size; y++) {
+        for (let z = 0; z < this.z_size; z++) {
+          let temp = table.clone(this.grid[x][y][z]);
+          if (temp.size() > 1) {
+            // only clear out non collapsed isStart/isEnd
+            this.grid[x][y][z] = temp.filter((t) => !isPath(t));
+          }
+        }
+      }
+    }
+
+    // task.synchronize();
+  }
+
   isCollapsable(): boolean {
     for (const plane of this.grid) {
       for (const superposition of plane) {
@@ -287,6 +473,10 @@ export class WaveFunctionCollapse {
   }
 
   collapse(): Grid {
+    task.synchronize();
+    let _ = this.setupStartAndEnd();
+    let __ = this.collapsePath();
+
     print(this.grid);
     while (true) {
       const c = this.lowestEntropy();
@@ -303,9 +493,7 @@ export class WaveFunctionCollapse {
       const superposition = this.grid[c.x][c.y][c.z];
       // choose a random one
       const chose = superposition[this.random.NextInteger(0, superposition.size() - 1)];
-      task.synchronize();
       print("chose", chose);
-      task.desynchronize();
       this.propogate(c, [chose]);
     }
     print(this.grid);
@@ -321,7 +509,7 @@ export class WaveFunctionCollapse {
             let position = this.grid[x][y][z][0];
             let tile = allTilesMap[position];
             let model = tile.model.Clone();
-            const newPos = new Vector3(50 + x * 8, y * 8, 50 + z * 8);
+            const newPos = new Vector3(10 + x * 8, y * 8, 10 + z * 8);
             const newCFrame = new CFrame(newPos).mul(model.GetPivot().Rotation);
             model.PivotTo(newCFrame);
             model.Parent = game.Workspace;

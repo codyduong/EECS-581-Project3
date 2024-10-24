@@ -29,8 +29,8 @@ let allTilesBasic = [
   turnL_S,
   turnL_W,
   grass1,
-  // air,
-  // voidTile,
+  air,
+  voidTile,
   start_N,
   start_E,
   start_S,
@@ -107,6 +107,24 @@ export const allTiles = allTilesBasic.map((tile) => {
   allTilesMap[tile.name] = tileAdj;
   return tileAdj;
 });
+
+export const isStart = (name: string): boolean => {
+  const tile = allTilesMap[name];
+  assert(tile !== undefined, `No tile found with name: ${name}`);
+  return tile.pathFrom.size() === 0 && tile.pathTo.size() > 0;
+};
+
+export const isEnd = (name: string): boolean => {
+  const tile = allTilesMap[name];
+  assert(tile !== undefined, `No tile found with name: ${name}`);
+  return tile.pathFrom.size() > 0 && tile.pathTo.size() === 0;
+};
+
+export const isPath = (name: string): boolean => {
+  const tile = allTilesMap[name];
+  assert(tile !== undefined, `No tile found with name: ${name}`);
+  return tile.pathFrom.size() > 0 || tile.pathTo.size() > 0;
+};
 
 // empty for garbage collection
 allTilesBasic = undefined as unknown as [];
