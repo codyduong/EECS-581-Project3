@@ -133,8 +133,7 @@ export class WaveFunctionCollapse {
     return result;
   }
 
-  propogate(to: Coordinate, superposition: Superposition): Grid {
-    this.mutex.lock();
+  private propogate(to: Coordinate, superposition: Superposition): Grid {
     const stack: { to: Coordinate; superposition: Superposition }[] = [];
     const visited: Set<string> = new Set();
 
@@ -220,7 +219,7 @@ export class WaveFunctionCollapse {
               "adj",
               superadjacents,
             );
-            // error(`contradiction in: ${direction}`);
+            error(`contradiction in: ${direction}, ${this.seed}, ${this.x_size}, ${this.y_size}, ${this.z_size}`);
             print(`contradiction in: ${direction}`); // TODO reenable this error
             return;
           }
@@ -230,7 +229,6 @@ export class WaveFunctionCollapse {
       });
     }
 
-    this.mutex.release();
     return this.grid;
   }
 
@@ -313,10 +311,9 @@ export class WaveFunctionCollapse {
   }
 
   setupStartAndEnd() {
-    this.mutex.lock();
-
     const startPositions: Coordinate[] = [];
     // choose a random starting tile and a ending tile n distance away
+    // this.mutex.lock();
     this.grid.forEach((plane, x) =>
       plane.forEach((row, y) =>
         row.forEach((s, z) => {
@@ -327,13 +324,14 @@ export class WaveFunctionCollapse {
       ),
     );
     let startPosition = startPositions[this.random.NextInteger(0, startPositions.size() - 1)];
-    startPosition = { x: 0, y: 0, z: 0 };
+    // startPosition = { x: 0, y: 0, z: 0 };
     assert(startPosition !== undefined, "Failed to create start position?");
     const startSuperposition = this.grid[startPosition.x][startPosition.y][startPosition.z].filter(isStart);
     const selectedStart = startSuperposition[this.random.NextInteger(0, startSuperposition.size() - 1)];
     assert(selectedStart !== undefined, "Failed to select a start tile");
     // task.synchronize();
     // parallel lua we have to wait for this result serially, and store it to ensure it is propogates correctly.
+    // this.mutex.release();
     let _ = this.propogate(startPosition, [selectedStart]);
     print(startPosition, selectedStart, this.grid);
     // task.desynchronize();
@@ -366,8 +364,6 @@ export class WaveFunctionCollapse {
         }
       }
     }
-
-    this.mutex.release();
   }
 
   getPathsToCheck(): Coordinate[] {
@@ -405,10 +401,12 @@ export class WaveFunctionCollapse {
     return positionsToCollapse;
   }
 
-  collapsePath(pathLength = 1): void {
-    this.mutex.lock();
+  collapsePath(pathLength = 12): void {
+    print("attempt lock here");
+    // this.mutex.lock();
 
     let positionsToCollapse = this.getPathsToCheck();
+    // this.mutex.release();
 
     // this must be done fully async or we can race condition out of the WFC.
     // task.synchronize();
@@ -416,7 +414,9 @@ export class WaveFunctionCollapse {
     while (positionsToCollapse.size() > 0) {
       const collapsing = positionsToCollapse.remove(this.random.NextInteger(0, positionsToCollapse.size() - 1));
       assert(collapsing !== undefined, "how did this happen?");
+      // this.mutex.lock();
       let superposition = this.grid[collapsing.x][collapsing.y][collapsing.z];
+      // this.mutex.release();
 
       // task.synchronize();
 
@@ -442,9 +442,11 @@ export class WaveFunctionCollapse {
         const [dx, dy, dz] = getVector(toMaybe);
         const dc = { x: collapsing.x + dx, y: collapsing.y + dy, z: collapsing.z + dz };
         // only append paths we still need to collapse
+        this.mutex.lock();
         if (this.grid[dc.x][dc.y][dc.z].size() > 1) {
           positionsToCollapse.push(dc);
         }
+        this.mutex.release();
       });
       // if (positionsToCollapse.size() === 0) {
       //   // there are scnearios where we have inadvertenly collapsed a tile early, which prevents this from path
@@ -469,8 +471,6 @@ export class WaveFunctionCollapse {
     }
 
     // task.synchronize();
-
-    this.mutex.release();
   }
 
   isCollapsable(): boolean {
@@ -508,6 +508,10 @@ export class WaveFunctionCollapse {
       const superposition = this.grid[c.x][c.y][c.z];
       // choose a random one
       const chose = superposition[this.random.NextInteger(0, superposition.size() - 1)];
+      if (chose === undefined) {
+        print("broken2");
+        break;
+      }
       print("chose", chose);
       this.propogate(c, [chose]);
     }
@@ -517,6 +521,13 @@ export class WaveFunctionCollapse {
 
   show() {
     let start = os.clock();
+    let folder = game.Workspace.FindFirstChild("wfc");
+    if (folder) {
+      folder.Destroy();
+    }
+    folder = new Instance("Folder");
+    folder.Parent = game.Workspace;
+    folder.Name = "wfc";
     for (let x = 0; x < this.x_size; x++) {
       for (let y = 0; y < this.y_size; y++) {
         for (let z = 0; z < this.z_size; z++) {
@@ -527,7 +538,7 @@ export class WaveFunctionCollapse {
             const newPos = new Vector3(10 + x * 8, y * 8, 10 + z * 8);
             const newCFrame = new CFrame(newPos).mul(model.GetPivot().Rotation);
             model.PivotTo(newCFrame);
-            model.Parent = game.Workspace;
+            model.Parent = folder;
             if (os.difftime(os.clock(), start)) {
               start = os.clock();
               wait();

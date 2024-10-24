@@ -43,11 +43,10 @@ export default class Mutex<T> {
   }
 
   private wait() {
-    if (this.lockTable)
-      while (this.lockTable.lock === true) {
-        print("waiting for my turn!");
-        task.wait();
-      }
+    while (this.lockTable.lock === true) {
+      // print("waiting for my turn!");
+      task.wait();
+    }
     this.lockTable.lock = true;
   }
 
@@ -57,6 +56,7 @@ export default class Mutex<T> {
   }
 
   public release(): void {
+    // print("freedom!");
     this.lockTable.lock = false;
   }
 
@@ -69,6 +69,7 @@ export default class Mutex<T> {
     } catch (e) {
       this.lockTable.poisoned = true;
     }
+    task.desynchronize();
   }
 
   /**
