@@ -8,8 +8,9 @@
 import { WaveFunctionCollapse } from "game/modules/WFC";
 
 script.GetActor()!.BindToMessageParallel("Fire", () => {
-  const wfc = new WaveFunctionCollapse({ x: 25, y: 1, z: 25 });
+  const wfc = new WaveFunctionCollapse({ x: 3, y: 1, z: 3 });
   const p = wfc.collapse();
+  // wfc.setupStartAndEnd();
   task.synchronize();
   wfc.show();
 });
