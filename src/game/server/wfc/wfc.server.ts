@@ -24,4 +24,13 @@ script.GetActor()!.BindToMessageParallel("Fire", () => {
     wfc.show();
     task.wait(0.5);
   }
+  const wfc = new WaveFunctionCollapse({ x: 12, y: 1, z: 12 });
+  let [result, msg] = [false, ""];
+  while (result === false) {
+    [result, msg] = pcall(() => wfc.collapse()) as LuaTuple<[boolean, string]>;
+    wait();
+  }
+  // wfc.setupStartAndEnd();
+  task.synchronize();
+  wfc.show();
 });

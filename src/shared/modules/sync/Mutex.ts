@@ -1,3 +1,10 @@
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ * @file Mutex inspired by rust
+ *
+ * TODO: this currently isn't used by anything
+ */
+
 import Result from "shared/modules/Result";
 
 class MutexGuard<T> {
