@@ -46,10 +46,13 @@ export default [
           "varsIgnorePattern": "^_",
           "args": "after-used",
           "argsIgnorePattern": "^_",
+          "caughtErrors": "all",
+          "caughtErrorsIgnorePattern": "^_",
+          "destructuredArrayIgnorePattern": "^_",
         },
       ],
       "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": "off"
+      "unused-imports/no-unused-vars": "off",
     }
   },
   {
