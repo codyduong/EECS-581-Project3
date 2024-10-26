@@ -1,6 +1,7 @@
 services:
   lobby:
     tty: true
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile.lobby
@@ -17,6 +18,7 @@ services:
           path: ./package.json
   game:
     tty: true
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile.game
