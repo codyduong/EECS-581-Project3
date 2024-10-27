@@ -3,5 +3,8 @@
  * @file This code is compiled and executed in the "game" place on the server
  */
 
-const l = script.Parent?.FindFirstChild("wfc") as Actor;
-l.SendMessage("Fire");
+import setupEvents from "./events";
+import { WaveFunctionCollapseActor } from "./wfc/wfc";
+
+WaveFunctionCollapseActor.SendMessage("StartWaveFunctionCollapse");
+setupEvents();

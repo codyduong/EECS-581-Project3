@@ -49,9 +49,9 @@ export class WaveFunctionCollapse {
     // but we are constrained to int32 due to math.random being called in C
     this.seed = props.seed ?? math.random(-2_147_483_647, 2_147_483_647);
     this.random = new Random(this.seed);
-    this.grid = this.setupGrid();
     this.horizontalPadding = props.horizontalPadding;
     this.pathLength = props.pathLength;
+    this.grid = this.setupGrid();
     // print(this.grid);
   }
 
@@ -156,6 +156,13 @@ export class WaveFunctionCollapse {
     }
 
     return result;
+  }
+
+  /**
+   * Public function to resetGrid
+   */
+  public resetGrid(): void {
+    this.grid = this.setupGrid();
   }
 
   /**
@@ -448,7 +455,7 @@ export class WaveFunctionCollapse {
       assert(collapsing !== undefined, "how did this happen?");
       let superposition = this.grid[collapsing.x][collapsing.y][collapsing.z];
 
-      if (actualPathLength <= this.pathLength) {
+      if (actualPathLength < this.pathLength) {
         superposition = superposition.filter((s) => !isEnd(s));
       } else {
         superposition = superposition.filter((s) => isEnd(s));
@@ -461,7 +468,7 @@ export class WaveFunctionCollapse {
       // print(chose);
       assert(chose !== undefined, "uh oh");
       let _ = this.propogate(collapsing, [chose]);
-      this.path.push(new Vector3());
+      this.path.push(new Vector3(collapsing.x, collapsing.y, collapsing.z));
       actualPathLength += 1;
       const toPathMaybe = [...allTilesMap[chose].pathFrom, ...allTilesMap[chose].pathTo];
       toPathMaybe.forEach((toMaybe) => {
@@ -473,12 +480,12 @@ export class WaveFunctionCollapse {
         }
       });
       if (positionsToCollapse.size() === 0) {
-        // there are scnearios where we have inadvertenly collapsed a tile early, which prevents path from completing
+        // there are scnearios where we have inadvertenly collapsed a tile early, which prevents path from collapsing
         positionsToCollapse = this.getPathsToCheck();
       }
     }
 
-    if (actualPathLength <= this.pathLength) {
+    if (actualPathLength < this.pathLength) {
       error("Didn't meet path length, likely hit dead end");
     }
 
