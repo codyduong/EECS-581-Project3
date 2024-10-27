@@ -1,15 +1,10 @@
 import React, { useState } from "@rbxts/react";
 import { regenerateMap } from "game/modules/events";
-import { usePlayerData } from "shared/client/gui/contexts/PlayerDataContext";
 
 interface DebugGameProps {}
 
 export default function DebugGame(_props: DebugGameProps): JSX.Element {
-  const data = usePlayerData();
-
   const [voting, _setVoting] = useState(true);
-
-  print(data);
 
   return (
     <frame Size={new UDim2(0, 100, 0, 500)}>

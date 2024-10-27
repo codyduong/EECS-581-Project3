@@ -51,8 +51,6 @@ export default [
           "destructuredArrayIgnorePattern": "^_",
         },
       ],
-      "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": "off",
     }
   },
   {
