@@ -21,7 +21,7 @@ RUN aftman install --no-trust-check
 COPY wally.lock wally.toml ./
 RUN wally install
 
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml ./
 RUN yarn install --immutable
 
 EXPOSE 34872
