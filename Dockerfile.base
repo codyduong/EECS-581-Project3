@@ -12,8 +12,8 @@ RUN set -e; \
     ARCH=$(uname -m); \
     if [ "$ARCH" = "x86_64" ]; then \
         AFTMAN_ARCH="x86_64"; \
-    elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
-        AFTMAN_ARCH="aarch64"; \
+    # elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+    #     AFTMAN_ARCH="aarch64"; \
     else \
         echo -e "Unsupported architecture: $ARCH\nTry emulating architecture with: `--platform linux/amd64`"; exit 1; \
     fi; \
