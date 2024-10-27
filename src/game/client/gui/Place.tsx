@@ -89,7 +89,7 @@ export default function Place(_props: PlaceProps): JSX.Element {
     if (placing !== undefined && previewTower) {
       events.push(
         userInputService.InputChanged.Connect((input) => {
-          if (placing && input.UserInputType === Enum.UserInputType.MouseMovement) {
+          if (placing !== undefined && input.UserInputType === Enum.UserInputType.MouseMovement) {
             updatePreviewPosition();
           }
         }),

@@ -4,36 +4,61 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
-import { requestTower } from "game/modules/events";
-import { Tower } from "game/modules/Tower";
+import { gameInfoEvent } from "game/modules/events";
+import { Tower, TowerPropsSerializable } from "game/modules/Tower";
+
+export type GameInfoSerializable = {
+  towers: TowerPropsSerializable[];
+  coins: number;
+};
 
 export type GameInfo = {
-  towers: unknown[];
+  towers: Tower[];
+  coins: number; // this is the coins for this specific player.
+};
+
+const defaultGamesInfo = {
+  towers: [],
+  coins: 0,
+} as const satisfies GameInfo;
+
+const GameContextActual = createContext<GameInfo>(defaultGamesInfo);
+
+interface GameContextProps {
+  children: React.ReactNode;
 }
 
-const GameContextActual = createContext<GameInfo>(undefined!);
+export default function GameContext(props: GameContextProps): JSX.Element {
+  const { children } = props;
 
-interface GameContextProps {}
+  const [gameInfo, setGameInfo] = useState<GameInfo>(defaultGamesInfo);
 
-export default function GameContext (_props: GameContextProps): JSX.Element {
-  const [towers, setTowers] = useState<Tower[]>([]);
-
-  const events: RBXScriptConnection[] = []
+  const events: RBXScriptConnection[] = [];
   useEffect(() => {
-    events.push(requestTower.OnClientEvent.Connect((props, action) => {
-      switch (action) {
-        case "buy":
-          setTowers((prev) => [...prev, new Tower(props)])
-        case "sell":
-          setTowers((prev) => prev.filter((t) => t.guid !== props.guid))
-        default:
-          error("Unknown action sent to client")
-      }
-    }))
-  }, [])
+    // events.push(requestTower.OnClientEvent.Connect((props, action) => {
+    //   switch (action) {
+    //     case "buy":
+    //       setTowers((prev) => [...prev, new Tower(props)])
+    //     case "sell":
+    //       setTowers((prev) => prev.filter((t) => t.guid !== props.guid))
+    //     default:
+    //       error("Unknown action sent to client")
+    //   }
+    // }))
+    events.push(
+      gameInfoEvent.OnClientEvent.Connect((info) => {
+        setGameInfo({
+          towers: info.towers.map((tprops) => new Tower(tprops)),
+          coins: info.coins,
+        });
+      }),
+    );
+    return () => {
+      events.forEach((event) => event.Disconnect());
+    };
+  }, []);
 
-
-  return <GameContextActual.Provider value={{towers: towers}}></GameContextActual.Provider>
+  return <GameContextActual.Provider value={gameInfo}>{children}</GameContextActual.Provider>;
 }
 
 export function useGame(): GameInfo {

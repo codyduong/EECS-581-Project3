@@ -9,6 +9,8 @@ export type TowerProps = {
   type: TowerType
 } 
 
+export type TowerPropsSerializable = NonNullable<TowerProps>;
+
 export class Tower {
   readonly guid: string
   readonly model: Model
@@ -42,7 +44,7 @@ export class Tower {
   /**
    * RemoteEvents only accept a subset of types.
    */
-  public toSerializable(): NonNullable<TowerProps> {
+  public toSerializable(): TowerPropsSerializable {
     this.assertNotDestroyed();
     return {
       guid: this.guid,

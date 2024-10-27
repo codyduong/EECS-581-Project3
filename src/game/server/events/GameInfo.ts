@@ -1,3 +1,4 @@
+import { gameInfoEvent } from "game/modules/events";
 import { Tower } from "game/modules/Tower";
 
 const towers: Tower[] = [];
@@ -6,8 +7,8 @@ const coins: Record<number, number> = {};
 
 const gameInfo = {
   towers,
-  coins
-}
+  coins,
+};
 
 let hasSetup = false;
 export function setupGameInfo() {
@@ -15,13 +16,18 @@ export function setupGameInfo() {
   hasSetup = true;
 
   game.GetService("Players").PlayerAdded.Connect((player) => {
-    coins[player.UserId] = 5
-  })
+    coins[player.UserId] = 5;
 
-  game.GetService("Players").PlayerRemoving.Connect((player) => {
+    gameInfoEvent.FireClient(player, {
+      towers: gameInfo.towers,
+      coins: gameInfo.coins[player.UserId],
+    });
+  });
+
+  game.GetService("Players").PlayerRemoving.Connect((_player) => {
     // TODO? audit this usage? what if a player has the ability to rejoin, how do we trust the coins here?
     // coins[player.UserId] = undefined!
-  })
+  });
 }
 
-export default gameInfo
+export default gameInfo;
