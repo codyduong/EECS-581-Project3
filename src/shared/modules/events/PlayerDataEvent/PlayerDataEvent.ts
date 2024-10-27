@@ -3,7 +3,7 @@
  * @file
  *
  * Simple wrapper to allow other files to import this {@link RemoteEvent}. It relies on ./init.meta.json being present.
- * Communicates {@link PlayerData} information. 
+ * Communicates {@link PlayerData} information.
  *
  * @see {@link https://rojo.space/docs/v6/sync-details/#json-models}
  */

@@ -120,8 +120,8 @@ export default function Place(_props: PlaceProps): JSX.Element {
   }, [placing, previewTower]);
 
   useEffect(() => {
-    print("changed", gameInfo)
-  }, [gameInfo])
+    print("changed", gameInfo);
+  }, [gameInfo]);
 
   useEffect(() => {
     return () => {
@@ -138,8 +138,8 @@ export default function Place(_props: PlaceProps): JSX.Element {
         Activated: () => {
           if (placing === undefined) {
             // Clone the "Noob" model as a preview
-            const tower = new Tower({type: "Noob"})
-            const model = tower.model
+            const tower = new Tower({ type: "Noob" });
+            const model = tower.model;
             model.Parent = game.Workspace;
             setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
             anchorModel(model); // Anchor the preview

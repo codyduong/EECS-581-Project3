@@ -5,4 +5,4 @@
 
 export { default as regenerateMap } from "./RegenerateMap/RegenerateMap";
 export { default as requestTower } from "./RequestTower/RequestTower";
-export { default as gameInfoEvent } from "./GameInfoEvent/GameInfoEvent"
+export { default as gameInfoEvent } from "./GameInfoEvent/GameInfoEvent";
