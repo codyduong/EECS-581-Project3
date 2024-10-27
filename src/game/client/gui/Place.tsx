@@ -5,6 +5,9 @@
 
 import React, { useEffect, useState } from "@rbxts/react";
 import Noob from "game/modules/noob";
+import { useGame } from "./contexts/GameContext";
+import { Tower } from "game/modules/Tower";
+import { requestTower } from "game/modules/events";
 
 function anchorModel(model: Model) {
   model.GetDescendants().forEach((descendant) => {
@@ -48,8 +51,9 @@ raycastParams.FilterType = Enum.RaycastFilterType.Exclude;
 interface PlaceProps {}
 
 export default function Place(_props: PlaceProps): JSX.Element {
-  const [placingNoob, setPlacingNoob] = useState(false);
-  const [previewTower, setPreviewTower] = useState<Model>();
+  const [placing, setPlacing] = useState<string>();
+  const [previewTower, setPreviewTower] = useState<Tower>();
+  const gameInfo = useGame();
   const part = new Instance("Part");
   part.Anchored = true;
 
@@ -62,7 +66,7 @@ export default function Place(_props: PlaceProps): JSX.Element {
       const shapecastResult = game.Workspace.Shapecast(part, ray.Direction.mul(1000), raycastParams);
 
       if (shapecastResult) {
-        previewTower.PivotTo(
+        previewTower.model.PivotTo(
           new CFrame(shapecastResult.Position).mul(noobTemplateRotation).add(new Vector3(0, part.Size.div(2).Y, 0)),
         );
       }
@@ -72,34 +76,37 @@ export default function Place(_props: PlaceProps): JSX.Element {
   useEffect(() => {
     if (previewTower) {
       /* TODO, replace with better collision by unioning parts into CGG which is a supported shapecast. -@codyduong */
-      const [orientation, size] = previewTower.GetBoundingBox();
+      const [orientation, size] = previewTower.model.GetBoundingBox();
       part.PivotTo(orientation);
       part.Size = size;
-      raycastParams.AddToFilter([previewTower, part]);
+      raycastParams.AddToFilter([previewTower.model, part]);
     }
   }, [previewTower]);
 
   const events: RBXScriptConnection[] = [];
   useEffect(() => {
     // Update preview position as mouse moves
-    if (placingNoob && previewTower) {
+    if (placing !== undefined && previewTower) {
       events.push(
         userInputService.InputChanged.Connect((input) => {
-          if (placingNoob && input.UserInputType === Enum.UserInputType.MouseMovement) {
+          if (placing && input.UserInputType === Enum.UserInputType.MouseMovement) {
             updatePreviewPosition();
           }
         }),
       );
       events.push(
         userInputService.InputBegan.Connect((input) => {
-          if (placingNoob && input.UserInputType === Enum.UserInputType.MouseButton1) {
+          if (placing !== undefined && input.UserInputType === Enum.UserInputType.MouseButton1) {
             if (previewTower) {
-              setModelTransparency(previewTower, 0); // Set to fully visible
-              anchorModel(previewTower); // Make sure it's anchored
-              disableAnimations(previewTower); // Disable any animations
-              setPreviewTower(undefined); // Clear preview
+              // setModelTransparency(previewTower, 0); // Set to fully visible
+              // anchorModel(previewTower); // Make sure it's anchored
+              // disableAnimations(previewTower); // Disable any animations
+              // setPreviewTower(undefined); // Clear preview
+              requestTower.FireServer(previewTower.toSerializable(), "buy");
+              previewTower.Destroy();
             }
-            setPlacingNoob(false); // Exit placement mode
+            setPreviewTower(undefined);
+            setPlacing(undefined);
             part.Destroy();
           }
         }),
@@ -110,7 +117,11 @@ export default function Place(_props: PlaceProps): JSX.Element {
         event.Disconnect();
       });
     };
-  }, [placingNoob, previewTower]);
+  }, [placing, previewTower]);
+
+  useEffect(() => {
+    print("changed", gameInfo)
+  }, [gameInfo])
 
   useEffect(() => {
     return () => {
@@ -125,19 +136,21 @@ export default function Place(_props: PlaceProps): JSX.Element {
       Text={"Place Tower"}
       Event={{
         Activated: () => {
-          if (placingNoob === false) {
+          if (placing === undefined) {
             // Clone the "Noob" model as a preview
-            const tower = noobTemplate.Clone();
-            tower.Parent = game.Workspace;
-            setModelTransparency(tower, 0.5); // Make it semi-transparent as a visual cue
-            anchorModel(tower); // Anchor the preview
-            disableAnimations(tower); // Disable animations for preview
+            const tower = new Tower({type: "Noob"})
+            const model = tower.model
+            model.Parent = game.Workspace;
+            setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
+            anchorModel(model); // Anchor the preview
+            disableAnimations(model); // Disable animations for preview
             setPreviewTower(tower);
+            setPlacing(tower.guid);
           } else {
             previewTower?.Destroy();
             setPreviewTower(undefined);
+            setPlacing(undefined);
           }
-          setPlacingNoob((prev) => !prev);
         },
       }}
     />

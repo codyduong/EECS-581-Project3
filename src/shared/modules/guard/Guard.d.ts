@@ -18,7 +18,7 @@ declare const Module: {
   Or<T, U>(this: void, left: Check<T>, right: Check<U>): Check<T | U>;
   And<T, U>(this: void, left: Check<T>, right: Check<U>): Check<T & U>;
   Optional<T>(this: void, check: Check<T>): Check<T | undefined>;
-  Literal<T>(this: void, check: T): Check<T>;
+  Literal<const T>(this: void, check: T): Check<T>;
   Map<K extends string | number | symbol, V>(
     this: void,
     key_check: Check<K>,

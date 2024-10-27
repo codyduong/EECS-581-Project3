@@ -4,6 +4,7 @@
  */
 
 import { setupRegenerateMap } from "./RegenerateMap";
+import { setupRequestTower } from "./RequestTower";
 
 /**
  * Simply setup all events for the server
@@ -14,4 +15,5 @@ import { setupRegenerateMap } from "./RegenerateMap";
  */
 export default function setupEvents() {
   setupRegenerateMap();
+  setupRequestTower();
 }

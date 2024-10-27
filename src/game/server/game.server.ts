@@ -4,7 +4,9 @@
  */
 
 import setupEvents from "./events";
+import { setupGameInfo } from "./gameinfo";
 import { WaveFunctionCollapseActor } from "./wfc/wfc";
 
 WaveFunctionCollapseActor.SendMessage("StartWaveFunctionCollapse");
 setupEvents();
+setupGameInfo();
