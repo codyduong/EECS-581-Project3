@@ -30,9 +30,6 @@ A docker-compose has been provided for ease of development that is platform agno
 ```sh
 docker build -t itemated -f Dockerfile.base .
 docker-compose up --watch
-
-docker build --platform linux/amd64 -t itemated -f Dockerfile.base .
-# ^^^use if you need to emulate architecture^^^
 ```
 
 > [!IMPORTANT]

@@ -6,12 +6,24 @@ RUN apt-get update && apt-get install -y wget unzip && rm -rf /var/lib/apt/lists
 
 WORKDIR /app
 
-ENV AFTMAN_VERSION=0.3.0
-RUN wget -q https://github.com/LPGhatguy/aftman/releases/download/v${AFTMAN_VERSION}/aftman-${AFTMAN_VERSION}-linux-x86_64.zip \
-    && unzip aftman-${AFTMAN_VERSION}-linux-x86_64.zip -d aftman \
-    && rm aftman-${AFTMAN_VERSION}-linux-x86_64.zip \
-    && ./aftman/aftman self-install \
-    && rm -rf aftman
+ARG AFTMAN_VERSION=0.3.0
+
+RUN set -e; \
+    ARCH=$(uname -m); \
+    if [ "$ARCH" = "x86_64" ]; then \
+        AFTMAN_ARCH="x86_64"; \
+    elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+        AFTMAN_ARCH="aarch64"; \
+    else \
+        echo -e "Unsupported architecture: $ARCH\nTry emulating architecture with: `--platform linux/amd64`"; exit 1; \
+    fi; \
+    echo "Architecture detected: $AFTMAN_ARCH"; \
+    wget -q "https://github.com/LPGhatguy/aftman/releases/download/v${AFTMAN_VERSION}/aftman-${AFTMAN_VERSION}-linux-${AFTMAN_ARCH}.zip"; \
+    unzip aftman-${AFTMAN_VERSION}-linux-${AFTMAN_ARCH}.zip -d aftman; \
+    rm aftman-${AFTMAN_VERSION}-linux-${AFTMAN_ARCH}.zip; \
+    chmod +x ./aftman/aftman; \
+    ./aftman/aftman self-install; \
+    rm -rf aftman
 
 ENV PATH="/root/.aftman/bin:$PATH"
 
