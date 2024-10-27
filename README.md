@@ -29,7 +29,10 @@ A docker-compose has been provided for ease of development that is platform agno
 
 ```sh
 docker build -t itemated -f Dockerfile.base .
-docker-compose up --watch
+# wally doesn't support aarch64/arm64 yet, check your arch with `uname -m`
+# you may need to specify the emulation platform
+docker build --platform linux/amd64 -t itemated -f Dockerfile.base .
+docker-compose up --watch --build
 ```
 
 > [!IMPORTANT]
