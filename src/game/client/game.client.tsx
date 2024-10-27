@@ -16,8 +16,8 @@ import ScreenGui from "shared/client/gui/screen";
 import PlayerDataContext from "shared/client/gui/contexts/PlayerDataContext";
 import DebugGame from "./gui/DebugGame";
 import PlayerHeadGui from "shared/client/gui/playerhead";
+import Place from "./gui/Place";
 
-print("running");
 let root = createRoot(new Instance("Folder"));
 root.render(
   <StrictMode>
@@ -26,6 +26,7 @@ root.render(
         <PlayerHeadGui />
         <ScreenGui>
           <DebugGame />
+          <Place />
         </ScreenGui>
       </PlayerDataContext>
     </PlayersContext>
