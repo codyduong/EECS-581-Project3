@@ -27,7 +27,8 @@ export function setupPlayersEvent(): void {
 
   game.GetService("Players").PlayerRemoving.Connect((player: Player) => {
     print(`Player [id: ${player.UserId}, name: ${player.Name}] left`);
-    players.remove(players.findIndex((id) => player.UserId === id));
+    const playerId = players.findIndex((id) => player.UserId === id);
+    if (playerId !== -1) players.remove(playerId);
     playersEvent.FireAllClients(players);
   });
 }

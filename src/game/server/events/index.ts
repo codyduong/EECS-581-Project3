@@ -3,8 +3,7 @@
  * @file Contains utility functionality for server events
  */
 
-import { setupPlayerDataEvent } from "shared/server/events/PlayerDataEvent";
-import { setupPlayersEvent } from "shared/server/events/PlayersEvent";
+import { setupRegenerateMap } from "./RegenerateMap";
 
 /**
  * Simply setup all events for the server
@@ -14,6 +13,5 @@ import { setupPlayersEvent } from "shared/server/events/PlayersEvent";
  * @throws If called more than once on a server
  */
 export default function setupEvents() {
-  setupPlayersEvent();
-  setupPlayerDataEvent();
+  setupRegenerateMap();
 }
