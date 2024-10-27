@@ -17,17 +17,22 @@ import PlayerDataContext from "shared/client/gui/contexts/PlayerDataContext";
 import DebugGame from "./gui/DebugGame";
 import PlayerHeadGui from "shared/client/gui/playerhead";
 import Place from "./gui/Place";
+import Coins from "./gui/Coins";
+import GameContext from "./gui/contexts/GameContext";
 
 let root = createRoot(new Instance("Folder"));
 root.render(
   <StrictMode>
     <PlayersContext>
       <PlayerDataContext>
-        <PlayerHeadGui />
-        <ScreenGui>
-          <DebugGame />
-          <Place />
-        </ScreenGui>
+        <GameContext>
+          <PlayerHeadGui />
+          <ScreenGui>
+            <DebugGame />
+            <Place />
+            <Coins />
+          </ScreenGui>
+        </GameContext>
       </PlayerDataContext>
     </PlayersContext>
   </StrictMode>,

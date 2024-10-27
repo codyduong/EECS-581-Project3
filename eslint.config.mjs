@@ -1,7 +1,6 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import path from "path";
 import { fileURLToPath } from "url";
-import unusedImports from "eslint-plugin-unused-imports";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,14 +30,6 @@ export default [
     rules: {
       "prettier/prettier": "warn",
       "no-relative-import-paths/no-relative-import-paths": ["error", { allowSameFolder: true, rootDir: "src" }],
-    },
-  }),
-  {
-    name: "unusedImports",
-    plugins: {
-      "unused-imports": unusedImports
-    },
-    rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -51,8 +42,8 @@ export default [
           "destructuredArrayIgnorePattern": "^_",
         },
       ],
-    }
-  },
+    },
+  }),
   {
     files: ["**/*.ts", "**/*.tsx", "*.mjs"],
     ignores: ["/out"],

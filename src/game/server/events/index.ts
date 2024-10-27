@@ -3,6 +3,7 @@
  * @file Contains utility functionality for server events
  */
 
+import { setupGameInfo } from "./GameInfo";
 import { setupRegenerateMap } from "./RegenerateMap";
 import { setupRequestTower } from "./RequestTower";
 
@@ -16,4 +17,5 @@ import { setupRequestTower } from "./RequestTower";
 export default function setupEvents() {
   setupRegenerateMap();
   setupRequestTower();
+  setupGameInfo();
 }
