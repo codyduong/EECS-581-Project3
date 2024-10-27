@@ -1,5 +1,6 @@
 /**
- * PlayersContext provides reliable information about {@link Player Players} in an experience
+ * @author Cody Duong <cody.qd@gmail.com
+ * @file PlayersContext provides reliable information about {@link Player[] Players} in an experience
  */
 
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";

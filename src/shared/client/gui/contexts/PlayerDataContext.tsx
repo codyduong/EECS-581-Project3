@@ -1,4 +1,7 @@
 /**
+ * @author Cody Duong <cody.qd@gmail.com
+ * @file 
+ * 
  * PlayersDataContext provides {@link PlayerData} information
  *
  * - From a technical level, due to Roblox's client/server boundary seperation, we connect to a shared event in

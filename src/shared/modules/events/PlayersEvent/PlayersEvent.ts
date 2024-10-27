@@ -2,8 +2,8 @@
  * @author Cody Duong <cody.qd@gmail.com>
  * @file
  *
- * This is a simple wrapper to allow other .tsx? files to import the {@link RemoteEvent} which is used to communicate
- * {@link Player} information. It relies on ./PlayersEvent.model.json being present.
+ * Simple wrapper to allow other files to import this {@link RemoteEvent}. It relies on ./init.meta.json being present.
+ * {@link Player} information. It relies on ./init.meta.json being present.
  *
  * @see {@link https://rojo.space/docs/v6/sync-details/#json-models}
  */
