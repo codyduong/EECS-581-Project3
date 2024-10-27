@@ -1,5 +1,7 @@
 FROM node:18-slim
 
+RUN corepack enable
+
 RUN apt-get update && apt-get install -y wget unzip && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -20,6 +22,6 @@ COPY wally.lock wally.toml ./
 RUN wally install
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 EXPOSE 34872
