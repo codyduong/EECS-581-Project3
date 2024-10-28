@@ -120,6 +120,44 @@ export default function Place(_props: PlaceProps): JSX.Element {
   }, [placing, previewTower]);
 
   useEffect(() => {
+    events.push(
+      userInputService.InputBegan.Connect((input) => {
+        if (input.UserInputType === Enum.UserInputType.MouseButton1) {
+          const mouseLocation = userInputService.GetMouseLocation();
+          const ray = game.Workspace.CurrentCamera?.ViewportPointToRay(mouseLocation.X, mouseLocation.Y);
+
+          if (ray) {
+            const result = game.Workspace.Raycast(ray.Origin, ray.Direction.mul(1000), raycastParams);
+            if (result && result.Instance) {
+              const hitTower = gameInfo.towers.find(
+                (tower) => tower.model === result.Instance.FindFirstAncestorOfClass("Model"),
+              );
+              if (hitTower) {
+                setSelectedTower(hitTower);
+              } else {
+                setSelectedTower(undefined);
+              }
+            }
+          }
+        }
+      })
+    );
+    return () => {
+      events.forEach((event) => {
+        event.Disconnect();
+      });
+    };
+  }, [gameInfo]);
+
+  // Sell the selected tower
+  const sellSelectedTower = () => {
+    if (selectedTower) {
+      requestTower.FireServer(selectedTower.toSerializable(), "sell");
+      setSelectedTower(undefined);
+    }
+  };
+
+  useEffect(() => {
     print("changed", gameInfo);
   }, [gameInfo]);
 
@@ -130,29 +168,41 @@ export default function Place(_props: PlaceProps): JSX.Element {
   }, []);
 
   return (
-    <textbutton
-      Size={new UDim2(0, 100, 0, 50)}
-      Position={new UDim2(0.5, -50, 1, -50)}
-      Text={"Place Tower"}
-      Event={{
-        Activated: () => {
-          if (placing === undefined) {
-            // Clone the "Noob" model as a preview
-            const tower = new Tower({ type: "Noob" });
-            const model = tower.model;
-            model.Parent = game.Workspace;
-            setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
-            anchorModel(model); // Anchor the preview
-            disableAnimations(model); // Disable animations for preview
-            setPreviewTower(tower);
-            setPlacing(tower.guid);
-          } else {
-            previewTower?.Destroy();
-            setPreviewTower(undefined);
-            setPlacing(undefined);
-          }
-        },
-      }}
-    />
+    <frame Size={new UDim2(0, 100, 0, 100)} Position={new UDim2(0.5, -50, 1, -100)}>
+      <textbutton
+        Size={new UDim2(0, 100, 0, 50)}
+        Position={new UDim2(0.5, -50, 1, -50)}
+        Text={"Place Tower"}
+        Event={{
+          Activated: () => {
+            if (placing === undefined) {
+              // Clone the "Noob" model as a preview
+              const tower = new Tower({ type: "Noob" });
+              const model = tower.model;
+              model.Parent = game.Workspace;
+              setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
+              anchorModel(model); // Anchor the preview
+              disableAnimations(model); // Disable animations for preview
+              setPreviewTower(tower);
+              setPlacing(tower.guid);
+            } else {
+              previewTower?.Destroy();
+              setPreviewTower(undefined);
+              setPlacing(undefined);
+            }
+          },
+        }}
+      />
+      {selectedTower && (
+        <textbutton
+          Size={new UDim2(0, 100, 0, 50)}
+          Position={new UDim2(0, 0, 0, 50)}
+          Text={"Sell Tower"}
+          Event={{
+            Activated: sellSelectedTower,
+          }}
+        />
+      )}
+  </frame>
   );
 }
