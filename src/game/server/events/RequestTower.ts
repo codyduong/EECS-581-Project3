@@ -86,9 +86,29 @@ export function setupRequestTower(): void {
         print("Tried to sell nonexistent tower");
         return;
       }
+      // Determine the sell value (could be a percentage of the cost)
+      const sellValue = 0.5; // e.g., 50% of the original cost
+      const towerSellPrice = Math.floor(1 * sellValue); // Adjust based on actual tower cost
 
-      // TODO implement selling
-      print("selling tower theoretically");
-    }
+      // Refund the player
+      gameInfo.coins[player.UserId] += towerSellPrice;
+      print(Refunded ${towerSellPrice} coins to player ${player.Name});
+
+      // Remove the tower from the game and from gameInfo
+      gameInfo.towers = gameInfo.towers.filter((tower) => tower.guid !== props.guid);
+      towerExists.model.Destroy();
+
+      // Update all players with the new game state
+      game
+        .GetService("Players")
+        .GetPlayers()
+        .forEach((player2) => {
+          gameInfoEvent.FireClient(player2, {
+            towers: gameInfo.towers.map((t) => t.toSerializable()),
+            coins: gameInfo.coins[player2.UserId],
+          });
+        });
+      }
   });
 }
+      
