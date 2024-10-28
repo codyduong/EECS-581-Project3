@@ -7,9 +7,12 @@ export type TowerProps = {
   cframe?: CFrame;
   // TODO use automatic literals from derived towers
   type: TowerType;
+  ephermal?: boolean; // will not be stored in guidToTowerMap
 };
 
-export type TowerPropsSerializable = NonNullable<TowerProps>;
+const guidToTowerMap = new Map<string, Tower>();
+
+export type TowerPropsSerializable = Omit<TowerProps, "ephermal"> & { guid: string };
 
 export class Tower {
   readonly guid: string;
@@ -22,12 +25,16 @@ export class Tower {
     switch (props.type) {
       case "Noob":
         this.model = Noob.Clone();
+        this.model.SetAttribute("towerGuid", this.guid);
         break;
       default:
         error("Unknown tower type");
     }
     if (props.cframe) {
       this.model.PivotTo(props.cframe);
+    }
+    if (!props.ephermal) {
+      guidToTowerMap.set(this.guid, this);
     }
   }
 
@@ -51,5 +58,10 @@ export class Tower {
       cframe: this.model.GetPivot(),
       type: this.type,
     };
+  }
+
+  public static fromGuid(guid: string): Tower | undefined {
+    assert(guid !== undefined);
+    return guidToTowerMap.get(guid);
   }
 }

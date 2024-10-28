@@ -5,22 +5,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
 import { gameInfoEvent } from "game/modules/events";
-import { Tower, TowerPropsSerializable } from "game/modules/Tower";
-
-export type GameInfoSerializable = {
-  towers: TowerPropsSerializable[];
-  coins: number;
-};
-
-export type GameInfo = {
-  towers: Tower[];
-  coins: number; // this is the coins for this specific player.
-};
-
-const defaultGamesInfo = {
-  towers: [],
-  coins: 0,
-} as const satisfies GameInfo;
+import { defaultGamesInfo, GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
+import { Tower } from "game/modules/towers/Tower";
 
 const GameContextActual = createContext<GameInfo>(defaultGamesInfo);
 
@@ -47,16 +33,38 @@ export default function GameContext(props: GameContextProps): JSX.Element {
     // }))
     events.push(
       gameInfoEvent.OnClientEvent.Connect((info) => {
+        print("received", info);
+
+        const mergedTowers = info.towers.map((props) => {
+          let tower = Tower.fromGuid(props.guid);
+          if (!tower) {
+            tower = new Tower({ ...props, ephermal: false });
+          }
+          // TODO parent this better
+          tower.model.Parent = game.Workspace;
+          return tower;
+        });
+
+        // remove old towers
+        print(gameInfo.towers);
+        gameInfo.towers.forEach((oldTower) => {
+          if (info.towers.findIndex((newTower) => newTower.guid === oldTower.guid) === -1) {
+            oldTower.Destroy();
+          }
+        });
+
         setGameInfo({
-          towers: info.towers.map((tprops) => new Tower(tprops)),
+          towers: mergedTowers,
           coins: info.coins,
+          wave: info.wave,
+          waveStartVotes: info.waveStartVotes,
         });
       }),
     );
     return () => {
       events.forEach((event) => event.Disconnect());
     };
-  }, []);
+  }, [gameInfo]);
 
   return <GameContextActual.Provider value={gameInfo}>{children}</GameContextActual.Provider>;
 }

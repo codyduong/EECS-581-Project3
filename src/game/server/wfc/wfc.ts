@@ -5,6 +5,8 @@
  * - https://create.roblox.com/docs/scripting/multithreading
  */
 
+import EnemySupervisor from "game/modules/EnemySupervisor";
+import { PathGenerator } from "game/modules/Path";
 import { WaveFunctionCollapse } from "game/modules/WFC";
 
 // 1459599628, guranteed contradiction { x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2, seed: 1459599628 }
@@ -26,7 +28,53 @@ function generate() {
     }) as LuaTuple<[boolean, string]>;
   }
   task.synchronize();
-  wfc.show();
+  const grid = wfc.show();
+  // print(game.GetService("HttpService").JSONEncode(grid));
+  const [starts, path] = PathGenerator.fromGrid(grid);
+  // let colorIndex = 0;
+  // let stack = [startNode];
+  // while (stack.size() > 0) {
+  //   let nodes = stack.pop();
+  //   if (nodes === undefined) {
+  //     break;
+  //   }
+  //   for (const node of nodes) {
+  //     assert(node !== undefined);
+  //     const p = new Instance("Part");
+  //     p.Color = rainbowColors[colorIndex];
+  //     colorIndex = (colorIndex + 1) % rainbowColors.size();
+  //     // print(p.Color);
+  //     p.Anchored = true;
+  //     p.Parent = game.Workspace;
+  //     p.Position = node.pos;
+  //     stack.push(
+  //       node.next.map((nextNode) => {
+  //         const n = path.get(nextNode);
+  //         assert(n !== undefined);
+  //         return n;
+  //       }),
+  //     );
+  //   }
+  // }
+  print(starts, path);
+
+  const enemySupervisor = new EnemySupervisor({ starts, path });
+  // every 0.25 second add a new enemy
+  task.spawn(() => {
+    while (true) {
+      enemySupervisor.createEnemy();
+      task.wait(0.25);
+    }
+  });
+  // enemySupervisor.createEnemy();
+
+  // 0.05 seconds results in 20 ticks per second
+  task.spawn(() => {
+    while (true) {
+      enemySupervisor.tick();
+      task.wait(0.05);
+    }
+  });
 }
 
 script.GetActor()!.BindToMessageParallel("StartWaveFunctionCollapse", () => {

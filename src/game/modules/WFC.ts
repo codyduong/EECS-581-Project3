@@ -11,12 +11,14 @@
  */
 
 import { DIRECTIONS, getVector } from "./Direction";
+import { TileAdj } from "./Tile";
 import { allTiles, allTilesMap, isEnd, isPath, isStart } from "./tiles";
 
 type Grid = Plane[];
 type Plane = Superposition[][];
 type Superposition = string[];
 type Coordinate = { x: number; y: number; z: number };
+export type CollapsedGrid = TileAdj[][][];
 
 interface WaveFunctionCollapseProps {
   x: number;
@@ -37,7 +39,6 @@ export class WaveFunctionCollapse {
   readonly horizontalPadding: number;
   readonly verticalPadding = 0; // todo add boundary conditions in the y axis
   private pathLength: number;
-  private path: Vector3[] = [];
   // assuming a cube... don't do tiles that aren't cubes... -@codyduong
   private readonly tileSize = 8;
 
@@ -408,6 +409,10 @@ export class WaveFunctionCollapse {
     }
   }
 
+  /**
+   * Return all coordinates which contain a collapsed path, but have an adjacent path superposition which is not
+   * collapsed
+   */
   private getPathsToCheck(): Coordinate[] {
     const paths: Coordinate[] = [];
     this.grid.forEach((plane, x) =>
@@ -468,7 +473,6 @@ export class WaveFunctionCollapse {
       // print(chose);
       assert(chose !== undefined, "uh oh");
       let _ = this.propogate(collapsing, [chose]);
-      this.path.push(new Vector3(collapsing.x, collapsing.y, collapsing.z));
       actualPathLength += 1;
       const toPathMaybe = [...allTilesMap[chose].pathFrom, ...allTilesMap[chose].pathTo];
       toPathMaybe.forEach((toMaybe) => {
@@ -538,7 +542,24 @@ export class WaveFunctionCollapse {
     return this.grid;
   }
 
-  show() {
+  /**
+   * Display the result of the WFC to all clients
+   */
+  show(): CollapsedGrid {
+    const collapsedGrid: CollapsedGrid = [];
+
+    for (let x = 0; x < this.x_size; x++) {
+      const layer: TileAdj[][] = [];
+      for (let y = 0; y < this.y_size; y++) {
+        const row: TileAdj[] = [];
+        for (let z = 0; z < this.z_size; z++) {
+          row.push(undefined!);
+        }
+        layer.push(row);
+      }
+      collapsedGrid.push(layer);
+    }
+
     let start = os.clock();
     let folder = game.Workspace.FindFirstChild("wfc");
     if (folder) {
@@ -564,10 +585,15 @@ export class WaveFunctionCollapse {
               wait();
               task.defer(() => {});
             }
+            let tileMod = table.clone(tile);
+            tileMod.model = model;
+            collapsedGrid[x][y][z] = tileMod;
           }
         }
       }
     }
+
+    return collapsedGrid;
   }
 }
 

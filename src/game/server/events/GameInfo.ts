@@ -1,5 +1,6 @@
 import { gameInfoEvent } from "game/modules/events";
-import { Tower } from "game/modules/Tower";
+import { GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
+import { Tower } from "game/modules/towers/Tower";
 
 const towers: Tower[] = [];
 // a map of player id to player coins
@@ -8,7 +9,9 @@ const coins: Record<number, number> = {};
 const gameInfo = {
   towers,
   coins,
-};
+  wave: 0,
+  waveStartVotes: [],
+} satisfies GameInfo;
 
 let hasSetup = false;
 export function setupGameInfo() {
@@ -16,11 +19,13 @@ export function setupGameInfo() {
   hasSetup = true;
 
   game.GetService("Players").PlayerAdded.Connect((player) => {
-    coins[player.UserId] = 5;
+    gameInfo.coins[player.UserId] = 10;
 
-    gameInfoEvent.FireClient(player, {
+    gameInfoEvent.FireAllClients({
       towers: gameInfo.towers,
-      coins: gameInfo.coins[player.UserId],
+      coins: gameInfo.coins,
+      wave: 0,
+      waveStartVotes: [],
     });
   });
 

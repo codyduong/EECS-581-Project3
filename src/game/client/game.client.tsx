@@ -16,9 +16,9 @@ import ScreenGui from "shared/client/gui/screen";
 import PlayerDataContext from "shared/client/gui/contexts/PlayerDataContext";
 import DebugGame from "./gui/DebugGame";
 import PlayerHeadGui from "shared/client/gui/playerhead";
-import Place from "./gui/Place";
 import Coins from "./gui/Coins";
 import GameContext from "./gui/contexts/GameContext";
+import TowerSelect from "./gui/TowerSelect";
 
 let root = createRoot(new Instance("Folder"));
 root.render(
@@ -29,7 +29,7 @@ root.render(
           <PlayerHeadGui />
           <ScreenGui>
             <DebugGame />
-            <Place />
+            <TowerSelect />
             <Coins />
           </ScreenGui>
         </GameContext>

@@ -7,7 +7,7 @@
 
 import { gameInfoEvent, requestTower } from "game/modules/events";
 import { RequestTowerAction } from "game/modules/events/RequestTower/RequestTower";
-import { Tower, TowerPropsSerializable } from "game/modules/Tower";
+import { Tower, TowerPropsSerializable } from "game/modules/towers/Tower";
 import Guard from "shared/modules/guard/Guard";
 import { assertServer } from "shared/modules/utils";
 import gameInfo from "./GameInfo";
@@ -50,7 +50,7 @@ export function setupRequestTower(): void {
       assert(coins !== undefined, "Failed to find player coins?");
 
       // all towers cost 1 coin. Because...
-      const towerCost = 1; // TODO use some dynamic value
+      const towerCost = 2; // TODO use some dynamic value
 
       if (coins < towerCost) {
         print("Not enough money!");
@@ -64,21 +64,18 @@ export function setupRequestTower(): void {
       gameInfo.coins[player.UserId] = coins;
 
       const newTower = new Tower(props);
-      newTower.model.Parent = game.Workspace;
+      // newTower.model.Parent = game.Workspace; // dont parent and send to clients. clients render on their own
 
       gameInfo.towers.push(newTower);
 
       print(newTower);
 
-      game
-        .GetService("Players")
-        .GetPlayers()
-        .forEach((player2) => {
-          gameInfoEvent.FireClient(player, {
-            towers: gameInfo.towers.map((t) => t.toSerializable()),
-            coins: gameInfo.coins[player2.UserId],
-          });
-        });
+      gameInfoEvent.FireAllClients({
+        towers: gameInfo.towers.map((t) => t.toSerializable()),
+        coins: gameInfo.coins,
+        wave: gameInfo.wave,
+        waveStartVotes: gameInfo.waveStartVotes,
+      });
     }
 
     if (action === "sell") {
@@ -86,29 +83,25 @@ export function setupRequestTower(): void {
         print("Tried to sell nonexistent tower");
         return;
       }
+
       // Determine the sell value (could be a percentage of the cost)
       const sellValue = 0.5; // e.g., 50% of the original cost
-      const towerSellPrice = Math.floor(1 * sellValue); // Adjust based on actual tower cost
+      const towerSellPrice = math.floor(2 * sellValue); // TODO: Adjust based on actual tower cost
 
       // Refund the player
       gameInfo.coins[player.UserId] += towerSellPrice;
-      print(Refunded ${towerSellPrice} coins to player ${player.Name});
+      print(`Refunded ${towerSellPrice} coins to player ${player.Name}`);
 
       // Remove the tower from the game and from gameInfo
       gameInfo.towers = gameInfo.towers.filter((tower) => tower.guid !== props.guid);
-      towerExists.model.Destroy();
+      towerExists.Destroy();
 
-      // Update all players with the new game state
-      game
-        .GetService("Players")
-        .GetPlayers()
-        .forEach((player2) => {
-          gameInfoEvent.FireClient(player2, {
-            towers: gameInfo.towers.map((t) => t.toSerializable()),
-            coins: gameInfo.coins[player2.UserId],
-          });
-        });
-      }
+      gameInfoEvent.FireAllClients({
+        towers: gameInfo.towers.map((t) => t.toSerializable()),
+        coins: gameInfo.coins,
+        wave: gameInfo.wave,
+        waveStartVotes: gameInfo.waveStartVotes,
+      });
+    }
   });
 }
-      

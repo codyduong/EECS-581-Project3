@@ -7,7 +7,28 @@
  * @see {@link https://rojo.space/docs/v6/sync-details/#json-models}
  */
 
-import type { GameInfoSerializable } from "game/client/gui/contexts/GameContext";
+import { TowerPropsSerializable, Tower } from "game/modules/towers/Tower";
+
+export type GameInfoSerializable = {
+  towers: TowerPropsSerializable[];
+  coins: Record<number, number>;
+  wave: 0;
+  waveStartVotes: number[];
+};
+
+export type GameInfo = {
+  towers: Tower[];
+  coins: Record<number, number>;
+  wave: 0;
+  waveStartVotes: number[];
+};
+
+export const defaultGamesInfo = {
+  towers: [],
+  coins: {},
+  wave: 0,
+  waveStartVotes: [],
+} as const satisfies GameInfo;
 
 export type GameInfoEventCallback = (gameInfo: GameInfoSerializable) => void;
 

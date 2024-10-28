@@ -23,8 +23,8 @@ export function setupRegenerateMap(): void {
 
   regenerateMap.OnServerEvent.Connect((player, rest) => {
     let addVote: undefined | boolean = undefined;
-    if (typeOf(rest) === "boolean") {
-      addVote = rest as boolean;
+    if (typeIs(rest, "boolean")) {
+      addVote = rest;
     }
 
     const userId = player.UserId;

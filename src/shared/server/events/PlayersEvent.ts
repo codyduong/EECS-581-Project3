@@ -6,14 +6,12 @@
  */
 
 import { playersEvent } from "shared/modules/events";
-import { assertServer } from "shared/modules/utils";
 
 let hasSetup = false;
 /**
  * @throws if setup more than once
  */
 export function setupPlayersEvent(): void {
-  assertServer();
   assert(hasSetup === false);
   hasSetup = true;
 
