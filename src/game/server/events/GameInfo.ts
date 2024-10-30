@@ -2,16 +2,36 @@ import { gameInfoEvent } from "game/modules/events";
 import { GameInfo, serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { Tower } from "game/modules/tower/Tower";
 
-export const COINS_INITIAL = 10;
+const COINS_INITIAL = 10;
 
-const gameInfo = {
+const DEFAULT_GAME_INFO = {
   towers: [] as Tower[],
   coins: {} as Record<number, number>,
   wave: 0,
   waveStartVotes: [] as number[],
+  /**
+   * 0 indicates wave should be starting immediately (this changes to -2 right away)
+   * -1 indicates wave is ready (and can be voted for)
+   * -2 indicates wave is already running (and therefore we shouldn't start the next wave)
+   */
   timeUntilWaveStart: -1,
   restartVotes: [] as number[],
 } satisfies GameInfo;
+
+const gameInfo = table.clone(DEFAULT_GAME_INFO);
+
+export const resetGameInfo = (): void => {
+  // this could probably be a pair loop, we have to do it manually since we can't export lets.
+  gameInfo.towers.forEach((tower) => tower.Destroy());
+  gameInfo.towers = [];
+  for (const [key, _] of pairs(gameInfo.coins)) {
+    gameInfo.coins[key] = COINS_INITIAL;
+  }
+  gameInfo.wave = 0;
+  gameInfo.waveStartVotes = [];
+  gameInfo.timeUntilWaveStart = -1;
+  gameInfo.restartVotes = [];
+};
 
 let hasSetup = false;
 /**

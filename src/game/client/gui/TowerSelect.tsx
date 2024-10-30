@@ -4,7 +4,6 @@
  */
 
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
-import Noob from "game/modules/tower/noob";
 import { useGame } from "./contexts/GameContext";
 import { Tower } from "game/modules/tower/Tower";
 import { requestTower } from "game/modules/events";
@@ -44,8 +43,6 @@ function setModelTransparency(model: Model, transparency: number): void {
 }
 
 const userInputService = game.GetService("UserInputService");
-const noobTemplate: Model = Noob.Clone();
-const noobTemplateRotation = noobTemplate.GetPivot().Rotation;
 const raycastParams = new RaycastParams();
 raycastParams.FilterType = Enum.RaycastFilterType.Exclude;
 
@@ -94,9 +91,10 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
     if (shapecastResult) {
       previewTower.model.PivotTo(
         // TODO we are off by 0.25, why is this? -@codyduong 2024/11/07
+        // ^ this is only true near edges. todo prune edge positions from being allowed -@codyduong 2024/11/14
         new CFrame(shapecastResult.Position)
-          .mul(noobTemplateRotation)
-          .add(new Vector3(0, part.Size.div(2).Y + 0.25, 0)),
+          .mul(previewTower.model.GetPivot().Rotation)
+          .add(new Vector3(0, part.Size.div(2).Y, 0)),
       );
     }
   };
