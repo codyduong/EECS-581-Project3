@@ -8,8 +8,7 @@ import { PathGenerator } from "game/modules/Path";
 
 const connection = script.GetActor()!.BindToMessage("tick", () => {
   const actor = script.GetActor()!;
-  print(`AI ${actor.Name} is thinking`);
-  task.synchronize();
+  // print(`AI ${actor.Name} is thinking`);
 
   const health = actor.GetAttribute("health");
   // const pos = actor.GetAttribute("position"); // todo audit usage? is this a useful attribute
@@ -34,29 +33,37 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
 
   assert(enemyModel !== undefined);
 
+  function cleanup() {
+    connection.Disconnect();
+    enemyModel!.Destroy();
+    task.defer(() => {
+      script.Parent?.Destroy();
+    });
+  }
+
   // find the direction we need to be going in;
   const currPos = enemyModel.Position;
   let goalNode = path.get(PathGenerator.vector3ToKey(goalNodeKey));
-  assert(goalNode !== undefined);
-
-  let goalPos = goalNode.pos.add(modelOffset);
+  if (goalNode === undefined) {
+    // this should never happen unless regeneration is done while AI is running. TODO rather than catch this behavior
+    // here we should add a new function to cleanup enemyAI explicitly
+    cleanup();
+    return;
+  }
+  let goalPos = goalNode!.pos.add(modelOffset);
 
   // if we already hit our goal, go to our next goal
   if (currPos.FuzzyEq(goalPos)) {
     /* eslint-disable prettier/prettier */
-    goalNode = path.get(goalNode.next[0]); 
-                                 // TODO, we only support going to the first branch, we need to add path splitting
-                                 // but each AI only knows its internal state? do we choose randomly or do we want equal
-                                 // splitting?
-    /* eslint-enable */
+      goalNode = path.get(goalNode!.next[0]); 
+                                   // TODO, we only support going to the first branch, we need to add path splitting
+                                   // but each AI only knows its internal state? do we choose randomly or do we want equal
+                                   // splitting?
+      /* eslint-enable */
     if (goalNode === undefined) {
       // we reached either a contradiction which should have been prevented from generating at all, or the end
       // TODO remove health from player
-      connection.Disconnect();
-      enemyModel.Destroy();
-      task.defer(() => {
-        script.Parent?.Destroy();
-      });
+      cleanup();
       return;
     }
     goalPos = goalNode!.pos.add(modelOffset);
