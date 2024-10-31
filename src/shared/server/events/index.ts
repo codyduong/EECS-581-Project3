@@ -1,6 +1,6 @@
 /**
  * @author Cody Duong <cody.qd@gmail.com>
- * @file Contains utility functionality
+ * @file Contains utility functionality for server events
  */
 
 import { setupPlayerDataEvent } from "shared/server/events/PlayerDataEvent";

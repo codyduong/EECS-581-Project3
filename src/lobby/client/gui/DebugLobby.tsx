@@ -1,9 +1,9 @@
 import React from "@rbxts/react";
 import { usePlayerData } from "shared/client/gui/contexts/PlayerDataContext";
 
-interface DebugFrameProps {}
+interface DebugLobbyProps {}
 
-export default function DebugFrame(props: DebugFrameProps): JSX.Element {
+export default function DebugLobby(_props: DebugLobbyProps): JSX.Element {
   const data = usePlayerData();
 
   print(data);
@@ -17,7 +17,7 @@ export default function DebugFrame(props: DebugFrameProps): JSX.Element {
         Size={new UDim2(0, 100, 0, 50)}
         Event={{
           Activated: () => {
-            print("[DEBUG] resetting datastore");
+            print("[DEBUG] resetting datastore, TODO @codyduong implement this");
           },
         }}
       />

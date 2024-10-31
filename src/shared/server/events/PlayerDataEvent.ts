@@ -19,9 +19,10 @@ let hasSetup = false;
  * @throws if setup more than once
  */
 export function setupPlayerDataEvent(): void {
+  assert(hasSetup === false);
+  hasSetup = true;
+
   game.GetService("Players").PlayerAdded.Connect((player: Player) => {
-    assert(hasSetup === false);
-    hasSetup = true;
     print(`Retrieving PlayerData document for [id: ${player.UserId}, name: ${player.Name}]`);
     const [document, _documentCreated] = playerDataDocumentStore.GetDocument(`${player.UserId}`);
 

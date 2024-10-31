@@ -27,7 +27,7 @@ local function Record(record: { [any]: Check<any> }): Check<{ [any]: any }>
 		end
 
 		for key in pairs(Value) do
-			assert(pairs[key], string.format("Unexpected key found: %s", tostring(key)))
+			assert(record[key], string.format("Unexpected key found: %s", tostring(key)))
 		end
 
 		return Value

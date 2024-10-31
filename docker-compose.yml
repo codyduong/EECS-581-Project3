@@ -1,5 +1,6 @@
 services:
   lobby:
+    platform: linux/amd64
     tty: true
     platform: linux/amd64
     build:
@@ -17,6 +18,7 @@ services:
         - action: rebuild
           path: ./package.json
   game:
+    platform: linux/amd64
     tty: true
     platform: linux/amd64
     build:

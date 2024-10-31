@@ -3,7 +3,8 @@
  * @file This code is compiled and executed in the "game" place on the server
  */
 
-import { game_info_msg } from "game/modules/game";
+import setupEvents from "./events";
+import { WaveFunctionCollapseActor } from "./wfc/wfc";
 
-// TODO @codyduong remove
-game_info_msg();
+WaveFunctionCollapseActor.SendMessage("StartWaveFunctionCollapse");
+setupEvents();

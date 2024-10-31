@@ -8,7 +8,7 @@ export default function PlayerHead({ initialCount = 0 }: PlayerHeadProps) {
   const [count, setCount] = useState(initialCount);
 
   return (
-    <frame Size={new UDim2(1, 0, 0.5, 0)}>
+    <frame Size={new UDim2(1, 0, 1, 0)}>
       <textbutton
         Text={`Count: ${count}`}
         AnchorPoint={new Vector2(0.5, 0.5)}

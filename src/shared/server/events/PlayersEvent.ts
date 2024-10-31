@@ -6,14 +6,12 @@
  */
 
 import { playersEvent } from "shared/modules/events";
-import { assertServer } from "shared/modules/utils";
 
 let hasSetup = false;
 /**
  * @throws if setup more than once
  */
 export function setupPlayersEvent(): void {
-  assertServer();
   assert(hasSetup === false);
   hasSetup = true;
 
@@ -27,7 +25,8 @@ export function setupPlayersEvent(): void {
 
   game.GetService("Players").PlayerRemoving.Connect((player: Player) => {
     print(`Player [id: ${player.UserId}, name: ${player.Name}] left`);
-    players.remove(players.findIndex((id) => player.UserId === id));
+    const playerId = players.findIndex((id) => player.UserId === id);
+    if (playerId !== -1) players.remove(playerId);
     playersEvent.FireAllClients(players);
   });
 }

@@ -1,0 +1,6 @@
+{
+  "className": "RemoteEvent",
+  "properties": {
+    "Name": "GameInfoEvent"
+  }
+}
