@@ -55,6 +55,9 @@ export default class EnemySupervisor {
     enemy.Parent = enemyActor;
     enemy.Anchored = true;
     enemy.Size = new Vector3(0.5, 0.5, 0.5);
+    enemy.CastShadow = false;
+    enemy.CanQuery = false;
+    enemy.CanCollide = false;
 
     // print(this.starts);
     this.chosenStart = (this.chosenStart + 1) % this.starts.size();
