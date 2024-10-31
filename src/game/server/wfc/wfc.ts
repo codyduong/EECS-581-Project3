@@ -62,7 +62,11 @@ function generate() {
   // every 0.25 second add a new enemy
   task.spawn(() => {
     while (true) {
-      enemySupervisor.createEnemy();
+      const [success] = pcall(() => enemySupervisor.createEnemy());
+      if (!success) {
+        print("Stopping enemy gen");
+        break;
+      }
       task.wait(0.25);
     }
   });
@@ -71,7 +75,11 @@ function generate() {
   // 0.05 seconds results in 20 ticks per second
   task.spawn(() => {
     while (true) {
-      enemySupervisor.tick();
+      const [success] = pcall(() => enemySupervisor.tick());
+      if (!success) {
+        print("Stopping AI");
+        break;
+      }
       task.wait(0.05);
     }
   });
