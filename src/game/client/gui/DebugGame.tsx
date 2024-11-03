@@ -1,3 +1,7 @@
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ */
+
 import React, { useState } from "@rbxts/react";
 import { regenerateMap } from "game/modules/events";
 
