@@ -38,7 +38,7 @@ export default class EnemySupervisor {
    *
    * TODO: add enemy types
    */
-  public createEnemy() {
+  public createEnemy(): void {
     // create the enemy actor
     const enemyActor = new Instance("Actor"); // used for parallel computation
     enemyActor.Parent = this.enemyFolder;
@@ -85,7 +85,7 @@ export default class EnemySupervisor {
   /**
    * Fires an event to every single enemy actor (ie. makes every enemy think)
    */
-  public tick() {
+  public tick(): void {
     // TODO? i wonder if we should start computations from front to end to end to front? does it make an appreciable
     // difference? who knows... multithreading makes the game non-determinstic...
 

@@ -18,7 +18,7 @@ import { usePlayers } from "shared/client/gui/contexts/PlayersContext";
  * @param {Model} [character] See {@link https://create.roblox.com/docs/characters Characters}
  * @returns {MeshPart} The character's head
  */
-function getHead(character: Model | undefined) {
+function getHead(character: Model | undefined): MeshPart | undefined {
   return character?.GetChildren().find((child): child is MeshPart => child.Name === "Head" && child.IsA("MeshPart"));
 }
 

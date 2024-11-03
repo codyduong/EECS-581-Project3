@@ -33,7 +33,7 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
 
   assert(enemyModel !== undefined);
 
-  function cleanup() {
+  function cleanup(): void {
     connection.Disconnect();
     enemyModel!.Destroy();
     task.defer(() => {

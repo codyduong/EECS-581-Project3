@@ -14,7 +14,7 @@ import { setupRequestTower } from "./RequestTower";
  *
  * @throws If called more than once on a server
  */
-export default function setupEvents() {
+export default function setupEvents(): void {
   setupRegenerateMap();
   setupRequestTower();
   setupGameInfo();

@@ -4,7 +4,7 @@ interface PlayerHeadProps {
   initialCount?: number;
 }
 
-export default function PlayerHead({ initialCount = 0 }: PlayerHeadProps) {
+export default function PlayerHead({ initialCount = 0 }: PlayerHeadProps): JSX.Element {
   const [count, setCount] = useState(initialCount);
 
   return (

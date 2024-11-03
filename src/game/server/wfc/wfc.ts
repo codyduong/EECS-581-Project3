@@ -13,7 +13,8 @@ import { WaveFunctionCollapse } from "game/modules/WFC";
 
 const wfc = new WaveFunctionCollapse({ x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2 });
 
-function generate() {
+/** todo encapsulate in better game logic that runs at start */
+function generate(): void {
   let [result, msg] = [false, ""];
   while (result === false) {
     if (msg !== "") {
