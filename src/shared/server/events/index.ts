@@ -13,7 +13,7 @@ import { setupPlayersEvent } from "shared/server/events/PlayersEvent";
  *
  * @throws If called more than once on a server
  */
-export default function setupEvents() {
+export default function setupEvents(): void {
   setupPlayersEvent();
   setupPlayerDataEvent();
 }

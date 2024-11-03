@@ -19,8 +19,8 @@ export default function GameContext(props: GameContextProps): JSX.Element {
 
   const [gameInfo, setGameInfo] = useState<GameInfo>(defaultGamesInfo);
 
-  const events: RBXScriptConnection[] = [];
   useEffect(() => {
+    const events: RBXScriptConnection[] = [];
     events.push(
       gameInfoEvent.OnClientEvent.Connect((info) => {
         print("received", info);

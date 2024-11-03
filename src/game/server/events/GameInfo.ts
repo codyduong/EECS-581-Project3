@@ -14,7 +14,10 @@ const gameInfo = {
 } satisfies GameInfo;
 
 let hasSetup = false;
-export function setupGameInfo() {
+/**
+ * @throws if setup more than once
+ */
+export function setupGameInfo(): void {
   assert(hasSetup === false);
   hasSetup = true;
 

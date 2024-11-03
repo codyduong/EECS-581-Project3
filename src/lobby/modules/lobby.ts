@@ -6,6 +6,6 @@
 /**
  * TODO @codyduong remove this is just sample code
  */
-export function lobby_info_msg() {
+export function lobby_info_msg(): void {
   print("This code should only be transpiled for game place");
 }

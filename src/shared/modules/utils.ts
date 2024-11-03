@@ -20,7 +20,7 @@ export function findFirstSibling<T extends Instances[keyof Instances]>(
   instance: Instance,
   siblingName: string,
   siblingClass?: keyof Instances,
-) {
+): unknown {
   return instance.Parent?.GetChildren().find((v) => {
     if (v.Name !== siblingName) {
       return false;

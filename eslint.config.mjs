@@ -12,6 +12,8 @@ const compat = new FlatCompat({
     "@typescript-eslint/recommended": true,
     "plugin:roblox-ts/recommended": true,
     "plugin:prettier/recommended": true,
+    "plugin:react/recommended": true,
+    "plugin:react-hooks/recommended": true,
   },
 });
 
@@ -26,7 +28,7 @@ export default [
       project: "./tsconfig.json",
     },
     ignorePatterns: ["/out", "**/*.mjs"],
-    plugins: ["@typescript-eslint", "roblox-ts", "prettier", "no-relative-import-paths"],
+    plugins: ["@typescript-eslint", "roblox-ts", "prettier", "no-relative-import-paths", "react", "react-hooks"],
     rules: {
       "prettier/prettier": "warn",
       "no-relative-import-paths/no-relative-import-paths": ["error", { allowSameFolder: true, rootDir: "src" }],
@@ -42,6 +44,13 @@ export default [
           "destructuredArrayIgnorePattern": "^_",
         },
       ],
+      "@typescript-eslint/explicit-function-return-type": [
+        "error",
+        {
+          "allowExpressions": true
+        }
+      ],
+      "react-hooks/exhaustive-deps": "error"
     },
   }),
   {

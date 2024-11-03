@@ -174,7 +174,7 @@ export class WaveFunctionCollapse {
     const visited: Set<string> = new Set();
 
     // Helper function to create a unique string key for each coordinate
-    const coordinateKey = (coord: Coordinate) => `${coord.x},${coord.y},${coord.z}`;
+    const coordinateKey = (coord: Coordinate) => `${coord.x},${coord.y},${coord.z}` as const;
 
     // Push the initial coordinate onto the stack
     stack.push({ to, superposition });
@@ -356,7 +356,7 @@ export class WaveFunctionCollapse {
    * This used to also setup the end position but this often led to wfc being unable to solve. So it has been deprecated
    * in favor of a path heuristic
    */
-  private setupStartAndEnd() {
+  private setupStartAndEnd(): void {
     const startPositions: Coordinate[] = [];
     // choose a random starting tile and a ending tile n distance away
     this.grid.forEach((plane, x) =>
@@ -658,7 +658,7 @@ if (actor !== undefined) {
           SharedTable.update(sharedTable, "lowestEntropyCoordinates", (v) => {
             const existingCoords = v as unknown as SharedTable;
 
-            const push = (s: SharedTable, v2: SharedTableValue) => {
+            const push = (s: SharedTable, v2: SharedTableValue): void => {
               SharedTable.update(s, SharedTable.size(s), (v) => {
                 if (v !== undefined) {
                   // I have no clue what causes this

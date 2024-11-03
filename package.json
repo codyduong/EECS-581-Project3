@@ -27,6 +27,8 @@
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-no-relative-import-paths": "^1.5.5",
     "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-roblox-ts": "^0.0.36",
     "prettier": "^3.3.3",
     "roblox-ts": "^3.0.0",
