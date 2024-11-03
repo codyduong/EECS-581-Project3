@@ -177,10 +177,6 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   };
 
   useEffect(() => {
-    print("changed", gameInfo);
-  }, [gameInfo]);
-
-  useEffect(() => {
     return () => {
       part.Destroy();
     };

@@ -21,16 +21,6 @@ export default function GameContext(props: GameContextProps): JSX.Element {
 
   const events: RBXScriptConnection[] = [];
   useEffect(() => {
-    // events.push(requestTower.OnClientEvent.Connect((props, action) => {
-    //   switch (action) {
-    //     case "buy":
-    //       setTowers((prev) => [...prev, new Tower(props)])
-    //     case "sell":
-    //       setTowers((prev) => prev.filter((t) => t.guid !== props.guid))
-    //     default:
-    //       error("Unknown action sent to client")
-    //   }
-    // }))
     events.push(
       gameInfoEvent.OnClientEvent.Connect((info) => {
         print("received", info);
