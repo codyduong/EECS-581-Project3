@@ -1,6 +1,6 @@
 import { gameInfoEvent } from "game/modules/events";
 import { GameInfo, serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
-import { Tower } from "game/modules/towers/Tower";
+import { Tower } from "game/modules/tower/Tower";
 
 export const COINS_INITIAL = 10;
 

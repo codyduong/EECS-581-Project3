@@ -7,7 +7,7 @@
  * @see {@link https://rojo.space/docs/v6/sync-details/#json-models}
  */
 
-import { TowerPropsSerializable, Tower } from "game/modules/towers/Tower";
+import { TowerPropsSerializable, Tower } from "game/modules/tower/Tower";
 
 export type GameInfoSerializable = {
   // This key is a hack to ensure that GameInfoSerializable and GameInfo are not structurally type matched (not desired)

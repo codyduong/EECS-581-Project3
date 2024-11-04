@@ -6,7 +6,7 @@
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
 import { gameInfoEvent } from "game/modules/events";
 import { GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
-import { Tower } from "game/modules/towers/Tower";
+import { Tower } from "game/modules/tower/Tower";
 
 export const defaultGamesInfo = {
   towers: [],

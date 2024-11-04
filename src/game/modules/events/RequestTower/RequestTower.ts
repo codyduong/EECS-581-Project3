@@ -7,7 +7,7 @@
  * @see {@link https://rojo.space/docs/v6/sync-details/#json-models}
  */
 
-import { TowerProps } from "game/modules/towers/Tower";
+import { TowerProps } from "game/modules/tower/Tower";
 
 export type RequestTowerAction = "buy" | "sell";
 
