@@ -7,7 +7,7 @@
 
 import { gameInfoEvent, regenerateMap } from "game/modules/events";
 import { assertServer } from "shared/modules/utils";
-import { WaveFunctionCollapseActor } from "game/server/wfc/wfc";
+import { GameActor } from "game/server/Game/Game";
 import { players } from "shared/server/events/PlayersEvent";
 import gameInfo from "./GameInfo";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
@@ -36,7 +36,7 @@ export function setupRegenerateMap(): void {
     }
 
     if (gameInfo.restartVotes.size() === players.size()) {
-      WaveFunctionCollapseActor.SendMessage("RegenerateMap");
+      GameActor.SendMessage("StartGame");
     }
   });
 

@@ -1,25 +1,43 @@
 /**
  * @author Cody Duong <cody.qd@gmail.com>
- * @file Executes wave function collapse in parallel luau runtime
- *
- * - https://create.roblox.com/docs/scripting/multithreading
+ * @file Main game loop
  */
 
 import EnemySupervisor from "game/modules/EnemySupervisor";
+import { gameInfoEvent } from "game/modules/events";
+import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { PathGenerator } from "game/modules/Path";
 import { WaveFunctionCollapse } from "game/modules/WFC";
+import gameInfo, { COINS_INITIAL } from "game/server/events/GameInfo";
 
 // 1459599628, guranteed contradiction { x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2, seed: 1459599628 }
 
 const wfc = new WaveFunctionCollapse({ x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2 });
 
-export const WaveFunctionCollapseActor = script.GetActor()!;
+export const GameActor = script.GetActor()!;
 
 let enemySupervisor: EnemySupervisor;
 let threads: thread[] = [];
 
 /** todo encapsulate in better game logic that runs at start */
-function generate(): void {
+function startGame(): void {
+  // Destroy old game and other tasks that were running if there was one
+  task.synchronize();
+  // delete towers
+  gameInfo.towers.forEach((tower) => tower.Destroy());
+  gameInfo.towers = [];
+  // delete enemies
+  enemySupervisor?.Destroy();
+  // cleanup threads
+  threads.forEach((thread) => task.cancel(thread));
+  // reset coins/et. cetera
+  for (const [key, _] of pairs(gameInfo.coins)) {
+    gameInfo.coins[key] = COINS_INITIAL;
+  }
+  gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+  task.desynchronize();
+
+  // Generate the map
   let [result, msg] = [false, ""];
   while (result === false) {
     if (msg !== "") {
@@ -33,39 +51,12 @@ function generate(): void {
       wfc.collapse();
     }) as LuaTuple<[boolean, string]>;
   }
+
   task.synchronize();
   const grid = wfc.show();
-  // print(game.GetService("HttpService").JSONEncode(grid));
   const [starts, path] = PathGenerator.fromGrid(grid);
-  // let colorIndex = 0;
-  // let stack = [startNode];
-  // while (stack.size() > 0) {
-  //   let nodes = stack.pop();
-  //   if (nodes === undefined) {
-  //     break;
-  //   }
-  //   for (const node of nodes) {
-  //     assert(node !== undefined);
-  //     const p = new Instance("Part");
-  //     p.Color = rainbowColors[colorIndex];
-  //     colorIndex = (colorIndex + 1) % rainbowColors.size();
-  //     // print(p.Color);
-  //     p.Anchored = true;
-  //     p.Parent = game.Workspace;
-  //     p.Position = node.pos;
-  //     stack.push(
-  //       node.next.map((nextNode) => {
-  //         const n = path.get(nextNode);
-  //         assert(n !== undefined);
-  //         return n;
-  //       }),
-  //     );
-  //   }
-  // }
-  print(starts, path);
 
-  enemySupervisor?.Destroy();
-  threads.forEach((thread) => task.cancel(thread));
+  // Setup enemies
   enemySupervisor = new EnemySupervisor({ starts, path });
 
   threads.push(
@@ -91,6 +82,6 @@ function generate(): void {
   );
 }
 
-WaveFunctionCollapseActor!.BindToMessageParallel("RegenerateMap", () => {
-  generate();
+GameActor!.BindToMessageParallel("StartGame", () => {
+  startGame();
 });

@@ -2,6 +2,8 @@ import { gameInfoEvent } from "game/modules/events";
 import { GameInfo, serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { Tower } from "game/modules/towers/Tower";
 
+export const COINS_INITIAL = 10;
+
 const gameInfo = {
   towers: [] as Tower[],
   coins: {} as Record<number, number>,
@@ -20,7 +22,9 @@ export function setupGameInfo(): void {
   hasSetup = true;
 
   game.GetService("Players").PlayerAdded.Connect((player) => {
-    gameInfo.coins[player.UserId] = 10;
+    if (gameInfo.coins[player.UserId] === undefined) {
+      gameInfo.coins[player.UserId] = COINS_INITIAL;
+    }
 
     gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   });
