@@ -5,9 +5,13 @@
  * @see {@link https://create.roblox.com/docs/reference/engine/classes/RemoteEvent RemoteEvent | Documentation - Roblox Creator Hub}
  */
 
-import { regenerateMap } from "game/modules/events";
+import { gameInfoEvent, regenerateMap } from "game/modules/events";
 import { assertServer } from "shared/modules/utils";
 import { WaveFunctionCollapseActor } from "game/server/wfc/wfc";
+import { players } from "shared/server/events/PlayersEvent";
+import gameInfo from "./GameInfo";
+import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
+import Guard from "shared/modules/guard/Guard";
 
 let hasSetup = false;
 /**
@@ -18,40 +22,31 @@ export function setupRegenerateMap(): void {
   assert(hasSetup === false);
   hasSetup = true;
 
-  const players: number[] = [];
-  const playersVoted: number[] = [];
-
-  regenerateMap.OnServerEvent.Connect((player, rest) => {
-    let addVote: undefined | boolean = undefined;
-    if (typeIs(rest, "boolean")) {
-      addVote = rest;
-    }
+  regenerateMap.OnServerEvent.Connect((player, maybeBool) => {
+    let addVote = Guard.Boolean(maybeBool);
 
     const userId = player.UserId;
-    const existing = playersVoted.findIndex((id) => userId === id);
+    const existing = gameInfo.restartVotes.findIndex((id) => userId === id);
 
     if (addVote === true && existing === -1) {
-      playersVoted.push(userId);
+      gameInfo.restartVotes.push(userId);
     }
     if (addVote === false && existing !== -1) {
-      playersVoted.remove(userId);
+      gameInfo.restartVotes.remove(userId);
     }
 
-    print(playersVoted, players);
-
-    if (playersVoted.size() === players.size()) {
+    if (gameInfo.restartVotes.size() === players.size()) {
       WaveFunctionCollapseActor.SendMessage("RegenerateMap");
     }
   });
 
-  game.GetService("Players").PlayerAdded.Connect((player: Player) => {
-    print(`Player [id: ${player.UserId}, name: ${player.Name}] joined`);
-    players.push(player.UserId);
-  });
-
   game.GetService("Players").PlayerRemoving.Connect((player: Player) => {
-    print(`Player [id: ${player.UserId}, name: ${player.Name}] left`);
-    const playerId = players.findIndex((id) => player.UserId === id);
-    if (playerId !== -1) players.remove(playerId);
+    const index = gameInfo.restartVotes.findIndex((id) => id === player.UserId);
+
+    if (index !== -1) {
+      gameInfo.restartVotes.remove(index);
+    }
+
+    gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   });
 }

@@ -14,8 +14,6 @@ import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEve
 import { players } from "shared/server/events/PlayersEvent";
 import { WaveManagerActor } from "game/server/WaveManager/WaveManager";
 
-const guardBool = (v: unknown): boolean => Guard.Boolean(v);
-
 let hasSetup = false;
 /**
  * @throws if setup more than once
@@ -26,7 +24,7 @@ export function setupWaveStartVote(): void {
   hasSetup = true;
 
   waveStartVote.OnServerEvent.Connect((player, maybeBool) => {
-    const votedFor = guardBool(maybeBool);
+    const votedFor = Guard.Boolean(maybeBool);
 
     const index = gameInfo.waveStartVotes.findIndex((id) => id === player.UserId);
 
@@ -57,11 +55,22 @@ export function setupWaveStartVote(): void {
     //     hasChanged = true;
     //   }
     // }
+
     if (gameInfo.waveStartVotes.size() >= players.size()) {
       gameInfo.timeUntilWaveStart = 5;
       WaveManagerActor.SendMessage("StartCountdown");
     } else {
       gameInfo.timeUntilWaveStart = -1;
+    }
+
+    gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+  });
+
+  game.GetService("Players").PlayerRemoving.Connect((player: Player) => {
+    const index = gameInfo.waveStartVotes.findIndex((id) => id === player.UserId);
+
+    if (index !== -1) {
+      gameInfo.waveStartVotes.remove(index);
     }
 
     gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
