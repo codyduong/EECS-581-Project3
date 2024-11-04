@@ -63,21 +63,27 @@ function startGame(): void {
   threads.push(
     task.spawn(() => {
       while (true) {
-        const [success] = pcall(() => enemySupervisor.createEnemy());
-        if (!success) {
-          error("Enemy failed to generate");
-        }
-        task.wait(0.5);
-      }
-    }),
-    // 0.025 seconds results in 40 ticks per second
-    task.spawn(() => {
-      while (true) {
         const [success] = pcall(() => enemySupervisor.tick());
         if (!success) {
           error("AI failed to run");
         }
         task.wait(TICK_DELAY);
+      }
+    }),
+  );
+
+  // we have to wait to spawn these threads seperate from each other... if we don't we will create two enemies
+  // "too" close to each other, before tick is ready and running
+  task.wait(1);
+
+  threads.push(
+    task.spawn(() => {
+      while (true) {
+        const [success] = pcall(() => enemySupervisor.createEnemy());
+        if (!success) {
+          error("Enemy failed to generate");
+        }
+        task.wait(0.5);
       }
     }),
   );
