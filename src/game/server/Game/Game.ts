@@ -3,6 +3,7 @@
  * @file Main game loop
  */
 
+import { TICK_DELAY } from "game/modules/consts";
 import EnemySupervisor from "game/modules/EnemySupervisor";
 import { gameInfoEvent } from "game/modules/events";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
@@ -66,17 +67,17 @@ function startGame(): void {
         if (!success) {
           error("Enemy failed to generate");
         }
-        task.wait(0.1);
+        task.wait(0.5);
       }
     }),
-    // 0.05 seconds results in 20 ticks per second
+    // 0.025 seconds results in 40 ticks per second
     task.spawn(() => {
       while (true) {
         const [success] = pcall(() => enemySupervisor.tick());
         if (!success) {
           error("AI failed to run");
         }
-        task.wait(0.05);
+        task.wait(TICK_DELAY);
       }
     }),
   );

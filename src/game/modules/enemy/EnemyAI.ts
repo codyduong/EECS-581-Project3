@@ -15,22 +15,23 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
   const speed = actor.GetAttribute("speed") as number;
   const goalNodeKey = actor.GetAttribute("goalNode") as Vector3;
   const modelOffset = actor.GetAttribute("modelOffset") as Vector3;
+  const currPos = actor.GetAttribute("Position") as Vector3;
 
   // if any of these invariants failed, we failed to set them in EnemySupervisor
   assert(health !== undefined);
   assert(typeIs(health, "number"));
   // assert(pos !== undefined);
-  //
   assert(speed !== undefined);
   assert(typeIs(speed, "number"));
   assert(goalNodeKey !== undefined);
   assert(typeIs(goalNodeKey, "Vector3"));
   assert(modelOffset !== undefined);
   assert(typeIs(modelOffset, "Vector3"));
+  assert(currPos !== undefined);
+  assert(typeIs(currPos, "Vector3"));
 
   // TOOD we need to change this to the new model;
-  const enemyModel = actor.FindFirstChildOfClass("Part");
-
+  const enemyModel = actor.FindFirstChildOfClass("Model");
   assert(enemyModel !== undefined);
 
   function cleanup(): void {
@@ -42,7 +43,7 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
   }
 
   // find the direction we need to be going in;
-  const currPos = enemyModel.Position;
+  // const currPos = enemyModel.GetPivot().Position;
   let goalNode = path.get(PathGenerator.vector3ToKey(goalNodeKey));
   if (goalNode === undefined) {
     // this should never happen unless regeneration is done while AI is running. TODO rather than catch this behavior
@@ -78,5 +79,12 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
    */
   const newPos = currPos.add(vector);
   task.synchronize();
-  enemyModel.Position = newPos;
+  // todo we shouldn't have this on the server at all.
+  // enemyModel.PivotTo();
+  actor.SetAttribute("Position", newPos);
+
+  const animateEvent = actor.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(u: unknown) => void>;
+  assert(animateEvent !== undefined);
+
+  animateEvent.FireAllClients(new CFrame(newPos).mul(enemyModel.GetPivot().Rotation));
 });

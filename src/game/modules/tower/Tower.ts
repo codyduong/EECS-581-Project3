@@ -64,7 +64,7 @@ export class Tower {
   }
 
   /**
-   * {@link https://create.roblox.com/docs/reference/engine/classes/RemoteEvent RemoteEvent} only accept a subset of types
+   * {@link https://create.roblox.com/docs/reference/engine/classes/RemoteEvent RemoteEvent} only accepts a subset of types
    */
   public toSerializable(): TowerPropsSerializable {
     this.assertNotDestroyed();

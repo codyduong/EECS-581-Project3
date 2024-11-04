@@ -8,3 +8,8 @@
 export const EnemyAI = script?.WaitForChild("EnemyAI") as ModuleScript;
 assert(EnemyAI !== undefined);
 assert(classIs(EnemyAI, "ModuleScript"));
+
+export const EnemyAnimation = script.WaitForChild("EnemyAnimation") as Script;
+assert(EnemyAnimation !== undefined);
+assert(classIs(EnemyAnimation, "Script"));
+assert(EnemyAnimation.RunContext === Enum.RunContext.Client);
