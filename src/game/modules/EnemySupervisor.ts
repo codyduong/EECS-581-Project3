@@ -4,7 +4,7 @@
  *       enemy into one file.
  */
 
-import Enemy from "./enemy";
+import { EnemyAI } from "./enemy";
 import { Node, Vector3Key } from "./Path";
 
 export let path: Map<Vector3Key, Node>; // idk if this is a good idea... this should only be used by enemy
@@ -48,7 +48,7 @@ export default class EnemySupervisor {
     enemyActor.Name = `${this.enemyNumber}`;
 
     // add the enemy ai to the actor
-    const enemyAi = Enemy.Clone();
+    const enemyAi = EnemyAI.Clone();
     enemyAi.Parent = enemyActor;
     require(enemyAi); // we need to load the moduleScript to bind to the actor
 
