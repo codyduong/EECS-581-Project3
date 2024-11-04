@@ -14,6 +14,7 @@ export const defaultGamesInfo = {
   wave: 0,
   waveStartVotes: [],
   timeUntilWaveStart: -1,
+  restartVotes: [],
 } as const satisfies GameInfo;
 
 const GameContextActual = createContext<GameInfo>(defaultGamesInfo);
@@ -31,8 +32,6 @@ export default function GameContext(props: GameContextProps): JSX.Element {
     const events: RBXScriptConnection[] = [];
     events.push(
       gameInfoEvent.OnClientEvent.Connect((info) => {
-        print("received", info);
-
         const mergedTowers = info.towers.map((props) => {
           let tower = Tower.fromGuid(props.guid);
           if (!tower) {
@@ -44,7 +43,6 @@ export default function GameContext(props: GameContextProps): JSX.Element {
         });
 
         // remove old towers
-        print(gameInfo.towers);
         gameInfo.towers.forEach((oldTower) => {
           if (info.towers.findIndex((newTower) => newTower.guid === oldTower.guid) === -1) {
             oldTower.Destroy();
@@ -57,6 +55,7 @@ export default function GameContext(props: GameContextProps): JSX.Element {
           wave: info.wave,
           waveStartVotes: info.waveStartVotes,
           timeUntilWaveStart: info.timeUntilWaveStart,
+          restartVotes: info.restartVotes,
         });
       }),
     );

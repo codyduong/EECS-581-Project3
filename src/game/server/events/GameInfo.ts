@@ -2,16 +2,13 @@ import { gameInfoEvent } from "game/modules/events";
 import { GameInfo, serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { Tower } from "game/modules/towers/Tower";
 
-const towers: Tower[] = [];
-// a map of player id to player coins
-const coins: Record<number, number> = {};
-
 const gameInfo = {
-  towers,
-  coins,
+  towers: [] as Tower[],
+  coins: {} as Record<number, number>,
   wave: 0,
   waveStartVotes: [] as number[],
   timeUntilWaveStart: -1,
+  restartVotes: [] as number[],
 } satisfies GameInfo;
 
 let hasSetup = false;
