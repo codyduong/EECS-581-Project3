@@ -4,7 +4,7 @@
  */
 
 import setupEvents from "./events";
-import { WaveFunctionCollapseActor } from "./wfc/wfc";
+import { GameActor } from "./Game/Game";
 
-WaveFunctionCollapseActor.SendMessage("RegenerateMap");
+GameActor.SendMessage("StartGame");
 setupEvents();

@@ -10,6 +10,7 @@
 import { TowerPropsSerializable, Tower } from "game/modules/towers/Tower";
 
 export type GameInfoSerializable = {
+  // This key is a hack to ensure that GameInfoSerializable and GameInfo are not structurally type matched (not desired)
   $: unknown;
   towers: TowerPropsSerializable[];
   coins: Record<number, number>;
