@@ -12,28 +12,37 @@
  */
 
 import Guard from "shared/modules/guard/Guard";
-import { TICK_DELAY } from "game/modules/consts";
 
-const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(u: unknown) => void>;
+const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(...args: unknown[]) => void>;
 assert(event !== undefined);
 
 const enemyModel = script.Parent!.FindFirstChildOfClass("Model");
 assert(enemyModel !== undefined);
 
-const _connection = event.OnClientEvent.Connect((maybeCFrame) => {
+let tween: Tween;
+let cFrameValue: CFrameValue;
+
+const _connection = event.OnClientEvent.ConnectParallel((maybeCFrame, maybeTime) => {
+  task.synchronize();
+  tween?.Destroy();
+  cFrameValue?.Destroy();
+  task.desynchronize();
+
   const newCFrame = Guard.CFrame(maybeCFrame);
+  const time = Guard.Number(maybeTime);
 
   // https://devforum.roblox.com/t/is-there-any-way-i-can-tween-pivotto/1918057/3
-  const cFrameValue = new Instance("CFrameValue");
+  cFrameValue = new Instance("CFrameValue");
+  task.synchronize();
   cFrameValue.Value = enemyModel.GetPivot();
 
   cFrameValue.GetPropertyChangedSignal("Value").Connect(() => {
     enemyModel.PivotTo(cFrameValue.Value);
   });
 
-  const tween = game
+  tween = game
     .GetService("TweenService")
-    .Create(cFrameValue, new TweenInfo(TICK_DELAY, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+    .Create(cFrameValue, new TweenInfo(time, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 0, false, 0), {
       Value: newCFrame,
     });
 

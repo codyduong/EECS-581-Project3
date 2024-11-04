@@ -5,8 +5,11 @@
 
 import { path } from "game/modules/EnemySupervisor";
 import { PathGenerator } from "game/modules/Path";
+// import Guard from "shared/modules/guard/Guard";
+import { TICK_DELAY } from "game/modules/consts";
 
-const connection = script.GetActor()!.BindToMessage("tick", () => {
+const connection = script.GetActor()!.BindToMessage("tick", (_maybeTickNo) => {
+  // const tickNo = math.max(0, Guard.Number(maybeTickNo));
   const actor = script.GetActor()!;
   // print(`AI ${actor.Name} is thinking`);
 
@@ -35,6 +38,7 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
   assert(enemyModel !== undefined);
 
   function cleanup(): void {
+    task.synchronize();
     connection.Disconnect();
     enemyModel!.Destroy();
     task.defer(() => {
@@ -68,7 +72,6 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
       return;
     }
     goalPos = goalNode!.pos.add(modelOffset);
-    actor.SetAttribute("goalNode", goalNode!.pos);
   }
 
   const direction = goalPos.sub(currPos);
@@ -78,12 +81,58 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
    * to the next direction
    */
   const newPos = currPos.add(vector);
-  // todo we shouldn't have this on the server at all.
-  // enemyModel.PivotTo();
-  actor.SetAttribute("Position", newPos);
 
-  const animateEvent = actor.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(u: unknown) => void>;
+  // TODO reenable? maybe... this should be better since we arent sending as many remote events, but it causes this
+  // weird jittering effect. I think there is some accumulated error that becomes very visible, versus constantly correcting
+  // for it... -@codyduong 2024-11-04
+
+  // // Traverse and find the longest continuous segment in the same direction
+  // let totalDistance = goalPos.sub(currPos).Magnitude;
+  // let animationGoalNode = goalNode;
+  // let nextNode = goalNode;
+
+  // while (nextNode !== undefined && nextNode.next.size() === 1) {
+  //   const nextGoalNode = path.get(nextNode.next[0]);
+  //   if (!nextGoalNode) break;
+
+  //   const segmentDirection = nextGoalNode.pos.sub(animationGoalNode.pos).Unit;
+
+  //   // Check if the segment is in the same initial direction
+  //   if (segmentDirection.Dot(direction) < 0.99) break;
+
+  //   totalDistance += nextGoalNode.pos.sub(animationGoalNode.pos).Magnitude;
+  //   animationGoalNode = nextGoalNode;
+  //   nextNode = nextGoalNode;
+  // }
+
+  // // const animationGoalPos = animationGoalNode.pos.add(modelOffset);
+  // const tickOffset = 10;
+  // const timeToReach = (totalDistance - tickOffset * speed) / speed;
+  // let animationGoalPos = currPos.add(direction.Unit.mul(timeToReach * speed));
+  // animationGoalPos = new Vector3(
+  //   math.round(animationGoalPos.X),
+  //   math.round(animationGoalPos.Y),
+  //   math.round(animationGoalPos.Z),
+  // );
+
+  task.synchronize();
+  // const nextRunTime = Guard.Or(Guard.Nil, Guard.Number)(actor.GetAttribute("NextRunTime")) ?? 0; // the last time we attempted to send a remoteEvent
+  const animateEvent = actor.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(...args: unknown[]) => void>;
   assert(animateEvent !== undefined);
+  // if (tickNo >= nextRunTime + tickOffset) {
+  //   // Perform a tween between the longest continuous node A to node B that is one continuous vector
+  //   actor.SetAttribute("NextRunTime", tickNo + timeToReach);
+  //   animateEvent.FireAllClients(
+  //     new CFrame(animationGoalPos).mul(enemyModel.GetPivot().Rotation),
+  //     timeToReach * TICK_DELAY,
+  //   );
+  // } else if (tickNo >= nextRunTime - tickOffset) {
+  //   // But before we reach the end perform the old behavior since it is smoother (and less delay between anims)
+  //   animateEvent.FireAllClients(new CFrame(newPos).mul(enemyModel.GetPivot().Rotation), TICK_DELAY);
+  // }
 
-  animateEvent.FireAllClients(new CFrame(newPos).mul(enemyModel.GetPivot().Rotation));
+  animateEvent.FireAllClients(new CFrame(newPos).mul(enemyModel.GetPivot().Rotation), TICK_DELAY);
+
+  actor.SetAttribute("goalNode", goalNode!.pos);
+  actor.SetAttribute("Position", newPos);
 });

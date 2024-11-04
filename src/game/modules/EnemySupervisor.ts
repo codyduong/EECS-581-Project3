@@ -83,7 +83,7 @@ export default class EnemySupervisor {
   /**
    * Fires an event to every single enemy actor (ie. makes every enemy think)
    */
-  public tick(): void {
+  public tick(tickNo: number): void {
     this.AssertNotDestroyed();
 
     // TODO? i wonder if we should start computations from front to end to end to front? does it make an appreciable
@@ -98,7 +98,7 @@ export default class EnemySupervisor {
 
       this.enemies.forEach((enemy) => {
         // print(enemy.GetActor());
-        enemy.GetActor()?.SendMessage("tick");
+        enemy.GetActor()?.SendMessage("tick", tickNo);
       });
     });
   }

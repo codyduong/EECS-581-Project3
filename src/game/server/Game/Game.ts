@@ -62,8 +62,10 @@ function startGame(): void {
 
   threads.push(
     task.spawn(() => {
+      let tick = 0;
       while (true) {
-        const [success] = pcall(() => enemySupervisor.tick());
+        tick += 1;
+        const [success] = pcall(() => enemySupervisor.tick(tick));
         if (!success) {
           error("AI failed to run");
         }
