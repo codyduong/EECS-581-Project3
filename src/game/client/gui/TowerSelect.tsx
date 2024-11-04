@@ -4,9 +4,9 @@
  */
 
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
-import Noob from "game/modules/towers/noob";
+import Noob from "game/modules/tower/noob";
 import { useGame } from "./contexts/GameContext";
-import { Tower } from "game/modules/towers/Tower";
+import { Tower } from "game/modules/tower/Tower";
 import { requestTower } from "game/modules/events";
 import { createPortal } from "@rbxts/react-roblox";
 

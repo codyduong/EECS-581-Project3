@@ -7,7 +7,7 @@
 
 import { gameInfoEvent, requestTower } from "game/modules/events";
 import { RequestTowerAction } from "game/modules/events/RequestTower/RequestTower";
-import { Tower, TowerPropsSerializable } from "game/modules/towers/Tower";
+import { Tower, TowerPropsSerializable } from "game/modules/tower/Tower";
 import Guard from "shared/modules/guard/Guard";
 import { assertServer } from "shared/modules/utils";
 import gameInfo from "./GameInfo";
