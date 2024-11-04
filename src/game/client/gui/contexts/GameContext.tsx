@@ -5,8 +5,16 @@
 
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
 import { gameInfoEvent } from "game/modules/events";
-import { defaultGamesInfo, GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
+import { GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { Tower } from "game/modules/towers/Tower";
+
+export const defaultGamesInfo = {
+  towers: [],
+  coins: {},
+  wave: 0,
+  waveStartVotes: [],
+  timeUntilWaveStart: -1,
+} as const satisfies GameInfo;
 
 const GameContextActual = createContext<GameInfo>(defaultGamesInfo);
 
@@ -48,6 +56,7 @@ export default function GameContext(props: GameContextProps): JSX.Element {
           coins: info.coins,
           wave: info.wave,
           waveStartVotes: info.waveStartVotes,
+          timeUntilWaveStart: info.timeUntilWaveStart,
         });
       }),
     );

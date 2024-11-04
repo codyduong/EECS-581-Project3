@@ -1,5 +1,5 @@
 import { gameInfoEvent } from "game/modules/events";
-import { GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
+import { GameInfo, serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { Tower } from "game/modules/towers/Tower";
 
 const towers: Tower[] = [];
@@ -10,7 +10,8 @@ const gameInfo = {
   towers,
   coins,
   wave: 0,
-  waveStartVotes: [],
+  waveStartVotes: [] as number[],
+  timeUntilWaveStart: -1,
 } satisfies GameInfo;
 
 let hasSetup = false;
@@ -24,17 +25,25 @@ export function setupGameInfo(): void {
   game.GetService("Players").PlayerAdded.Connect((player) => {
     gameInfo.coins[player.UserId] = 10;
 
-    gameInfoEvent.FireAllClients({
-      towers: gameInfo.towers,
-      coins: gameInfo.coins,
-      wave: 0,
-      waveStartVotes: [],
-    });
+    gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   });
 
-  game.GetService("Players").PlayerRemoving.Connect((_player) => {
+  game.GetService("Players").PlayerRemoving.Connect((player) => {
     // TODO? audit this usage? what if a player has the ability to rejoin, how do we trust the coins here?
     // coins[player.UserId] = undefined!
+
+    const waveStartVote = gameInfo.waveStartVotes.findIndex((id) => id === player.UserId);
+
+    let hasChanged = false;
+
+    if (waveStartVote !== -1) {
+      gameInfo.waveStartVotes.remove(waveStartVote);
+      hasChanged = true;
+    }
+
+    if (hasChanged) {
+      gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+    }
   });
 }
 
