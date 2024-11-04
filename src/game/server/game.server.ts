@@ -6,5 +6,5 @@
 import setupEvents from "./events";
 import { WaveFunctionCollapseActor } from "./wfc/wfc";
 
-WaveFunctionCollapseActor.SendMessage("StartWaveFunctionCollapse");
+WaveFunctionCollapseActor.SendMessage("RegenerateMap");
 setupEvents();

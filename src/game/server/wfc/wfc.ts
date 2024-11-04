@@ -13,6 +13,11 @@ import { WaveFunctionCollapse } from "game/modules/WFC";
 
 const wfc = new WaveFunctionCollapse({ x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2 });
 
+export const WaveFunctionCollapseActor = script.GetActor()!;
+
+let enemySupervisor: EnemySupervisor;
+let threads: thread[] = [];
+
 /** todo encapsulate in better game logic that runs at start */
 function generate(): void {
   let [result, msg] = [false, ""];
@@ -59,39 +64,33 @@ function generate(): void {
   // }
   print(starts, path);
 
-  const enemySupervisor = new EnemySupervisor({ starts, path });
-  // every 0.25 second add a new enemy
-  task.spawn(() => {
-    while (true) {
-      const [success] = pcall(() => enemySupervisor.createEnemy());
-      if (!success) {
-        print("Stopping enemy gen");
-        break;
-      }
-      task.wait(0.25);
-    }
-  });
-  // enemySupervisor.createEnemy();
+  enemySupervisor?.Destroy();
+  threads.forEach((thread) => task.cancel(thread));
+  enemySupervisor = new EnemySupervisor({ starts, path });
 
-  // 0.05 seconds results in 20 ticks per second
-  task.spawn(() => {
-    while (true) {
-      const [success] = pcall(() => enemySupervisor.tick());
-      if (!success) {
-        print("Stopping AI");
-        break;
+  threads.push(
+    task.spawn(() => {
+      while (true) {
+        const [success] = pcall(() => enemySupervisor.createEnemy());
+        if (!success) {
+          error("Enemy failed to generate");
+        }
+        task.wait(0.1);
       }
-      task.wait(0.05);
-    }
-  });
+    }),
+    // 0.05 seconds results in 20 ticks per second
+    task.spawn(() => {
+      while (true) {
+        const [success] = pcall(() => enemySupervisor.tick());
+        if (!success) {
+          error("AI failed to run");
+        }
+        task.wait(0.05);
+      }
+    }),
+  );
 }
 
-script.GetActor()!.BindToMessageParallel("StartWaveFunctionCollapse", () => {
+WaveFunctionCollapseActor!.BindToMessageParallel("RegenerateMap", () => {
   generate();
 });
-
-script.GetActor()!.BindToMessageParallel("RegenerateMap", () => {
-  generate();
-});
-
-export const WaveFunctionCollapseActor = script.GetActor()!;

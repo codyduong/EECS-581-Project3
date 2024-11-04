@@ -11,28 +11,25 @@ export const WaveManagerActor = script.GetActor()!;
 
 const waveManagerSharedTable = new SharedTable();
 
-WaveManagerActor!.BindToMessageParallel("StartCountdown", () => {
-  if (waveManagerSharedTable["runningCountdown"] === true) {
-    // print("already running");
-    return;
-  }
+let threads: thread[] = [];
 
-  waveManagerSharedTable["runningCountdown"] = true;
-
-  task.synchronize();
-  while (true) {
-    if (gameInfo.timeUntilWaveStart <= 0) {
-      // TODO perform some action (ie. start wave, if we are at 0, if we are at -1 don't do anything)
-      break;
-    }
-    task.wait(1);
-    if (gameInfo.timeUntilWaveStart <= 0) {
-      // ditto
-      break;
-    }
+/**
+ * @modifies {@link threads|`threads`}
+ */
+const callback = (): void => {
+  if (gameInfo.timeUntilWaveStart > 0) {
     gameInfo.timeUntilWaveStart -= 1;
+    task.synchronize();
     gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   }
+  threads.push(task.delay(1, callback));
+};
+
+WaveManagerActor!.BindToMessageParallel("StartCountdown", () => {
+  threads.forEach((thread) => task.cancel(thread));
+  threads = [];
+
+  threads.push(task.delay(1, callback));
 
   waveManagerSharedTable["runningCountdown"] = false;
 });
