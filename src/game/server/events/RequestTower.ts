@@ -11,6 +11,7 @@ import { Tower, TowerPropsSerializable } from "game/modules/towers/Tower";
 import Guard from "shared/modules/guard/Guard";
 import { assertServer } from "shared/modules/utils";
 import gameInfo from "./GameInfo";
+import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 
 const guardRequestTower = (v: unknown): TowerPropsSerializable =>
   Guard.Record({
@@ -70,12 +71,7 @@ export function setupRequestTower(): void {
 
       print(newTower);
 
-      gameInfoEvent.FireAllClients({
-        towers: gameInfo.towers.map((t) => t.toSerializable()),
-        coins: gameInfo.coins,
-        wave: gameInfo.wave,
-        waveStartVotes: gameInfo.waveStartVotes,
-      });
+      gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
     }
 
     if (action === "sell") {
@@ -96,12 +92,7 @@ export function setupRequestTower(): void {
       gameInfo.towers = gameInfo.towers.filter((tower) => tower.guid !== props.guid);
       towerExists.Destroy();
 
-      gameInfoEvent.FireAllClients({
-        towers: gameInfo.towers.map((t) => t.toSerializable()),
-        coins: gameInfo.coins,
-        wave: gameInfo.wave,
-        waveStartVotes: gameInfo.waveStartVotes,
-      });
+      gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
     }
   });
 }

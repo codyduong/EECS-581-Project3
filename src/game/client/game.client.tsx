@@ -19,6 +19,7 @@ import PlayerHeadGui from "shared/client/gui/playerhead";
 import Coins from "./gui/Coins";
 import GameContext from "./gui/contexts/GameContext";
 import TowerSelect from "./gui/TowerSelect";
+import WaveStartButton from "./gui/WaveStartButton";
 
 let root = createRoot(new Instance("Folder"));
 root.render(
@@ -31,6 +32,7 @@ root.render(
             <DebugGame />
             <TowerSelect />
             <Coins />
+            <WaveStartButton />
           </ScreenGui>
         </GameContext>
       </PlayerDataContext>

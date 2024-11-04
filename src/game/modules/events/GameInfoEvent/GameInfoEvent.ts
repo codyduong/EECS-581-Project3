@@ -10,25 +10,32 @@
 import { TowerPropsSerializable, Tower } from "game/modules/towers/Tower";
 
 export type GameInfoSerializable = {
+  $: unknown;
   towers: TowerPropsSerializable[];
   coins: Record<number, number>;
-  wave: 0;
+  wave: number;
   waveStartVotes: number[];
+  timeUntilWaveStart: number;
 };
 
 export type GameInfo = {
   towers: Tower[];
   coins: Record<number, number>;
-  wave: 0;
+  wave: number;
   waveStartVotes: number[];
+  timeUntilWaveStart: number;
 };
 
-export const defaultGamesInfo = {
-  towers: [],
-  coins: {},
-  wave: 0,
-  waveStartVotes: [],
-} as const satisfies GameInfo;
+export const serializeGameInfo = (gameInfo: GameInfo): GameInfoSerializable => {
+  return {
+    $: 0,
+    towers: gameInfo.towers.map((t) => t.toSerializable()),
+    coins: gameInfo.coins,
+    wave: gameInfo.wave,
+    waveStartVotes: gameInfo.waveStartVotes,
+    timeUntilWaveStart: gameInfo.timeUntilWaveStart,
+  };
+};
 
 export type GameInfoEventCallback = (gameInfo: GameInfoSerializable) => void;
 

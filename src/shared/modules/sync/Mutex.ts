@@ -57,11 +57,6 @@ export default class Mutex<T> {
     this.lockTable.lock = true;
   }
 
-  public lock(): LockResult<T> {
-    this.wait();
-    return new LockResult(this.lockTable.poisoned === true ? new Poison() : new MutexGuard(this));
-  }
-
   public release(): void {
     // print("freedom!");
     this.lockTable.lock = false;
@@ -69,14 +64,12 @@ export default class Mutex<T> {
 
   public lockAndRun(callback: (value: LockResult<T>) => void): void {
     this.wait();
-
     try {
       callback(new LockResult(this.lockTable.poisoned === true ? new Poison() : new MutexGuard(this)));
       this.lockTable.lock = false;
     } catch (_e) {
       this.lockTable.poisoned = true;
     }
-    task.desynchronize();
   }
 
   /**

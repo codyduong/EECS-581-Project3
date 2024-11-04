@@ -1,0 +1,7 @@
+
+{
+  "className": "RemoteEvent",
+  "properties": {
+    "Name": "WaveStartVote"
+  }
+}
