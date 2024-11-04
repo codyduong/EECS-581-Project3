@@ -20,6 +20,7 @@ export default class EnemySupervisor {
   private path: Map<Vector3Key, Node>;
   private enemyFolder: Folder;
   private enemies: Array<ModuleScript> = [];
+  private destroyed = false;
 
   private enemyNumber = 0;
 
@@ -39,6 +40,8 @@ export default class EnemySupervisor {
    * TODO: add enemy types
    */
   public createEnemy(): void {
+    this.AssertNotDestroyed();
+
     // create the enemy actor
     const enemyActor = new Instance("Actor"); // used for parallel computation
     enemyActor.Parent = this.enemyFolder;
@@ -86,6 +89,8 @@ export default class EnemySupervisor {
    * Fires an event to every single enemy actor (ie. makes every enemy think)
    */
   public tick(): void {
+    this.AssertNotDestroyed();
+
     // TODO? i wonder if we should start computations from front to end to end to front? does it make an appreciable
     // difference? who knows... multithreading makes the game non-determinstic...
 
@@ -100,6 +105,21 @@ export default class EnemySupervisor {
         // print(enemy.GetActor());
         enemy.GetActor()?.SendMessage("tick");
       });
+    });
+  }
+
+  /**
+   * @throws if {@link Destroy|`Destroy`} was already called
+   */
+  private AssertNotDestroyed(): void {
+    assert(this.destroyed !== true, "This EnemySupervisor had Destroy() called. No further operations permitted");
+  }
+
+  public Destroy(): void {
+    this.AssertNotDestroyed();
+    this.destroyed = true;
+    this.enemies.forEach((enemy) => {
+      enemy.Parent?.Destroy();
     });
   }
 }
