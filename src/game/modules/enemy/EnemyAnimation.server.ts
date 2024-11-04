@@ -14,16 +14,14 @@
 import Guard from "shared/modules/guard/Guard";
 import { TICK_DELAY } from "game/modules/consts";
 
-const actor = script.GetActor()!;
-assert(actor !== undefined);
-const event = actor.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(u: unknown) => void>;
+const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(u: unknown) => void>;
 assert(event !== undefined);
 
+const enemyModel = script.Parent!.FindFirstChildOfClass("Model");
+assert(enemyModel !== undefined);
+
 const _connection = event.OnClientEvent.Connect((maybeCFrame) => {
-  const actor = script.GetActor()!;
   const newCFrame = Guard.CFrame(maybeCFrame);
-  const enemyModel = actor.FindFirstChildOfClass("Model");
-  assert(enemyModel !== undefined);
 
   // https://devforum.roblox.com/t/is-there-any-way-i-can-tween-pivotto/1918057/3
   const cFrameValue = new Instance("CFrameValue");

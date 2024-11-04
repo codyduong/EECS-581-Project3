@@ -78,7 +78,6 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
    * to the next direction
    */
   const newPos = currPos.add(vector);
-  task.synchronize();
   // todo we shouldn't have this on the server at all.
   // enemyModel.PivotTo();
   actor.SetAttribute("Position", newPos);
