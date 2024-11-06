@@ -2,7 +2,6 @@ services:
   lobby:
     platform: linux/amd64
     tty: true
-    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile.lobby
@@ -20,7 +19,6 @@ services:
   game:
     platform: linux/amd64
     tty: true
-    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile.game
