@@ -63,6 +63,8 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   part.CanCollide = false;
   part.CastShadow = false;
 
+  const fixedYPosition = 1.75;
+
   const updatePreviewPosition = (part: Part, previewTower: Tower): void => {
     /* TODO, replace with better collision by unioning parts into CGG which is a supported shapecast. -@codyduong */
     const [orientation, size] = previewTower.model.GetBoundingBox();
@@ -92,8 +94,13 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
     // const shapecastResult = game.Workspace.Shapecast(part, new Vector3(0, -1000, 0), raycastParams);
 
     if (shapecastResult) {
+      const newPosition = new Vector3(
+      shapecastResult.Position.X,
+      fixedYPosition,
+      shapecastResult.Position.Z
+      );
       previewTower.model.PivotTo(
-        new CFrame(shapecastResult.Position).mul(noobTemplateRotation).add(new Vector3(0, part.Size.div(2).Y, 0)),
+        new CFrame(newPosition).mul(noobTemplateRotation).add(new Vector3(0, part.Size.div(2).Y, 0))
       );
     }
   };
