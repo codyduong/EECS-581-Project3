@@ -18,11 +18,11 @@ class MutexGuard<T> {
     assert(this.released !== true);
     return (this.mutex as unknown as { value: unknown }).value as unknown as T;
   }
-  write(value: T) {
+  write(value: T): void {
     assert(this.released !== true);
     (this.mutex as unknown as { value: unknown }).value = value;
   }
-  release() {
+  release(): void {
     this.released = true;
     (this.mutex as unknown as { lockTable: SharedTable }).lockTable.lock = false;
   }
@@ -49,17 +49,12 @@ export default class Mutex<T> {
     this.lockTable = new SharedTable({ lock: false, poisoned: false }) as unknown as any;
   }
 
-  private wait() {
+  private wait(): void {
     while (this.lockTable.lock === true) {
       // print("waiting for my turn!");
       task.wait();
     }
     this.lockTable.lock = true;
-  }
-
-  public lock(): LockResult<T> {
-    this.wait();
-    return new LockResult(this.lockTable.poisoned === true ? new Poison() : new MutexGuard(this));
   }
 
   public release(): void {
@@ -69,14 +64,12 @@ export default class Mutex<T> {
 
   public lockAndRun(callback: (value: LockResult<T>) => void): void {
     this.wait();
-
     try {
       callback(new LockResult(this.lockTable.poisoned === true ? new Poison() : new MutexGuard(this)));
       this.lockTable.lock = false;
     } catch (_e) {
       this.lockTable.poisoned = true;
     }
-    task.desynchronize();
   }
 
   /**

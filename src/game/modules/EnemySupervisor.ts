@@ -4,7 +4,8 @@
  *       enemy into one file.
  */
 
-import Enemy from "./enemy";
+import { EnemyAI, EnemyAnimation } from "./enemy";
+import Enemy from "./enemy/Enemy";
 import { Node, Vector3Key } from "./Path";
 
 export let path: Map<Vector3Key, Node>; // idk if this is a good idea... this should only be used by enemy
@@ -20,6 +21,7 @@ export default class EnemySupervisor {
   private path: Map<Vector3Key, Node>;
   private enemyFolder: Folder;
   private enemies: Array<ModuleScript> = [];
+  private destroyed = false;
 
   private enemyNumber = 0;
 
@@ -30,7 +32,6 @@ export default class EnemySupervisor {
     this.enemyFolder = new Instance("Folder");
     this.enemyFolder.Name = "EnemyFolder";
     this.enemyFolder.Parent = game.Workspace;
-    game.Workspace.WaitForChild(this.enemyFolder.Name); // yield for the creation (always returns near instantly)
   }
 
   /**
@@ -38,39 +39,39 @@ export default class EnemySupervisor {
    *
    * TODO: add enemy types
    */
-  public createEnemy() {
+  public createEnemy(): void {
+    this.AssertNotDestroyed();
+
     // create the enemy actor
     const enemyActor = new Instance("Actor"); // used for parallel computation
     enemyActor.Parent = this.enemyFolder;
     enemyActor.Name = `${this.enemyNumber}`;
 
     // add the enemy ai to the actor
-    const enemyAi = Enemy.Clone();
+    const enemyAi = EnemyAI.Clone();
     enemyAi.Parent = enemyActor;
     require(enemyAi); // we need to load the moduleScript to bind to the actor
 
-    // add the enemy model
-    // TODO this should not be hardcoded
-    const enemy = new Instance("Part");
-    enemy.Parent = enemyActor;
-    enemy.Anchored = true;
-    enemy.Size = new Vector3(0.5, 0.5, 0.5);
+    const enemyAnimation = EnemyAnimation.Clone();
+    enemyAnimation.Parent = enemyActor;
+    enemyAnimation.Enabled = true;
 
-    // print(this.starts);
+    const enemyAnimationEvent = new Instance("RemoteEvent"); // TODO should this be here or in a *.json for rojo?
+    enemyAnimationEvent.Parent = enemyActor;
+
     this.chosenStart = (this.chosenStart + 1) % this.starts.size();
     const node = this.starts[this.chosenStart];
-    const modelOffset = new Vector3(0, 2, 0);
-    enemy.Position = node.pos.add(modelOffset); // spawn 2 studs above node (floating)
-    this.enemies.push(enemyAi);
     const goalNode = this.path.get(node.next[0])?.pos;
     assert(goalNode !== undefined);
+    const enemy = new Enemy({ type: "BasicEnemy", parent: enemyActor, position: node.pos });
+    this.enemies.push(enemyAi);
 
     // add some data about the enemy to the actor to access
-    enemyActor.SetAttribute("health", 100);
-    // enemyActor.SetAttribute("position", enemy.Position); // todo audit usage? is this a useful attribute
+    enemyActor.SetAttribute("health", enemy.health);
     enemyActor.SetAttribute("goalNode", goalNode); // todo support branching starts? or maybe never make those
-    enemyActor.SetAttribute("speed", 1); // studs per tick
-    enemyActor.SetAttribute("modelOffset", modelOffset);
+    enemyActor.SetAttribute("speed", enemy.speed); // studs per tick
+    enemyActor.SetAttribute("modelOffset", enemy.modelOffset);
+    enemyActor.SetAttribute("Position", enemy.model.GetPivot().Position);
 
     // naive way to unique id enemies, maybe use guid? this is guranteed uniqueness unlike guid
     // (guid collision statisically is unlikely... todo implement uuid? or take from a roblox library with uuid)
@@ -82,7 +83,9 @@ export default class EnemySupervisor {
   /**
    * Fires an event to every single enemy actor (ie. makes every enemy think)
    */
-  public tick() {
+  public tick(): void {
+    this.AssertNotDestroyed();
+
     // TODO? i wonder if we should start computations from front to end to end to front? does it make an appreciable
     // difference? who knows... multithreading makes the game non-determinstic...
 
@@ -97,6 +100,21 @@ export default class EnemySupervisor {
         // print(enemy.GetActor());
         enemy.GetActor()?.SendMessage("tick");
       });
+    });
+  }
+
+  /**
+   * @throws if {@link Destroy|`Destroy`} was already called
+   */
+  private AssertNotDestroyed(): void {
+    assert(this.destroyed !== true, "This EnemySupervisor had Destroy() called. No further operations permitted");
+  }
+
+  public Destroy(): void {
+    this.AssertNotDestroyed();
+    this.destroyed = true;
+    this.enemies.forEach((enemy) => {
+      enemy.Parent?.Destroy();
     });
   }
 }

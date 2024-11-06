@@ -7,6 +7,8 @@
 
 import { playersEvent } from "shared/modules/events";
 
+export const players: number[] = [];
+
 let hasSetup = false;
 /**
  * @throws if setup more than once
@@ -14,8 +16,6 @@ let hasSetup = false;
 export function setupPlayersEvent(): void {
   assert(hasSetup === false);
   hasSetup = true;
-
-  const players: number[] = [];
 
   game.GetService("Players").PlayerAdded.Connect((player: Player) => {
     print(`Player [id: ${player.UserId}, name: ${player.Name}] joined`);

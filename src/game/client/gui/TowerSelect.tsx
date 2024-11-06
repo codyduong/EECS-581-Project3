@@ -3,14 +3,14 @@
  * @file Gui element for drag and drop
  */
 
-import React, { useEffect, useState } from "@rbxts/react";
-import Noob from "game/modules/towers/noob";
+import React, { useEffect, useMemo, useState } from "@rbxts/react";
+import Noob from "game/modules/tower/noob";
 import { useGame } from "./contexts/GameContext";
-import { Tower } from "game/modules/towers/Tower";
+import { Tower } from "game/modules/tower/Tower";
 import { requestTower } from "game/modules/events";
 import { createPortal } from "@rbxts/react-roblox";
 
-function anchorModel(model: Model) {
+function anchorModel(model: Model): void {
   model.GetDescendants().forEach((descendant) => {
     if (descendant.IsA("BasePart")) {
       descendant.Anchored = true;
@@ -19,7 +19,7 @@ function anchorModel(model: Model) {
 }
 
 // Function to disable any animations or scripts
-function disableAnimations(model: Model) {
+function disableAnimations(model: Model): void {
   const animator = model.FindFirstChild("Animator") as Animator;
   if (animator) {
     animator.Destroy();
@@ -35,7 +35,7 @@ function disableAnimations(model: Model) {
 }
 
 // Function to set transparency for each part in the model
-function setModelTransparency(model: Model, transparency: number) {
+function setModelTransparency(model: Model, transparency: number): void {
   model.GetDescendants().forEach((descendant) => {
     if (descendant.IsA("BasePart")) {
       descendant.Transparency = transparency;
@@ -57,45 +57,46 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   const [disableRaycast, setDisableRaycast] = useState(false);
   const [selectedTower, setSelectedTower] = useState<Tower>();
   const gameInfo = useGame();
-  const part = new Instance("Part");
+  const part = useMemo(() => new Instance("Part"), []);
   part.Anchored = true;
+  part.CanQuery = false;
+  part.CanCollide = false;
+  part.CastShadow = false;
 
-  const updatePreviewPosition = () => {
+  const updatePreviewPosition = (part: Part, previewTower: Tower): void => {
+    /* TODO, replace with better collision by unioning parts into CGG which is a supported shapecast. -@codyduong */
+    const [orientation, size] = previewTower.model.GetBoundingBox();
+    part.PivotTo(orientation);
+    part.Size = size;
+    raycastParams.AddToFilter([previewTower.model, part]);
+
     const mouseLocation = userInputService.GetMouseLocation();
     const ray = game.Workspace.CurrentCamera?.ViewportPointToRay(mouseLocation.X, mouseLocation.Y);
 
-    if (ray && previewTower) {
-      part.Position = ray.Origin;
-      const shapecastResult = game.Workspace.Shapecast(part, ray.Direction.mul(1000), raycastParams);
+    if (!ray) {
+      return;
+    }
 
-      // combine traditional raycast and shapecast to drop unit from the sky, rather than from character pov
-      // const raycastResult = game.Workspace.Raycast(ray.Origin, ray.Direction.mul(1000), raycastParams);
-      // if (!raycastResult) {
-      //   return;
-      // }
+    part.Position = ray.Origin;
+    const shapecastResult = game.Workspace.Shapecast(part, ray.Direction.mul(1000), raycastParams);
 
-      // part.Transparency = 0.5;
-      // part.Parent = game.Workspace;
-      // part.Position = new Vector3(raycastResult.Position.X, ray.Origin.Y, raycastResult.Position.Z);
-      // const shapecastResult = game.Workspace.Shapecast(part, new Vector3(0, -1000, 0), raycastParams);
+    // combine traditional raycast and shapecast to drop unit from the sky, rather than from character pov
+    // const raycastResult = game.Workspace.Raycast(ray.Origin, ray.Direction.mul(1000), raycastParams);
+    // if (!raycastResult) {
+    //   return;
+    // }
 
-      if (shapecastResult) {
-        previewTower.model.PivotTo(
-          new CFrame(shapecastResult.Position).mul(noobTemplateRotation).add(new Vector3(0, part.Size.div(2).Y, 0)),
-        );
-      }
+    // part.Transparency = 0.5;
+    // part.Parent = game.Workspace;
+    // part.Position = new Vector3(raycastResult.Position.X, ray.Origin.Y, raycastResult.Position.Z);
+    // const shapecastResult = game.Workspace.Shapecast(part, new Vector3(0, -1000, 0), raycastParams);
+
+    if (shapecastResult) {
+      previewTower.model.PivotTo(
+        new CFrame(shapecastResult.Position).mul(noobTemplateRotation).add(new Vector3(0, part.Size.div(2).Y, 0)),
+      );
     }
   };
-
-  useEffect(() => {
-    if (previewTower) {
-      /* TODO, replace with better collision by unioning parts into CGG which is a supported shapecast. -@codyduong */
-      const [orientation, size] = previewTower.model.GetBoundingBox();
-      part.PivotTo(orientation);
-      part.Size = size;
-      raycastParams.AddToFilter([previewTower.model, part]);
-    }
-  }, [previewTower]);
 
   useEffect(() => {
     const events: RBXScriptConnection[] = [];
@@ -104,7 +105,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
       events.push(
         userInputService.InputChanged.Connect((input) => {
           if (placing !== undefined && input.UserInputType === Enum.UserInputType.MouseMovement) {
-            updatePreviewPosition();
+            updatePreviewPosition(part, previewTower);
           }
         }),
       );
@@ -121,7 +122,6 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
             }
             setPreviewTower(undefined);
             setPlacing(undefined);
-            part.Destroy();
           }
         }),
       );
@@ -131,7 +131,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
         event.Disconnect();
       });
     };
-  }, [placing, previewTower]);
+  }, [placing, previewTower, part]);
 
   useEffect(() => {
     const events: RBXScriptConnection[] = [];
@@ -169,7 +169,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   }, [gameInfo.towers, disableRaycast]);
 
   // Sell the selected tower
-  const sellSelectedTower = () => {
+  const sellSelectedTower = (): void => {
     if (selectedTower) {
       requestTower.FireServer(selectedTower.toSerializable(), "sell");
       setSelectedTower(undefined);
@@ -177,14 +177,10 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   };
 
   useEffect(() => {
-    print("changed", gameInfo);
-  }, [gameInfo]);
-
-  useEffect(() => {
     return () => {
       part.Destroy();
     };
-  }, []);
+  }, [part]);
 
   return (
     <>

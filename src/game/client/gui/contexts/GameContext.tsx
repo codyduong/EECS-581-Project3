@@ -5,8 +5,17 @@
 
 import React, { createContext, useContext, useEffect, useState } from "@rbxts/react";
 import { gameInfoEvent } from "game/modules/events";
-import { defaultGamesInfo, GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
-import { Tower } from "game/modules/towers/Tower";
+import { GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
+import { Tower } from "game/modules/tower/Tower";
+
+export const defaultGamesInfo = {
+  towers: [],
+  coins: {},
+  wave: 0,
+  waveStartVotes: [],
+  timeUntilWaveStart: -1,
+  restartVotes: [],
+} as const satisfies GameInfo;
 
 const GameContextActual = createContext<GameInfo>(defaultGamesInfo);
 
@@ -19,22 +28,10 @@ export default function GameContext(props: GameContextProps): JSX.Element {
 
   const [gameInfo, setGameInfo] = useState<GameInfo>(defaultGamesInfo);
 
-  const events: RBXScriptConnection[] = [];
   useEffect(() => {
-    // events.push(requestTower.OnClientEvent.Connect((props, action) => {
-    //   switch (action) {
-    //     case "buy":
-    //       setTowers((prev) => [...prev, new Tower(props)])
-    //     case "sell":
-    //       setTowers((prev) => prev.filter((t) => t.guid !== props.guid))
-    //     default:
-    //       error("Unknown action sent to client")
-    //   }
-    // }))
+    const events: RBXScriptConnection[] = [];
     events.push(
       gameInfoEvent.OnClientEvent.Connect((info) => {
-        print("received", info);
-
         const mergedTowers = info.towers.map((props) => {
           let tower = Tower.fromGuid(props.guid);
           if (!tower) {
@@ -46,7 +43,6 @@ export default function GameContext(props: GameContextProps): JSX.Element {
         });
 
         // remove old towers
-        print(gameInfo.towers);
         gameInfo.towers.forEach((oldTower) => {
           if (info.towers.findIndex((newTower) => newTower.guid === oldTower.guid) === -1) {
             oldTower.Destroy();
@@ -58,6 +54,8 @@ export default function GameContext(props: GameContextProps): JSX.Element {
           coins: info.coins,
           wave: info.wave,
           waveStartVotes: info.waveStartVotes,
+          timeUntilWaveStart: info.timeUntilWaveStart,
+          restartVotes: info.restartVotes,
         });
       }),
     );

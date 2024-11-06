@@ -6,6 +6,7 @@
 import { setupGameInfo } from "./GameInfo";
 import { setupRegenerateMap } from "./RegenerateMap";
 import { setupRequestTower } from "./RequestTower";
+import { setupWaveStartVote } from "./WaveStartVote";
 
 /**
  * Simply setup all events for the server
@@ -14,8 +15,9 @@ import { setupRequestTower } from "./RequestTower";
  *
  * @throws If called more than once on a server
  */
-export default function setupEvents() {
+export default function setupEvents(): void {
   setupRegenerateMap();
   setupRequestTower();
   setupGameInfo();
+  setupWaveStartVote();
 }

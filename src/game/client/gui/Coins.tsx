@@ -1,3 +1,7 @@
+/**
+ * @author Cody Duong <cody.qd@gmail.com>
+ */
+
 import React from "@rbxts/react";
 import { useGame } from "./contexts/GameContext";
 
