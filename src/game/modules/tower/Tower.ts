@@ -4,8 +4,8 @@
  */
 
 import Noob from "./noob";
-
-export type TowerType = "Noob";
+import Rig from "./rig"
+export type TowerType = "Noob" | "Rig";
 
 export type TowerProps = {
   guid?: string;
@@ -36,6 +36,10 @@ export class Tower {
         this.model = Noob.Clone();
         this.model.SetAttribute("towerGuid", this.guid);
         break;
+        case "Rig":
+          this.model = Rig.Clone();
+          this.model.SetAttribute("towerGuid", this.guid);
+          break;
       default:
         error("Unknown tower type");
     }

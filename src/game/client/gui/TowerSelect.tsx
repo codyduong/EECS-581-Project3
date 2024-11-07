@@ -5,6 +5,7 @@
 
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
 import Noob from "game/modules/tower/noob";
+import Rig from "game/modules/tower/rig";
 import { useGame } from "./contexts/GameContext";
 import { Tower } from "game/modules/tower/Tower";
 import { requestTower } from "game/modules/events";
@@ -188,7 +189,20 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
       part.Destroy();
     };
   }, [part]);
-
+  const upgradeSelectedTower = (): void => {
+    if (selectedTower && selectedTower.type === "Noob") {
+      // Destroy the old "Noob" model
+      selectedTower.model.Destroy();
+  
+      // Create a new "Rig" tower and set it as the upgraded tower
+      const upgradedTower = new Tower({ guid: selectedTower.guid, type: "Rig" });
+      upgradedTower.model.Parent = game.Workspace;
+  
+      // Update the selected tower with the new model
+      setSelectedTower(upgradedTower);
+    }
+  };
+  
   return (
     <>
       <frame Size={new UDim2(0, 100, 0, 100)} Position={new UDim2(0.5, -50, 1, -100)}>
@@ -243,6 +257,23 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                   },
                 }}
               />
+              <textbutton
+              Size={new UDim2(0, 100, 0, 50)}
+              Position={new UDim2(0, 0, 0, 50)}
+              Text={"Upgrade Tower"}
+              Event={{
+                MouseEnter: () => {
+                  setDisableRaycast(true);
+                },
+                MouseLeave: () => {
+                  setDisableRaycast(false);
+                },
+                Activated: () => {
+                  setDisableRaycast(false);
+                  upgradeSelectedTower();
+                },
+              }}
+            />
             </frame>
           </billboardgui>,
           game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui")!,
