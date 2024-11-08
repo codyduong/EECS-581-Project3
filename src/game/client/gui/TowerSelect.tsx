@@ -92,14 +92,11 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
     // const shapecastResult = game.Workspace.Shapecast(part, new Vector3(0, -1000, 0), raycastParams);
 
     if (shapecastResult) {
-      const newPosition = new Vector3(
-        shapecastResult.Position.X,
-        shapecastResult.Position.Y,
-        shapecastResult.Position.Z,
-      );
       previewTower.model.PivotTo(
         // TODO we are off by 0.25, why is this? -@codyduong 2024/11/07
-        new CFrame(newPosition).mul(noobTemplateRotation).add(new Vector3(0, part.Size.div(2).Y + 0.25, 0)),
+        new CFrame(shapecastResult.Position)
+          .mul(noobTemplateRotation)
+          .add(new Vector3(0, part.Size.div(2).Y + 0.25, 0)),
       );
     }
   };
