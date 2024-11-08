@@ -9,7 +9,7 @@
 
 import { TowerProps } from "game/modules/tower/Tower";
 
-export type RequestTowerAction = "buy" | "sell";
+export type RequestTowerAction = "buy" | "sell" | "upgrade";
 
 export type RequestTowerArgs = [NonNullable<TowerProps>, RequestTowerAction];
 
