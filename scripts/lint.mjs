@@ -7,8 +7,7 @@
 import { execSync } from "child_process";
 
 try {
-  const commit = execSync("git merge-base origin/master HEAD", { encoding: "utf-8" }).replace(/\r?\n|\r/gm, "");
-  const diffCommand = `git diff --name-only ${commit} --diff-filter=ACMRTUXB`
+  const diffCommand = `git diff --name-only origin/master...HEAD --diff-filter=ACMRTUXB`
   let changedFiles = execSync(diffCommand, { encoding: "utf-8" })
     .split("\n")
     .filter((file) => /\.(mjs|tsx?)$/.test(file))
