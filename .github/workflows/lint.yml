@@ -24,7 +24,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: master
+        ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: 0
     - run: corepack enable
     - name: Use Node.js ${{ matrix.node-version }}
@@ -33,5 +33,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
         cache-dependency-path: 'yarn.lock'
-    - run: yarn install --frozen-lockfile
+    - run: yarn install --immutable
     - run: yarn ci:lint

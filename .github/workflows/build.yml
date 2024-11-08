@@ -69,7 +69,7 @@ jobs:
           -v ${{ github.workspace }}:/app -w /app \
           ghcr.io/${{ github.repository_owner }}/itemated:latest \
           /bin/bash -c "
-            yarn install --frozen-lockfile
+            yarn install --immutable
             yarn build:lobby
             yarn build:game
           "
