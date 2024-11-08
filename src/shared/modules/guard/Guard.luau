@@ -13,6 +13,8 @@ Authored by: Cody Duong <cody.qd@gmail.com>
 
 ]]--
 
+local Guard = require(game:GetService("ReplicatedStorage")["Packages"]["Guard"])
+
 export type Check<T> = (Value: unknown) -> T
 
 local function Record(record: { [any]: Check<any> }): Check<{ [any]: any }>
@@ -51,11 +53,36 @@ local function Tuple(...): Check<{ any }>
 	end
 end
 
-local base = require(game:GetService("ReplicatedStorage")["Packages"]["Guard"])
+local function Function(Value): Check<string>
+	-- selene: allow(incorrect_standard_library_use)
+	assert(typeof(Value) == "function", "Expected a function")
 
-base["Record"] = Record;
-base["Tuple"] = Tuple;
+	return Value
+end
+
+local function Union(...)
+	local args = { ... }
+
+	local checks = (#args == 1 and type(args[1]) == "table") and args[1] or args
+
+	Guard.List(Function)
+
+	return function(value)
+		for _, check in ipairs(checks) do
+			if Guard.Check(check)(value) then
+				return value
+			end
+		end
+
+		error("Failed to find matching check for union type")
+	end
+end
+
+Guard["Record"] = Record;
+Guard["Tuple"] = Tuple;
+Guard["Union"] = Union;
+Guard["Function"] = Function;
 
 return {
-  default = base
+  default = Guard
 }

@@ -18,9 +18,11 @@ const guardRequestTower = (v: unknown): TowerPropsSerializable =>
     guid: Guard.String,
     cframe: Guard.CFrame,
     type: Guard.Literal("Noob"),
+    level: Guard.Number,
   })(v);
 
-const guardType = (v: unknown): RequestTowerAction => Guard.Or(Guard.Literal("buy"), Guard.Literal("sell"))(v);
+const guardType = (v: unknown): RequestTowerAction =>
+  Guard.Union(Guard.Literal("buy"), Guard.Literal("sell"), Guard.Literal("upgrade"))(v);
 
 let hasSetup = false;
 /**
@@ -40,15 +42,14 @@ export function setupRequestTower(): void {
     // technically the GenerateGUID() mechanism has a 1 in 1 trillion chance of collision... Oh well...
     const towerExists = gameInfo.towers.find((tower) => tower.guid === props.guid);
 
+    let coins = gameInfo.coins[player.UserId];
+    assert(coins !== undefined, "Failed to find player coins?");
+
     if (action === "buy") {
       if (towerExists !== undefined) {
         print("We already processed this tower request");
         return;
       }
-
-      let coins = gameInfo.coins[player.UserId];
-
-      assert(coins !== undefined, "Failed to find player coins?");
 
       // all towers cost 1 coin. Because...
       const towerCost = 2; // TODO use some dynamic value
@@ -80,6 +81,8 @@ export function setupRequestTower(): void {
         return;
       }
 
+      print("selling tower");
+
       // Determine the sell value (could be a percentage of the cost)
       const sellValue = 0.5; // e.g., 50% of the original cost
       const towerSellPrice = math.floor(2 * sellValue); // TODO: Adjust based on actual tower cost
@@ -92,6 +95,34 @@ export function setupRequestTower(): void {
       gameInfo.towers = gameInfo.towers.filter((tower) => tower.guid !== props.guid);
       towerExists.Destroy();
 
+      gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+    }
+
+    if (action === "upgrade") {
+      if (towerExists === undefined) {
+        print("Tried to upgrade nonexistent tower");
+        return;
+      }
+
+      const upgradeCost = 2; // TODO use some dynamic value
+
+      if (coins < upgradeCost) {
+        print("Not enough money!");
+        return;
+      }
+
+      if (towerExists.level !== 0) {
+        print("Already upgraded");
+        return;
+      }
+
+      print("upgrading tower");
+
+      coins -= upgradeCost;
+
+      gameInfo.coins[player.UserId] = coins;
+
+      towerExists.upgrade();
       gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
     }
   });

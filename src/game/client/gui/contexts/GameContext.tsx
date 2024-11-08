@@ -37,6 +37,10 @@ export default function GameContext(props: GameContextProps): JSX.Element {
           if (!tower) {
             tower = new Tower({ ...props, ephermal: false });
           }
+          while (tower.level !== props.level) {
+            tower.upgrade();
+          }
+
           // TODO parent this better
           tower.model.Parent = game.Workspace;
           return tower;
