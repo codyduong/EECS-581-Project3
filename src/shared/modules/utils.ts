@@ -36,6 +36,22 @@ export function findFirstSibling<T extends Instances[keyof Instances]>(
  * Retrieve true if we are running on the server
  * @returns {boolean}
  */
+export function isClient(): boolean {
+  return game.GetService("RunService").IsClient();
+}
+
+/**
+ * Errors if the script that runs this is not on the client
+ * @throws
+ */
+export function assertClient(): void {
+  assert(isClient(), "Expected to be run on the client");
+}
+
+/**
+ * Retrieve true if we are running on the server
+ * @returns {boolean}
+ */
 export function isServer(): boolean {
   return game.GetService("RunService").IsServer();
 }

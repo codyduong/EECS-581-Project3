@@ -3,7 +3,7 @@
  * @file Contains type definitions for {@link https://util.redblox.dev/guard.html red-blox/guard}
  */
 
-export type Check<T> = (Value: unknown) => T;
+export type Check<T> = (Value: any) => T;
 
 /**
  * @see {@link https://util.redblox.dev/guard.html}
@@ -38,7 +38,7 @@ declare const Module: {
   Vector2int16: Check<Vector2int16>;
   Vector3: Check<Vector3>;
   Vector3int16: Check<Vector3int16>;
-  Check<T>(this: void, check: Check<T>): LuaTuple<[pass: boolean, value: T]>;
+  Check<T extends (Value: any) => any>(this: void, check: T): (Value: unknown) => [pass: boolean, value: ReturnType<T>];
   // these are not part of the default library. Read the Guard.luau for implementation details
   Record<T extends Record<string, Check<any>>>(
     this: void,
@@ -61,6 +61,7 @@ declare const Module: {
     ...tuples: T
   ): Check<{ [I in keyof T]: T[I] extends Check<infer U> ? U : unknown }[number]>;
   Function: Check<(...args: unknown[]) => unknown>;
+  NonNil<T>(this: void, Value: T): NonNullable<T>;
 };
 
 export default Module;

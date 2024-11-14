@@ -54,7 +54,6 @@ local function Tuple(...): Check<{ any }>
 end
 
 local function Function(Value): Check<string>
-	-- selene: allow(incorrect_standard_library_use)
 	assert(typeof(Value) == "function", "Expected a function")
 
 	return Value
@@ -78,10 +77,17 @@ local function Union(...)
 	end
 end
 
+local function NonNil(Value)
+	assert(Value ~= nil, "Expected a non nil value")
+
+	return Value
+end
+
 Guard["Record"] = Record;
 Guard["Tuple"] = Tuple;
 Guard["Union"] = Union;
 Guard["Function"] = Function;
+Guard["NonNil"] = NonNil;
 
 return {
   default = Guard

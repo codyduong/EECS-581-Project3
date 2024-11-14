@@ -2,13 +2,19 @@
  * @author Cody Duong
  * @file This is a singleton class which should manage the enemy AI. It helps delegate multithreaded control of each
  *       enemy into one file.
+ *
+ * @todo this should really be serversided only. This is constrained by EnemyAI requiring `path` to know where to animate
+ * next
  */
 
-import { EnemyAI, EnemyAnimation } from "./enemy";
-import Enemy from "./enemy/Enemy";
-import { Node, Vector3Key } from "./Path";
+import { EnemyAI, EnemyAnimation } from "game/modules/enemy";
+import Enemy from "game/modules/enemy/Enemy";
+import { Node, Vector3Key } from "game/modules/Path";
+import { assertServer } from "shared/modules/utils";
 
 export let path: Map<Vector3Key, Node>; // idk if this is a good idea... this should only be used by enemy
+
+let singletonExisting = false;
 
 interface EnemySupervisorProps {
   starts: Node[];
@@ -20,24 +26,37 @@ export default class EnemySupervisor {
   private starts: Node[];
   private path: Map<Vector3Key, Node>;
   private enemyFolder: Folder;
-  private enemies: Array<ModuleScript> = [];
+  private enemies: Actor[] = [];
   private destroyed = false;
 
   private enemyNumber = 0;
 
   constructor(props: EnemySupervisorProps) {
+    assertServer();
+    assert(
+      singletonExisting === false,
+      "EnemySupervisor singleton already exists. Did we call `Destroy()` on the old EnemySupervisor?",
+    );
+    singletonExisting = true;
     this.starts = props.starts;
     this.path = props.path;
     path = this.path;
-    this.enemyFolder = new Instance("Folder");
-    this.enemyFolder.Name = "EnemyFolder";
-    this.enemyFolder.Parent = game.Workspace;
+    let maybeFolder = game.Workspace.FindFirstChild("EnemyFolder");
+    if (!maybeFolder) {
+      maybeFolder = new Instance("Folder");
+      maybeFolder.Name = "EnemyFolder";
+      maybeFolder.Parent = game.Workspace;
+    }
+    assert(classIs(maybeFolder, "Folder"));
+    this.enemyFolder = maybeFolder;
   }
 
   /**
    * Create an enemy of a type
    *
-   * TODO: add enemy types
+   * @todo: add enemy types
+   *
+   * @todo: should this be here, or should the Enemy constructor create all of this?
    */
   public createEnemy(): void {
     this.AssertNotDestroyed();
@@ -63,8 +82,9 @@ export default class EnemySupervisor {
     const node = this.starts[this.chosenStart];
     const goalNode = this.path.get(node.next[0])?.pos;
     assert(goalNode !== undefined);
+    // TODO this enemy should not even be parented to the datamodel on the server. Instead use some replication magic...
+    // IDK.
     const enemy = new Enemy({ type: "BasicEnemy", parent: enemyActor, position: node.pos });
-    this.enemies.push(enemyAi);
 
     // add some data about the enemy to the actor to access
     enemyActor.SetAttribute("health", enemy.health);
@@ -72,6 +92,8 @@ export default class EnemySupervisor {
     enemyActor.SetAttribute("speed", enemy.speed); // studs per tick
     enemyActor.SetAttribute("modelOffset", enemy.modelOffset);
     enemyActor.SetAttribute("Position", enemy.model.GetPivot().Position);
+
+    this.enemies.push(enemyActor);
 
     // naive way to unique id enemies, maybe use guid? this is guranteed uniqueness unlike guid
     // (guid collision statisically is unlikely... todo implement uuid? or take from a roblox library with uuid)
@@ -93,12 +115,12 @@ export default class EnemySupervisor {
     // the best analogy is like minecraft ticks are usually 20 per second, but depending on server load this can
     // decrease.
     task.defer(() => {
-      // enemies will remove themselves and their actor when they reach the end or die
-      this.enemies = this.enemies.filter((enemy) => enemy.GetActor !== undefined);
+      // enemy actor will get destroyed when they reach the end or die, assuming it will always be in DataModel when alive
+      // and otherwise `Destroy()` was called on the actor
+      this.enemies = this.enemies.filter((enemy) => enemy.Parent !== undefined);
 
       this.enemies.forEach((enemy) => {
-        // print(enemy.GetActor());
-        enemy.GetActor()?.SendMessage("tick");
+        enemy?.SendMessage("tick");
       });
     });
   }
@@ -113,8 +135,9 @@ export default class EnemySupervisor {
   public Destroy(): void {
     this.AssertNotDestroyed();
     this.destroyed = true;
+    singletonExisting = false;
     this.enemies.forEach((enemy) => {
-      enemy.Parent?.Destroy();
+      enemy.Destroy();
     });
   }
 }

@@ -1,40 +1,30 @@
 /**
  * @author Cody Duong
  * @file This file exists to be copied into each enemy AI. In essence this is the enemy AI.
+ *
+ * Notably, this is not a module we export. Since code runs on module import, we don't want to run the code until
+ * it is in an {@link Actor|Actor}. We manage the import of this in the `./index.ts`
  */
 
 import { path } from "game/modules/EnemySupervisor";
 import { PathGenerator } from "game/modules/Path";
+import Guard from "shared/modules/guard/Guard";
 
-const connection = script.GetActor()!.BindToMessage("tick", () => {
+const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
   const actor = script.GetActor()!;
-  // print(`AI ${actor.Name} is thinking`);
 
-  const health = actor.GetAttribute("health");
-  // const pos = actor.GetAttribute("position"); // todo audit usage? is this a useful attribute
-  const speed = actor.GetAttribute("speed") as number;
-  const goalNodeKey = actor.GetAttribute("goalNode") as Vector3;
-  const modelOffset = actor.GetAttribute("modelOffset") as Vector3;
-  const currPos = actor.GetAttribute("Position") as Vector3;
-
-  // if any of these invariants failed, we failed to set them in EnemySupervisor
-  assert(health !== undefined);
-  assert(typeIs(health, "number"));
-  // assert(pos !== undefined);
-  assert(speed !== undefined);
-  assert(typeIs(speed, "number"));
-  assert(goalNodeKey !== undefined);
-  assert(typeIs(goalNodeKey, "Vector3"));
-  assert(modelOffset !== undefined);
-  assert(typeIs(modelOffset, "Vector3"));
-  assert(currPos !== undefined);
-  assert(typeIs(currPos, "Vector3"));
+  const _health = Guard.Number(actor.GetAttribute("health"));
+  const speed = Guard.Number(actor.GetAttribute("speed"));
+  const goalNodeKey = Guard.Vector3(actor.GetAttribute("goalNode"));
+  const modelOffset = Guard.Vector3(actor.GetAttribute("modelOffset"));
+  const currPos = Guard.Vector3(actor.GetAttribute("Position"));
 
   // TOOD we need to change this to the new model;
   const enemyModel = actor.FindFirstChildOfClass("Model");
   assert(enemyModel !== undefined);
 
   function cleanup(): void {
+    task.synchronize();
     connection.Disconnect();
     enemyModel!.Destroy();
     task.defer(() => {
@@ -68,7 +58,9 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
       return;
     }
     goalPos = goalNode!.pos.add(modelOffset);
+    task.synchronize();
     actor.SetAttribute("goalNode", goalNode!.pos);
+    task.desynchronize();
   }
 
   const direction = goalPos.sub(currPos);
@@ -80,10 +72,12 @@ const connection = script.GetActor()!.BindToMessage("tick", () => {
   const newPos = currPos.add(vector);
   // todo we shouldn't have this on the server at all.
   // enemyModel.PivotTo();
+  task.synchronize();
   actor.SetAttribute("Position", newPos);
 
-  const animateEvent = actor.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(u: unknown) => void>;
-  assert(animateEvent !== undefined);
+  const animateEvent = actor.FindFirstChildOfClass("RemoteEvent");
 
-  animateEvent.FireAllClients(new CFrame(newPos).mul(enemyModel.GetPivot().Rotation));
+  // in some scenarios animateEvent was deleted while AI was running (ex. if a AI thinks on tick 2, and deleted on tick 3,
+  // it is very possible, this will run and fail, so use ? conditional chaining)
+  animateEvent?.FireAllClients(new CFrame(newPos).mul(enemyModel.GetPivot().Rotation));
 });

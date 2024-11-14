@@ -12,6 +12,7 @@ import Guard from "shared/modules/guard/Guard";
 import { assertServer } from "shared/modules/utils";
 import gameInfo from "./GameInfo";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
+import { GameActor } from "game/server/Game/Game";
 
 const guardRequestTower = (v: unknown): TowerPropsSerializable =>
   Guard.Record({
@@ -66,6 +67,7 @@ export function setupRequestTower(): void {
       gameInfo.coins[player.UserId] = coins;
 
       const newTower = new Tower(props);
+      GameActor.SendMessage("UpdateTowerAi", "add", newTower.guid);
       // newTower.model.Parent = game.Workspace; // dont parent and send to clients. clients render on their own
 
       gameInfo.towers.push(newTower);
@@ -93,6 +95,7 @@ export function setupRequestTower(): void {
 
       // Remove the tower from the game and from gameInfo
       gameInfo.towers = gameInfo.towers.filter((tower) => tower.guid !== props.guid);
+      GameActor.SendMessage("UpdateTowerAi", "remove", towerExists.guid);
       towerExists.Destroy();
 
       gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
@@ -123,6 +126,7 @@ export function setupRequestTower(): void {
       gameInfo.coins[player.UserId] = coins;
 
       towerExists.upgrade();
+      GameActor.SendMessage("UpdateTowerAi", "update", towerExists.guid);
       gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
     }
   });

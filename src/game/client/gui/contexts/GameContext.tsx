@@ -7,6 +7,7 @@ import React, { createContext, useContext, useEffect, useState } from "@rbxts/re
 import { gameInfoEvent } from "game/modules/events";
 import { GameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { Tower } from "game/modules/tower/Tower";
+import Guard from "shared/modules/guard/Guard";
 
 export const defaultGamesInfo = {
   towers: [],
@@ -41,8 +42,11 @@ export default function GameContext(props: GameContextProps): JSX.Element {
             tower.upgrade();
           }
 
-          // TODO parent this better
-          tower.model.Parent = game.Workspace;
+          const towerFolder = Guard.NonNil(game.Workspace.FindFirstChild("TowerFolder"));
+          assert(classIs(towerFolder, "Folder"));
+          const towerActor = Guard.NonNil(towerFolder.FindFirstChild(props.guid));
+          assert(classIs(towerActor, "Actor"));
+          tower.model.Parent = towerActor;
           return tower;
         });
 

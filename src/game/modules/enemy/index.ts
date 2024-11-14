@@ -5,11 +5,10 @@
  *       so a secondary file needs to be present to import them using a roundabout way.
  */
 
-export const EnemyAI = script?.WaitForChild("EnemyAI") as ModuleScript;
+export const EnemyAI = script?.FindFirstChild("EnemyAI") as ModuleScript;
 assert(EnemyAI !== undefined);
 assert(classIs(EnemyAI, "ModuleScript"));
 
-export const EnemyAnimation = script.WaitForChild("EnemyAnimation") as Script;
-assert(EnemyAnimation !== undefined);
+export const EnemyAnimation = script.FindFirstChild("EnemyAnimation") as Script;
 assert(classIs(EnemyAnimation, "Script"));
 assert(EnemyAnimation.RunContext === Enum.RunContext.Client);

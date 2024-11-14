@@ -3,9 +3,16 @@
  * @file Tower Class
  */
 
-import Noob from "./noob";
-import Rig from "./rig";
+import { Noob0Model, Noob1Model, NoobStats } from "./noob";
+
 export type TowerType = "Noob";
+
+export type TowerStats = {
+  damage: number;
+  ticksBetweenAttacks: number; // see TICK_DELAY
+  attackType: "raycast"; // todo add other attack variants like projectile (ie. moving towards, or constant attacks like a poision field)
+  range: number; // Range in studs;
+};
 
 export type TowerProps = {
   guid?: string;
@@ -35,7 +42,7 @@ export class Tower {
     this.level = 0;
     switch (props.type) {
       case "Noob":
-        this.model = Noob.Clone();
+        this.model = Noob0Model.Clone();
         this.model.SetAttribute("towerGuid", this.guid);
         break;
       default:
@@ -78,6 +85,17 @@ export class Tower {
     };
   }
 
+  public upgrade(): void {
+    this.level += 1;
+    if (this.level > 0) {
+      const oldModel = this.model;
+      this.model = Noob1Model.Clone();
+      this.model.PivotTo(oldModel.GetPivot());
+      this.model.SetAttribute("towerGuid", this.guid);
+      oldModel.Destroy();
+    }
+  }
+
   /**
    * Attempts to find the guid in the current execution context
    * @param {string} guid obtained from {@link https://create.roblox.com/docs/reference/engine/classes/HttpService#GenerateGUID GenerateGuid}
@@ -87,14 +105,16 @@ export class Tower {
     return guidToTowerMap.get(guid);
   }
 
-  public upgrade(): void {
-    this.level += 1;
-    if (this.level > 0) {
-      const oldModel = this.model;
-      this.model = Rig.Clone();
-      this.model.PivotTo(oldModel.GetPivot());
-      this.model.SetAttribute("towerGuid", this.guid);
-      oldModel.Destroy();
+  /**
+   * @todo this should either be a instance method, or a private static method + instance method
+   */
+  public static getTypeStats(t: TowerType): TowerStats {
+    switch (t) {
+      // TODO this depends on level as well.
+      case "Noob":
+        return NoobStats;
+      default:
+        error("Unknown tower type");
     }
   }
 }
