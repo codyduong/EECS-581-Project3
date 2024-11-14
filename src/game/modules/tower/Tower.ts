@@ -6,6 +6,8 @@
 import Noob from "./noob";
 import Rig from "./rig"
 export type TowerType = "Noob" | "Rig";
+import Rig from "./rig";
+export type TowerType = "Noob";
 
 export type TowerProps = {
   guid?: string;
@@ -17,12 +19,13 @@ export type TowerProps = {
 
 const guidToTowerMap = new Map<string, Tower>();
 
-export type TowerPropsSerializable = Omit<TowerProps, "ephermal"> & { guid: string };
+export type TowerPropsSerializable = Omit<TowerProps, "ephermal"> & { guid: string; level: number };
 
 export class Tower {
   readonly guid: string;
-  readonly model: Model;
+  model: Model;
   readonly type: TowerType;
+  level: number; // tower level
   private destroyed = false;
 
   /**
@@ -31,6 +34,7 @@ export class Tower {
   constructor(props: TowerProps) {
     this.guid = props.guid ?? game.GetService("HttpService").GenerateGUID();
     this.type = props.type;
+    this.level = 0;
     switch (props.type) {
       case "Noob":
         this.model = Noob.Clone();
@@ -76,6 +80,7 @@ export class Tower {
       guid: this.guid,
       cframe: this.model.GetPivot(),
       type: this.type,
+      level: this.level,
     };
   }
 
@@ -86,5 +91,16 @@ export class Tower {
   public static fromGuid(guid: string): Tower | undefined {
     assert(guid !== undefined);
     return guidToTowerMap.get(guid);
+  }
+
+  public upgrade(): void {
+    this.level += 1;
+    if (this.level > 0) {
+      const oldModel = this.model;
+      this.model = Rig.Clone();
+      this.model.PivotTo(oldModel.GetPivot());
+      this.model.SetAttribute("towerGuid", this.guid);
+      oldModel.Destroy();
+    }
   }
 }

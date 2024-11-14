@@ -7,8 +7,7 @@
 import { execSync } from "child_process";
 
 try {
-  const commit = execSync("git merge-base origin/master HEAD", { encoding: "utf-8" });
-  const diffCommand = `git diff --name-only ${commit} --diff-filter=ACMRTUXB`;
+  const diffCommand = `git diff --name-only origin/master...HEAD --diff-filter=ACMRTUXB`
   let changedFiles = execSync(diffCommand, { encoding: "utf-8" })
     .split("\n")
     .filter((file) => /\.(mjs|tsx?)$/.test(file))
@@ -21,5 +20,6 @@ try {
     execSync(eslintCommand, { stdio: "inherit" });
   }
 } catch (err) {
-  console.error("Error running linting command:", err);
+  console.error(err);
+  process.exit(1)
 }

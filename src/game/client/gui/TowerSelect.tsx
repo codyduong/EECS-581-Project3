@@ -102,6 +102,10 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
       );
       previewTower.model.PivotTo(
         new CFrame(newPosition).mul(noobTemplateRotation).add(new Vector3(0, part.Size.div(2).Y, 0))
+        // TODO we are off by 0.25, why is this? -@codyduong 2024/11/07
+        new CFrame(shapecastResult.Position)
+          .mul(noobTemplateRotation)
+          .add(new Vector3(0, part.Size.div(2).Y + 0.25, 0)),
       );
     }
   };
@@ -176,10 +180,16 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
     };
   }, [gameInfo.towers, disableRaycast]);
 
-  // Sell the selected tower
   const sellSelectedTower = (): void => {
     if (selectedTower) {
       requestTower.FireServer(selectedTower.toSerializable(), "sell");
+      setSelectedTower(undefined);
+    }
+  };
+
+  const upgradeSelectedTower = (): void => {
+    if (selectedTower && selectedTower.type === "Noob") {
+      requestTower.FireServer(selectedTower.toSerializable(), "upgrade");
       setSelectedTower(undefined);
     }
   };
@@ -239,18 +249,22 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
             StudsOffset={new Vector3(0, 2, 0)}
             Adornee={selectedTower.model.FindFirstChild("Head")! as BasePart}
           >
-            <frame Size={new UDim2(1, 0, 0.5, 0)}>
+            <frame
+              Size={new UDim2(1, 0, 0.5, 0)}
+              Event={{
+                MouseEnter: () => {
+                  setDisableRaycast(true);
+                },
+                MouseLeave: () => {
+                  setDisableRaycast(false);
+                },
+              }}
+            >
               <textbutton
                 Size={new UDim2(0, 100, 0, 50)}
                 Position={new UDim2(0, 0, 0, 0)}
                 Text={"Sell Tower"}
                 Event={{
-                  MouseEnter: () => {
-                    setDisableRaycast(true);
-                  },
-                  MouseLeave: () => {
-                    setDisableRaycast(false);
-                  },
                   Activated: () => {
                     setDisableRaycast(false);
                     sellSelectedTower();
@@ -258,6 +272,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                 }}
               />
               <textbutton
+<<<<<<< HEAD
               Size={new UDim2(0, 100, 0, 50)}
               Position={new UDim2(0, 0, 0, 50)}
               Text={"Upgrade Tower"}
@@ -274,6 +289,18 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                 },
               }}
             />
+=======
+                Size={new UDim2(0, 100, 0, 50)}
+                Position={new UDim2(0, 0, 0, 50)}
+                Text={"Upgrade Tower"}
+                Event={{
+                  Activated: () => {
+                    setDisableRaycast(false);
+                    upgradeSelectedTower();
+                  },
+                }}
+              />
+>>>>>>> 14610ef294f0450bb1472198288e7ae8c878bd03
             </frame>
           </billboardgui>,
           game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui")!,
