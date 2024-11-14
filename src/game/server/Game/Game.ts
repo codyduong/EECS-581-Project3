@@ -9,13 +9,22 @@ import { gameInfoEvent } from "game/modules/events";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { PathGenerator } from "game/modules/Path";
 import { WaveFunctionCollapse } from "game/modules/WFC";
-import gameInfo, { COINS_INITIAL } from "game/server/events/GameInfo";
+import gameInfo, { resetGameInfo } from "game/server/events/GameInfo";
 
 // 1459599628, guranteed contradiction { x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2, seed: 1459599628 }
 
 const wfc = new WaveFunctionCollapse({ x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2 });
 
-export const GameActor = script.GetActor()!;
+export type GameActorTopic = "StartGame" | "StartWave";
+
+export interface GameActor extends Model {
+  readonly _nominal_Actor: unique symbol;
+  BindToMessage(this: GameActor, topic: GameActorTopic, callback: Callback): RBXScriptConnection;
+  BindToMessageParallel: (this: GameActor, topic: GameActorTopic, callback: Callback) => RBXScriptConnection;
+  SendMessage(this: GameActor, topic: GameActorTopic, ...message: Array<unknown>): void;
+}
+
+export const GameActor = script.GetActor() as unknown as GameActor;
 
 let enemySupervisor: EnemySupervisor;
 let threads: thread[] = [];
@@ -24,17 +33,13 @@ let threads: thread[] = [];
 function startGame(): void {
   // Destroy old game and other tasks that were running if there was one
   task.synchronize();
-  // delete towers
-  gameInfo.towers.forEach((tower) => tower.Destroy());
-  gameInfo.towers = [];
   // delete enemies
   enemySupervisor?.Destroy();
   // cleanup threads
   threads.forEach((thread) => task.cancel(thread));
   // reset coins/et. cetera
-  for (const [key, _] of pairs(gameInfo.coins)) {
-    gameInfo.coins[key] = COINS_INITIAL;
-  }
+  resetGameInfo();
+
   gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   task.desynchronize();
 
@@ -76,19 +81,69 @@ function startGame(): void {
   // "too" close to each other, before tick is ready and running
   task.wait(1);
 
-  threads.push(
-    task.spawn(() => {
-      while (true) {
-        const [success] = pcall(() => enemySupervisor.createEnemy());
-        if (!success) {
-          error("Enemy failed to generate");
-        }
-        task.wait(0.5);
-      }
-    }),
-  );
+  // threads.push(
+  //   task.spawn(() => {
+  //     while (true) {
+  //       const [success] = pcall(() => enemySupervisor.createEnemy());
+  //       if (!success) {
+  //         error("Enemy failed to generate");
+  //       }
+  //       task.wait(0.5);
+  //     }
+  //   }),
+  // );
 }
 
 GameActor!.BindToMessageParallel("StartGame", () => {
   startGame();
+});
+
+GameActor!.BindToMessageParallel("StartWave", () => {
+  print("wave starting");
+  gameInfo.wave += 1;
+  task.synchronize();
+  gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+  const wave = gameInfo.wave;
+
+  const makeReadyForNextWave = (): void => {
+    gameInfo.timeUntilWaveStart = -1;
+    gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+  };
+
+  switch (wave) {
+    case 1:
+      for (let i = 0; i < 5; i++) {
+        threads.push(
+          task.delay(0.5 * i, () => {
+            const [success] = pcall(() => enemySupervisor.createEnemy());
+            if (!success) {
+              error("Enemy failed to generate");
+            }
+            if (i >= 4) {
+              print("done generating");
+              makeReadyForNextWave();
+            }
+          }),
+        );
+      }
+      break;
+    case 2:
+      for (let i = 0; i < 10; i++) {
+        threads.push(
+          task.delay(0.5 * i, () => {
+            const [success] = pcall(() => enemySupervisor.createEnemy());
+            if (!success) {
+              error("Enemy failed to generate");
+            }
+            if (i >= 9) {
+              print("done generating");
+              makeReadyForNextWave();
+            }
+          }),
+        );
+      }
+      break;
+    default:
+      print("Wave not made");
+  }
 });
