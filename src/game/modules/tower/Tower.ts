@@ -1,6 +1,27 @@
 /**
- * @author Cody Duong <cody.qd@gmail.com>
- * @file Tower Class
+ * @prologue
+ *
+ * @author Cody Duong
+ *
+ * @file Tower Class used for handling Towers on the server and client. Manages how it looks and its stats.
+ *       AI and animation are controlled by a seperate controller on TowerSupervisor, due to communication sync
+ *       required. (IE. it is easy to propogate client->server on the Tower class, it is much harder to propogate server
+ *       ->client from within this class, hence the existence of TowerSupervisor)
+ *
+ * @precondition N/A
+ *
+ * @postcondition N/A
+ *
+ * @invariant N/A
+ *
+ * @throws N/A
+ *
+ * @sideeffect {@link guidToTowerMap}
+ *
+ * @revisions
+ * [2024.November.4]{@revision Initial tower class (simple placement and selling)}
+ * [2024.November.11]{@revision Add tower upgrading}
+ * [2024.November.18]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
 import { Noob0Model, Noob1Model, NoobStats } from "./noob";
@@ -35,6 +56,12 @@ export class Tower {
 
   /**
    * Creates a tower
+   *
+   * @sideeffect Every non-ephermal tower will be stored permanently in the guidToTowerMap
+   *             @todo I just realized this, but we never remove towers from guidToTowerMap. Chance of intersection is
+   *             near zero and practically zero, but in the Destroy call we should remove the tower as well. -codyduong 2024, Nov 11
+   *
+   * @throws Invalid tower type
    */
   constructor(props: TowerProps) {
     this.guid = props.guid ?? game.GetService("HttpService").GenerateGUID();
@@ -48,15 +75,18 @@ export class Tower {
       default:
         error("Unknown tower type");
     }
+    // Setup the model in the world cframe if it exists
     if (props.cframe) {
       this.model.PivotTo(props.cframe);
     }
+    // If ephermal don't store in the guidToTowerMap
     if (!props.ephermal) {
       guidToTowerMap.set(this.guid, this);
     }
   }
 
   /**
+   * Private utility assertion
    * @throws Errors if already destroyed
    */
   private assertNotDestroyed(): void {
@@ -65,6 +95,8 @@ export class Tower {
 
   /**
    * Destroys this tower and makes it unavailable for any other operation
+   * @precondition Is not destroyed
+   * @throws Errors if already destroyed
    */
   public Destroy(): void {
     this.assertNotDestroyed();
@@ -73,7 +105,11 @@ export class Tower {
   }
 
   /**
+   * Used for passing into RemoteEvent (or any "wire" communication between client/server, client/client)
    * {@link https://create.roblox.com/docs/reference/engine/classes/RemoteEvent RemoteEvent} only accepts a subset of types
+   *
+   * @precondition Is not destroyed
+   * @throws Errors if already destroyed
    */
   public toSerializable(): TowerPropsSerializable {
     this.assertNotDestroyed();
@@ -85,7 +121,16 @@ export class Tower {
     };
   }
 
+  /**
+   * Upgrades the tower
+   *
+   * @precondition Is not destroyed
+   * @throws Errors if already destroyed
+   *
+   * @todo this is primititive and simply only levels once, and manually changes the NoobModel -codyduong 2024 nov 11
+   */
   public upgrade(): void {
+    this.assertNotDestroyed();
     this.level += 1;
     if (this.level > 0) {
       const oldModel = this.model;
@@ -97,15 +142,17 @@ export class Tower {
   }
 
   /**
-   * Attempts to find the guid in the current execution context
+   * Attempts to find the guid in the current execution context (ie. the server or client)
    * @param {string} guid obtained from {@link https://create.roblox.com/docs/reference/engine/classes/HttpService#GenerateGUID GenerateGuid}
    */
   public static fromGuid(guid: string): Tower | undefined {
-    assert(guid !== undefined);
+    assert(guid !== undefined); // todo is this assertion necessary, this should be guarded by the compiler -codyduong
     return guidToTowerMap.get(guid);
   }
 
   /**
+   * Return some stats about this tower based on its type
+   *
    * @todo this should either be a instance method, or a private static method + instance method
    */
   public static getTypeStats(t: TowerType): TowerStats {
