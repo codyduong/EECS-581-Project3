@@ -1,5 +1,19 @@
 /**
+ * @prologue
  * @author Cody Duong <cody.qd@gmail.com>
+ * @file Shows information about coins
+ *
+ * @precondition N/A
+ * @postcondition N/A
+ * @invariant N/A
+ * @sideeffect N/A
+ *
+ * @throws Any DOM error occurs in the React tree
+ *
+ * @revisions
+ * [2024.October.27]{@revision Initial creation to support gui in the game}
+ * [2024.November.4]{@revision Cleanup some comments (no logical changes)}
+ * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
 import React, { useState } from "@rbxts/react";

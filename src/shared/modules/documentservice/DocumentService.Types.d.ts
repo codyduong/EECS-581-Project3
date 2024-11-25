@@ -1,7 +1,11 @@
 /**
+ * @prologue
  * @author Cody Duong <cody.qd@gmail.com>
+ * @license MIT
  * @file Contains type definitions for {@link https://github.com/anthony0br/DocumentService/ DocumentService}
- * @see {@link https://anthony0br.github.io/DocumentService/api/DocumentService#types}
+ *       @see {@link https://anthony0br.github.io/DocumentService/api/DocumentService#types}
+ *       This file is effectively a noop. It is used to provide type information about `\.lua(u)?` files to the
+ *       compiler, but outputs no code.
  */
 
 /**

@@ -1,5 +1,19 @@
 /**
+ * @prologue
  * @author Cody Duong <cody.qd@gmail.com>
+ * @file Shows information about coins
+ *
+ * @precondition N/A
+ * @postcondition N/A
+ * @invariant N/A
+ * @sideeffect N/A
+ *
+ * @throws Any DOM error occurs in the React tree
+ *
+ * @revisions
+ * [2024.October.27]{@revision Initial creation to support displaying coins}
+ * [2024.November.11]{@revision Wrap in frame for better sibling DOM hierarchy}
+ * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
 import React from "@rbxts/react";

@@ -1,4 +1,4 @@
---https://create.roblox.com/docs/luau/tables#deep-clones
+-- https://create.roblox.com/docs/luau/tables#deep-clones
 
 local function deepCopy(original)
 	-- Define the new table for the copy

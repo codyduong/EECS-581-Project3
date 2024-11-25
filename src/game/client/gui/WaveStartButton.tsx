@@ -1,5 +1,19 @@
 /**
- * @author Cody Duong <cody.qd@gmail.com>
+ * @prologue
+ * @author Kyler Luong, Cody Duong <cody.qd@gmail.com>
+ * @file GUI for wave start button
+ *
+ * @precondition N/A
+ * @postcondition N/A
+ * @invariant N/A
+ *
+ * @sideeffect Sends a vote message to {@link waveStartVote} which is handled by the server
+ *
+ * @throws Any DOM error occurs in the React tree
+ *
+ * @revisions
+ * [2024.October.27]{@revision Initial creation for wave start}
+ * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
 import React from "@rbxts/react";
