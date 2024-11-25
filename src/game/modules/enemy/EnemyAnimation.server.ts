@@ -1,14 +1,29 @@
 /**
- * @author Cody Duong <cody.qd@gmail.com
- * @file Handles animation of a specific unit
- *       As of right now it is simply moving from one spot to the next
+ * @prologue
  *
- * Note that this is done on a client script that is not a localscript (it is RunContext: client).
+ * @author Cody Duong
  *
- * Relies on `EnemyAnimation.meta.json` being present
+ * @file Handles animation of a specific tower. This file is meta-exported in `./index.ts` which is then used in
+ *       [EnemySupervisor]{@link EnemySupervisor}.
  *
- * https://devforum.roblox.com/t/live-script-runcontext/1938784
- * https://github.com/rojo-rbx/rojo/issues/791
+ * @precondition Expects the following to be true:
+ *               1. A sibling of {@link RemoteEvent} exists
+ *               2. A sibling of {@link Model} exists
+ *               3. Is cloned, enabled, then run. This is done by `TowerSupervisor.ts`. This precondition is guarded by
+ *                  `TowerAnimation.meta.json` containing the key value pair `"Disabled": true` (and not explictly)
+ *                  within this code.
+ *
+ * @postcondition N/A
+ *
+ * @invariant N/A
+ *
+ * @throws Errors is if precondition is not met (ie. fails to execute)
+ *
+ * @sideeffect See {@link _connection}
+ *
+ * @revisions
+ * [2024.November.4]{@revision Initial creation to support enemy animations}
+ * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
 import Guard from "shared/modules/guard/Guard";

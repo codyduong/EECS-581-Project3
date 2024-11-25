@@ -1,9 +1,25 @@
 /**
- * @author Cody Duong
- * @file This file exists to be copied into each enemy AI. In essence this is the enemy AI.
+ * @prologue
  *
- * Notably, this is not a module we export. Since code runs on module import, we don't want to run the code until
- * it is in an {@link Actor|Actor}. We manage the import of this in the `./index.ts`
+ * @author Cody Duong
+ *
+ * @file Handles tower AI. This file is meta-exported in `./index.ts` which is then used in
+ *       [EnemySupervisor]{@link EnemySupervisor}.
+ *
+ * @precondition Is a child of {@link Actor}
+ *
+ * @postcondition N/A
+ *
+ * @invariant N/A
+ *
+ * @throws Errors is if precondition is not met (ie. fails to execute)
+ *
+ * @sideeffect See {@link _connection}
+ *
+ * @revisions
+ * [2024.November.4]{@revision Initial creation to support enemy movement}
+ * [2024.November.11]{@revision Use {@link Actor.BindToMessageParallel} to improve performance}
+ * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
 import { path } from "game/modules/EnemySupervisor";

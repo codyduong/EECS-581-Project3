@@ -1,6 +1,21 @@
 /**
+ * @prologue
  * @author Kyler Luong, Cody Duong <cody.qd@gmail.com>
- * @file Gui element for drag and drop
+ * @file GUI for placing and upgrading towers
+ *
+ * @precondition N/A
+ * @postcondition N/A
+ * @invariant N/A
+ *
+ * @sideeffect Shows an "ephermal" tower for client upon pressing "place" button. Ensure this is cleaned up on crash.
+ *             When pressed, sends message to server via {@link requestTower} to create a tower.
+ *
+ * @throws Any DOM error occurs in the React tree
+ *
+ * @revisions
+ * [2024.October.27]{@revision Initial creation for placing towers}
+ * [2024.November.4]{@revision Add upgrade tower}
+ * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
 import React, { useEffect, useMemo, useState } from "@rbxts/react";

@@ -1,5 +1,6 @@
 /**
  * @author Cody Duong
+ *
  * @file This is a singleton class which should manage the tower AI. It helps delegate multithreaded control of each
  *       tower into one file.
  *
@@ -60,11 +61,12 @@ export default class TowerSupervisor {
     // add the tower ai to the actor
     const towerAi = TowerAI.Clone();
     towerAi.Parent = towerActor;
-    require(towerAi); // we need to load the moduleScript to bind to the actor
+    require(towerAi); // we need to load the moduleScript to run it
 
+    // add the tower animation to the actor
     const towerAnimation = TowerAnimation.Clone();
     towerAnimation.Parent = towerActor;
-    towerAnimation.Enabled = true;
+    towerAnimation.Enabled = true; // the act of enabling a script is enough to run it
 
     const towerAnimationEvent = new Instance("RemoteEvent"); // TODO should this be here or in a *.json for rojo?
     towerAnimationEvent.Parent = towerActor;
