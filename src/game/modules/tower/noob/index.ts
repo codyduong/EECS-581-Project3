@@ -12,13 +12,27 @@
  * [2024.November.18]{@revision `Noob` -> `Noob0` and adds `Noob1.rbxmx`}
  */
 
-import { TowerStats } from "game/modules/tower/Tower";
+import { TowerMeta } from "game/modules/tower/Tower";
 
-export const Noob0Model = script.WaitForChild("Noob0") as Model;
-export const Noob1Model = script.WaitForChild("Noob1") as Model;
-export const NoobStats = {
-  damage: 1,
-  ticksBetweenAttacks: 40, // 1 attacks per second, if tick rate is 1/40
-  attackType: "raycast",
-  range: 10,
-} satisfies TowerStats;
+export const Noob0 = {
+  stats: {
+    damage: 1,
+    ticksBetweenAttacks: 40, // 1 attacks per second, if tick rate is 1/40
+    attackType: "raycast",
+    range: 10,
+    cost: 1,
+    upgradesTo: "Noob1",
+  },
+  model: script.WaitForChild("Noob0") as Model,
+} satisfies TowerMeta;
+export const Noob1 = {
+  stats: {
+    damage: 1,
+    ticksBetweenAttacks: 40, // 1 attacks per second, if tick rate is 1/40
+    attackType: "raycast",
+    range: 10,
+    cost: 2,
+    upgradesTo: undefined,
+  },
+  model: script.WaitForChild("Noob1") as Model,
+} satisfies TowerMeta;

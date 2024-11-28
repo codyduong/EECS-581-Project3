@@ -68,7 +68,19 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   const [previewTower, setPreviewTower] = useState<Tower>();
   const [disableRaycast, setDisableRaycast] = useState(false);
   const [selectedTower, setSelectedTower] = useState<Tower>();
+  const upgradeCost = useMemo(() => {
+    if (selectedTower) {
+      const upgradesTo = Tower.getTypeStats(selectedTower.type).upgradesTo;
+      if (!upgradesTo) {
+        return undefined;
+      }
+      const upgradeCost = Tower.getTypeStats(upgradesTo).cost;
+      return upgradeCost;
+    }
+  }, [selectedTower]);
+
   const gameInfo = useGame();
+
   const part = useMemo(() => new Instance("Part"), []);
   part.Anchored = true;
   part.CanQuery = false;
@@ -192,7 +204,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   };
 
   const upgradeSelectedTower = (): void => {
-    if (selectedTower && selectedTower.type === "Noob") {
+    if (selectedTower) {
       requestTower.FireServer(selectedTower.toSerializable(), "upgrade");
       setSelectedTower(undefined);
     }
@@ -215,7 +227,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
             Activated: () => {
               if (placing === undefined) {
                 // Clone the "Noob" model as a preview
-                const tower = new Tower({ type: "Noob", ephermal: true });
+                const tower = new Tower({ type: "Noob0", ephermal: true });
                 const model = tower.model;
                 model.Parent = game.Workspace;
                 setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
@@ -254,7 +266,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
               <textbutton
                 Size={new UDim2(0, 100, 0, 50)}
                 Position={new UDim2(0, 0, 0, 0)}
-                Text={"Sell Tower"}
+                Text={`Sell Tower (${math.floor(Tower.getTypeStats(selectedTower.type).cost * 0.5)} coins)`}
                 Event={{
                   Activated: () => {
                     setDisableRaycast(false);
@@ -262,17 +274,19 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                   },
                 }}
               />
-              <textbutton
-                Size={new UDim2(0, 100, 0, 50)}
-                Position={new UDim2(0, 0, 0, 50)}
-                Text={"Upgrade Tower"}
-                Event={{
-                  Activated: () => {
-                    setDisableRaycast(false);
-                    upgradeSelectedTower();
-                  },
-                }}
-              />
+              {upgradeCost !== undefined && (
+                <textbutton
+                  Size={new UDim2(0, 100, 0, 50)}
+                  Position={new UDim2(0, 0, 0, 50)}
+                  Text={`Upgrade Tower (${upgradeCost} coins)`}
+                  Event={{
+                    Activated: () => {
+                      setDisableRaycast(false);
+                      upgradeSelectedTower();
+                    },
+                  }}
+                />
+              )}
             </frame>
           </billboardgui>,
           game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui")!,

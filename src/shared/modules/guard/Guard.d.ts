@@ -38,7 +38,10 @@ declare const Module: {
   Vector2int16: Check<Vector2int16>;
   Vector3: Check<Vector3>;
   Vector3int16: Check<Vector3int16>;
-  Check<T extends (Value: any) => any>(this: void, check: T): (Value: unknown) => [pass: boolean, value: ReturnType<T>];
+  Check<T extends (Value: any) => any>(
+    this: void,
+    check: T,
+  ): (Value: unknown) => LuaTuple<[pass: boolean, value: ReturnType<T>]>;
   // these are not part of the default library. Read the Guard.luau for implementation details
   Record<T extends Record<string, Check<any>>>(
     this: void,

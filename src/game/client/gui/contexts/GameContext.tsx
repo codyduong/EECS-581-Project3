@@ -56,7 +56,7 @@ export default function GameContext(props: GameContextProps): JSX.Element {
           if (!tower) {
             tower = new Tower({ ...props, ephermal: false });
           }
-          while (tower.level !== props.level) {
+          while (tower.type !== props.type) {
             tower.upgrade();
           }
 
