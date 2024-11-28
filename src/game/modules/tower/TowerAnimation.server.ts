@@ -24,13 +24,14 @@
  * @revisions
  * [2024.November.11]{@revision Initial creation to support tower attacks}
  * [2024.November.18]{@revision Improve prologue and inline comments (no logical changes)}
+ * [2024.November.27]{@revision Add initial attack animation indicator (simple debug laser)}
  */
 
 import Guard from "shared/modules/guard/Guard";
 import { TICK_DELAY } from "game/modules/consts";
 
 // 1st precondition
-const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(u: unknown) => void>;
+const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(...u: unknown[]) => void>;
 assert(event !== undefined); // Assert it exists, otherwise error
 
 let towerModel: Model;
@@ -75,7 +76,8 @@ debugLaser.Anchored = true;
 debugLaser.CanCollide = false;
 debugLaser.CanQuery = false;
 debugLaser.CastShadow = false;
-debugLaser.Color = new Color3(1, 0, 0);
+debugLaser.Color = new Color3(0, 0, 1);
+debugLaser.Transparency = 0.5;
 
 /**
  * The core animation function. Is triggered whenever the `TowerAI` requests an animation to be played. Right now it
@@ -87,10 +89,12 @@ debugLaser.Color = new Color3(1, 0, 0);
  */
 const _connection = event.OnClientEvent.ConnectParallel(
   /**
+   * @param maybeAttacked Maybe a {@link boolean}
    * @param maybeEnemyPos Maybe a {@link Vector3}
    * @throws Errors if {@link maybeEnemyPos} is not a {@link Vector3}
    */
-  (maybeEnemyPos) => {
+  (maybeAttacked, maybeEnemyPos) => {
+    const attacked = Guard.Boolean(maybeAttacked);
     const enemyPos = Guard.Vector3(maybeEnemyPos);
 
     const towerPos = towerModel.GetPivot().Position;
@@ -107,6 +111,16 @@ const _connection = event.OnClientEvent.ConnectParallel(
     const distance = adjustedPos.sub(enemyPos).Magnitude;
     debugLaser.Size = new Vector3(0.1, 0.1, distance);
     debugLaser.CFrame = CFrame.lookAt(adjustedPos.Lerp(enemyPos, 0.5), enemyPos, new Vector3(0, 1, 0));
+
+    if (attacked) {
+      // check if we already have an attackLaser and destroy it
+      script.Parent?.FindFirstChild("attackLaser")?.Destroy();
+      const attackLaser = debugLaser.Clone();
+      attackLaser.Parent = script.Parent;
+      attackLaser.Color = new Color3(1, 0, 0);
+      attackLaser.Name = "attackLaser";
+      // todo make the attack laser disappear after certain number of ticks
+    }
 
     // https://devforum.roblox.com/t/is-there-any-way-i-can-tween-pivotto/1918057/3
     const cFrameValue = new Instance("CFrameValue");

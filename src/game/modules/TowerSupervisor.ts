@@ -146,6 +146,7 @@ export default class TowerSupervisor {
   Destroy(): void {
     this.AssertNotDestroyed();
     this.destroyed = true;
+    this.towers.forEach((tower) => tower.Destroy());
     singletonExisting = false;
   }
 }
