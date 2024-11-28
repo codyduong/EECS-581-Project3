@@ -24,15 +24,31 @@
  * [2024.November.18]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
-import { Noob0Model, Noob1Model, NoobStats } from "./noob";
+import Guard from "shared/modules/guard/Guard";
+import { Noob0, Noob1 } from "./noob";
 
-export type TowerType = "Noob";
+export type TowerType = "Noob0" | "Noob1";
+
+export const TOWER_TYPE_GUARD = Guard.Union(Guard.Literal("Noob0"), Guard.Literal("Noob1"));
+export const TOWER_TYPE0_GUARD = Guard.Union(Guard.Literal("Noob0"));
+
+export const TYPE_TO_META: Record<TowerType, TowerMeta> = {
+  Noob0: Noob0,
+  Noob1: Noob1,
+};
 
 export type TowerStats = {
   damage: number;
   ticksBetweenAttacks: number; // see TICK_DELAY
   attackType: "raycast"; // todo add other attack variants like projectile (ie. moving towards, or constant attacks like a poision field)
   range: number; // Range in studs;
+  cost: number;
+  upgradesTo: TowerType | undefined;
+};
+
+export type TowerMeta = {
+  stats: TowerStats;
+  model: Model;
 };
 
 export type TowerProps = {
@@ -45,13 +61,12 @@ export type TowerProps = {
 
 const guidToTowerMap = new Map<string, Tower>();
 
-export type TowerPropsSerializable = Omit<TowerProps, "ephermal"> & { guid: string; level: number };
+export type TowerPropsSerializable = Omit<TowerProps, "ephermal"> & { guid: string };
 
 export class Tower {
   readonly guid: string;
   model: Model;
-  readonly type: TowerType;
-  level: number; // tower level
+  type: TowerType;
   private destroyed = false;
 
   /**
@@ -66,15 +81,8 @@ export class Tower {
   constructor(props: TowerProps) {
     this.guid = props.guid ?? game.GetService("HttpService").GenerateGUID();
     this.type = props.type;
-    this.level = 0;
-    switch (props.type) {
-      case "Noob":
-        this.model = Noob0Model.Clone();
-        this.model.SetAttribute("towerGuid", this.guid);
-        break;
-      default:
-        error("Unknown tower type");
-    }
+    this.model = TYPE_TO_META[props.type].model.Clone();
+    this.model.SetAttribute("towerGuid", this.guid);
     // Setup the model in the world cframe if it exists
     if (props.cframe) {
       this.model.PivotTo(props.cframe);
@@ -117,7 +125,6 @@ export class Tower {
       guid: this.guid,
       cframe: this.model.GetPivot(),
       type: this.type,
-      level: this.level,
     };
   }
 
@@ -126,19 +133,27 @@ export class Tower {
    *
    * @precondition Is not destroyed
    * @throws Errors if already destroyed
-   *
-   * @todo this is primititive and simply only levels once, and manually changes the NoobModel -codyduong 2024 nov 11
    */
   public upgrade(): void {
     this.assertNotDestroyed();
-    this.level += 1;
-    if (this.level > 0) {
-      const oldModel = this.model;
-      this.model = Noob1Model.Clone();
-      this.model.PivotTo(oldModel.GetPivot());
-      this.model.SetAttribute("towerGuid", this.guid);
-      oldModel.Destroy();
-    }
+    const upgradesTo = TYPE_TO_META[this.type].stats.upgradesTo;
+    assert(upgradesTo !== undefined, "Attempted to upgrade impossible to upgrade");
+
+    const oldModel = this.model;
+    this.model = TYPE_TO_META[upgradesTo].model.Clone();
+    this.model.PivotTo(oldModel.GetPivot());
+    this.model.SetAttribute("towerGuid", this.guid);
+    oldModel.Destroy();
+
+    this.type = upgradesTo;
+
+    // if (this.level > 0) {
+    //   const oldModel = this.model;
+    //   this.model = Noob1Model.Clone();
+    //   this.model.PivotTo(oldModel.GetPivot());
+    //   this.model.SetAttribute("towerGuid", this.guid);
+    //   oldModel.Destroy();
+    // }
   }
 
   /**
@@ -156,12 +171,6 @@ export class Tower {
    * @todo this should either be a instance method, or a private static method + instance method
    */
   public static getTypeStats(t: TowerType): TowerStats {
-    switch (t) {
-      // TODO this depends on level as well.
-      case "Noob":
-        return NoobStats;
-      default:
-        error("Unknown tower type");
-    }
+    return TYPE_TO_META[t].stats;
   }
 }

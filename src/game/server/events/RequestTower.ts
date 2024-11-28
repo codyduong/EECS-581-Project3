@@ -7,7 +7,13 @@
 
 import { gameInfoEvent, requestTower } from "game/modules/events";
 import { RequestTowerAction } from "game/modules/events/RequestTower/RequestTower";
-import { Tower, TowerPropsSerializable } from "game/modules/tower/Tower";
+import {
+  Tower,
+  TOWER_TYPE0_GUARD,
+  TOWER_TYPE_GUARD,
+  TowerPropsSerializable,
+  TYPE_TO_META,
+} from "game/modules/tower/Tower";
 import Guard from "shared/modules/guard/Guard";
 import { assertServer } from "shared/modules/utils";
 import gameInfo from "./GameInfo";
@@ -18,8 +24,7 @@ const guardRequestTower = (v: unknown): TowerPropsSerializable =>
   Guard.Record({
     guid: Guard.String,
     cframe: Guard.CFrame,
-    type: Guard.Literal("Noob"),
-    level: Guard.Number,
+    type: TOWER_TYPE_GUARD,
   })(v);
 
 const guardType = (v: unknown): RequestTowerAction =>
@@ -46,14 +51,19 @@ export function setupRequestTower(): void {
     let coins = gameInfo.coins[player.UserId];
     assert(coins !== undefined, "Failed to find player coins?");
 
+    const towerCost = TYPE_TO_META[props.type].stats.cost;
+
     if (action === "buy") {
+      // it is possible to request a tower you can't normally buy. so guard this to level 0 types
+      const [pass, _] = Guard.Check(TOWER_TYPE0_GUARD)(props.type);
+      if (!pass) {
+        print("Attempted to buy non level 0 tower");
+      }
+
       if (towerExists !== undefined) {
         print("We already processed this tower request");
         return;
       }
-
-      // all towers cost 1 coin. Because...
-      const towerCost = 2; // TODO use some dynamic value
 
       if (coins < towerCost) {
         print("Not enough money!");
@@ -87,7 +97,7 @@ export function setupRequestTower(): void {
 
       // Determine the sell value (could be a percentage of the cost)
       const sellValue = 0.5; // e.g., 50% of the original cost
-      const towerSellPrice = math.floor(2 * sellValue); // TODO: Adjust based on actual tower cost
+      const towerSellPrice = math.floor(towerCost * sellValue);
 
       // Refund the player
       gameInfo.coins[player.UserId] += towerSellPrice;
@@ -107,15 +117,18 @@ export function setupRequestTower(): void {
         return;
       }
 
-      const upgradeCost = 2; // TODO use some dynamic value
+      const upgradesTo = Tower.getTypeStats(towerExists.type).upgradesTo;
 
-      if (coins < upgradeCost) {
-        print("Not enough money!");
+      if (upgradesTo === undefined) {
+        print("No further upgrade permitted");
         return;
       }
 
-      if (towerExists.level !== 0) {
-        print("Already upgraded");
+      const upgradesToStats = Tower.getTypeStats(upgradesTo);
+      const upgradeCost = upgradesToStats.cost;
+
+      if (coins < upgradeCost) {
+        print("Not enough money!");
         return;
       }
 
