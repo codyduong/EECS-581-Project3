@@ -19,6 +19,7 @@
  * @revisions
  * [2024.November.11]{@revision Initial creation to support tower attacks}
  * [2024.November.18]{@revision Improve prologue and inline comments (no logical changes)}
+ * [2024.November.27]{@revision Add initial attack animation indicator (simple debug laser)}
  */
 
 import Guard from "shared/modules/guard/Guard";
@@ -88,6 +89,8 @@ const _connection = script.GetActor()!.BindToMessageParallel(
       return;
     }
 
+    let attacked = false;
+
     if (tick > lastAttacked + ticksBetweenAttacks) {
       actor.SetAttribute("LastAttacked", tick);
       let enemyHealth = Guard.Number(firstAliveEnemy.GetAttribute("health"));
@@ -99,6 +102,8 @@ const _connection = script.GetActor()!.BindToMessageParallel(
         firstAliveEnemy.Destroy();
       }
       firstAliveEnemy.SetAttribute("health", newHealth);
+
+      attacked = true;
     }
 
     // every tick always inform animator of where to point tower
@@ -110,6 +115,6 @@ const _connection = script.GetActor()!.BindToMessageParallel(
 
     // in some scenarios animateEvent was deleted while AI was running (ex. if a AI thinks on tick 2, and deleted on tick 3,
     // it is very possible, this will run and fail, so use ? conditional chaining)
-    animateEvent?.FireAllClients(Guard.Vector3(firstAliveEnemy.GetAttribute("Position")));
+    animateEvent?.FireAllClients(attacked, Guard.Vector3(firstAliveEnemy.GetAttribute("Position")));
   },
 );

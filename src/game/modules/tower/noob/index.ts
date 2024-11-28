@@ -28,7 +28,7 @@ export const Noob0 = {
 export const Noob1 = {
   stats: {
     damage: 1,
-    ticksBetweenAttacks: 40, // 1 attacks per second, if tick rate is 1/40
+    ticksBetweenAttacks: 20, // 2 attacks per second, if tick rate is 1/40
     attackType: "raycast",
     range: 10,
     cost: 2,
