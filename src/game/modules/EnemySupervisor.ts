@@ -8,7 +8,7 @@
  */
 
 import { EnemyAI, EnemyAnimation } from "game/modules/enemy";
-import Enemy from "game/modules/enemy/Enemy";
+import Enemy, { EnemyType } from "game/modules/enemy/Enemy";
 import { Node, Vector3Key } from "game/modules/Path";
 import { assertServer } from "shared/modules/utils";
 
@@ -58,7 +58,7 @@ export default class EnemySupervisor {
    *
    * @todo: should this be here, or should the Enemy constructor create all of this?
    */
-  public createEnemy(): void {
+  public createEnemy(t: EnemyType): void {
     this.AssertNotDestroyed();
 
     // create the enemy actor
@@ -84,7 +84,7 @@ export default class EnemySupervisor {
     assert(goalNode !== undefined);
     // TODO this enemy should not even be parented to the datamodel on the server. Instead use some replication magic...
     // IDK.
-    const enemy = new Enemy({ type: "BasicEnemy", parent: enemyActor, position: node.pos });
+    const enemy = new Enemy({ type: t, parent: enemyActor, position: node.pos });
 
     // add some data about the enemy to the actor to access
     enemyActor.SetAttribute("health", enemy.health);
@@ -92,6 +92,7 @@ export default class EnemySupervisor {
     enemyActor.SetAttribute("speed", enemy.speed); // studs per tick
     enemyActor.SetAttribute("modelOffset", enemy.modelOffset);
     enemyActor.SetAttribute("Position", enemy.model.GetPivot().Position);
+    enemyActor.SetAttribute("distanceTravelled", 0);
 
     this.enemies.push(enemyActor);
 

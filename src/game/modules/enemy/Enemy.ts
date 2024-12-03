@@ -11,11 +11,11 @@ export const Enemies = {
   BasicEnemy: BasicEnemy,
 } as const;
 
-type EnemyTypes = keyof typeof Enemies;
+export type EnemyType = keyof typeof Enemies;
 
 interface EnemyProps {
   guid?: string;
-  type: EnemyTypes;
+  type: EnemyType;
   parent: Instance;
   position: Vector3;
 }
