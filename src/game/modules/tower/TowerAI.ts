@@ -20,6 +20,7 @@
  * [2024.November.11]{@revision Initial creation to support tower attacks}
  * [2024.November.18]{@revision Improve prologue and inline comments (no logical changes)}
  * [2024.November.27]{@revision Add initial attack animation indicator (simple debug laser)}
+ * [2024.December.2]{@revision Fix targeting to use furthest along rather than oldest}
  */
 
 import Guard from "shared/modules/guard/Guard";
@@ -74,13 +75,11 @@ const _connection = script.GetActor()!.BindToMessageParallel(
     // this needs to be synchronized when we determine enemy for targetting, otherwise async means unpredictable
     task.synchronize();
 
-    // sorted by name (which is incrementing, ie. 0, 1, 2...)
-    // TODO, this doesn't actually choose the enemy furthest along the path, simply the oldest... -codyduong 2024, Nov 11
     const sortedEnemies = enemiesWithinRange.sort((a, b) => {
-      const aNumber = Guard.Number(tonumber(a.Name, 10));
-      const bNumber = Guard.Number(tonumber(b.Name, 10));
+      const aNumber = Guard.Number(a.GetAttribute("distanceTravelled"));
+      const bNumber = Guard.Number(b.GetAttribute("distanceTravelled"));
 
-      return aNumber < bNumber;
+      return aNumber > bNumber;
     });
 
     const firstAliveEnemy = sortedEnemies.find((enemy) => Guard.Number(enemy.GetAttribute("health")) > 0)!;

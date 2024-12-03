@@ -34,6 +34,7 @@ const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
   const goalNodeKey = Guard.Vector3(actor.GetAttribute("goalNode"));
   const modelOffset = Guard.Vector3(actor.GetAttribute("modelOffset"));
   const currPos = Guard.Vector3(actor.GetAttribute("Position"));
+  const distanceTravelled = Guard.Number(actor.GetAttribute("distanceTravelled"));
 
   // TOOD we need to change this to the new model;
   const enemyModel = actor.FindFirstChildOfClass("Model");
@@ -90,6 +91,7 @@ const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
   // enemyModel.PivotTo();
   task.synchronize();
   actor.SetAttribute("Position", newPos);
+  actor.SetAttribute("distanceTravelled", distanceTravelled + vector.Magnitude);
 
   const animateEvent = actor.FindFirstChildOfClass("RemoteEvent");
 

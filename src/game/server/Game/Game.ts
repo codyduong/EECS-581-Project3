@@ -13,6 +13,7 @@ import TowerSupervisor from "game/modules/TowerSupervisor";
 import { WaveFunctionCollapse } from "game/modules/WFC";
 import gameInfo, { resetGameInfo } from "game/server/events/GameInfo";
 import Guard from "shared/modules/guard/Guard";
+import createWave from "./Waves";
 
 // 1459599628, guranteed contradiction { x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2, seed: 1459599628 }
 
@@ -157,40 +158,9 @@ GameActor!.BindToMessageParallel("StartWave", () => {
     gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   };
 
-  switch (wave) {
-    case 1:
-      for (let i = 0; i < 5; i++) {
-        threads.push(
-          task.delay(0.5 * i, () => {
-            const [success] = pcall(() => enemySupervisor.createEnemy());
-            if (!success) {
-              error("Enemy failed to generate");
-            }
-            if (i >= 4) {
-              print("done generating");
-              makeReadyForNextWave();
-            }
-          }),
-        );
-      }
-      break;
-    case 2:
-      for (let i = 0; i < 10; i++) {
-        threads.push(
-          task.delay(0.5 * i, () => {
-            const [success] = pcall(() => enemySupervisor.createEnemy());
-            if (!success) {
-              error("Enemy failed to generate");
-            }
-            if (i >= 9) {
-              print("done generating");
-              makeReadyForNextWave();
-            }
-          }),
-        );
-      }
-      break;
-    default:
-      print("Wave not made");
+  const madeWave = createWave(wave, enemySupervisor, threads, makeReadyForNextWave);
+
+  if (!madeWave) {
+    error("failed to make wave, add end game screen");
   }
 });
