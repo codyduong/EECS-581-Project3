@@ -51,6 +51,7 @@ const _connection = script.GetActor()!.BindToMessageParallel(
     const range = Guard.Number(actor.GetAttribute("range"));
     const position = Guard.Vector3(actor.GetAttribute("Position"));
     const lastAttacked = Guard.Number(actor.GetAttribute("LastAttacked"));
+    // const pendingDmg = Guard.NumberMin(0)(actor.GetAttribute("PendingDmg"));
 
     // print(`Tower: ${guid} is thinking`); // <-- I/O actually causes significant latency
 
@@ -106,9 +107,6 @@ const _connection = script.GetActor()!.BindToMessageParallel(
     }
 
     // every tick always inform animator of where to point tower
-
-    // give the position of the enemy to fire at
-    task.synchronize();
 
     const animateEvent = actor.FindFirstChildOfClass("RemoteEvent");
 

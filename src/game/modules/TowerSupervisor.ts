@@ -77,6 +77,7 @@ export default class TowerSupervisor {
     towerActor.SetAttribute("guid", tower.guid);
     towerActor.SetAttribute("Position", tower.model.GetPivot().Position);
     towerActor.SetAttribute("LastAttacked", -TICKS_PER_SECOND - 1); // the tick we last attacked, uses -TICK_DELAY since we can and want to be able to attack at tick 0
+    towerActor.SetAttribute("PendingDmg", 0);
     updateStats(towerActor, stats);
 
     this.towers.push(towerActor);
