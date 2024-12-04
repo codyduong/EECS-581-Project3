@@ -16,6 +16,7 @@
  * [2024.October.27]{@revision Initial creation for placing towers}
  * [2024.November.4]{@revision Add upgrade tower}
  * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
+ * [2024.December.4]{@revision Add tower stats}
  */
 
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
@@ -23,6 +24,7 @@ import { useGame } from "./contexts/GameContext";
 import { Tower } from "game/modules/tower/Tower";
 import { requestTower } from "game/modules/events";
 import { createPortal } from "@rbxts/react-roblox";
+import { TICKS_PER_SECOND } from "game/modules/consts";
 
 function anchorModel(model: Model): void {
   model.GetDescendants().forEach((descendant) => {
@@ -218,11 +220,60 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
 
   return (
     <>
-      <frame Size={new UDim2(0, 100, 0, 100)} Position={new UDim2(0.5, -50, 1, -100)}>
+      <frame Size={new UDim2(0, 300, 0, 50)} Position={new UDim2(0.5, -150, 1, -50)}>
         <textbutton
           Size={new UDim2(0, 100, 0, 50)}
-          Position={new UDim2(0.5, -50, 1, -50)}
-          Text={"Place Tower"}
+          Position={new UDim2(0, 0, 0, 0)}
+          Text={"Place Basic Tower (2 coins)"}
+          Event={{
+            Activated: () => {
+              if (placing === undefined) {
+                // Clone the "Noob" model as a preview
+                const tower = new Tower({ type: "Noob0", ephermal: true });
+                const model = tower.model;
+                model.Parent = game.Workspace;
+                setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
+                anchorModel(model); // Anchor the preview
+                disableAnimations(model); // Disable animations for preview
+                setPreviewTower(tower);
+                setPlacing(tower.guid);
+              } else {
+                previewTower?.Destroy();
+                setPreviewTower(undefined);
+                setPlacing(undefined);
+              }
+            },
+          }}
+        />
+        <textbutton
+          Size={new UDim2(0, 100, 0, 50)}
+          Position={new UDim2(0, 100, 0, 0)}
+          Text={"Place Bomb Tower (2 coins)"}
+          Event={{
+            Activated: () => {
+              if (placing === undefined) {
+                // Clone the "Noob" model as a preview
+                const tower = new Tower({ type: "Noob0", ephermal: true });
+                const model = tower.model;
+                model.Parent = game.Workspace;
+                setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
+                anchorModel(model); // Anchor the preview
+                disableAnimations(model); // Disable animations for preview
+                setPreviewTower(tower);
+                setPlacing(tower.guid);
+              } else {
+                previewTower?.Destroy();
+                setPreviewTower(undefined);
+                setPlacing(undefined);
+              }
+            },
+          }}
+        />
+        <textbutton
+          Size={new UDim2(0, 100, 0, 50)}
+          Position={new UDim2(0, 200, 0, 0)}
+          Text={"Place Sniper Tower (2 coins)"}
+          Active={false}
           Event={{
             Activated: () => {
               if (placing === undefined) {
@@ -266,7 +317,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
               <textbutton
                 Size={new UDim2(0, 100, 0, 50)}
                 Position={new UDim2(0, 0, 0, 0)}
-                Text={`Sell Tower (${math.floor(Tower.getTypeStats(selectedTower.type).cost * 0.5)} coins)`}
+                Text={`Sell (${math.floor(Tower.getTypeStats(selectedTower.type).cost * 0.5)} coins)`}
                 Event={{
                   Activated: () => {
                     setDisableRaycast(false);
@@ -278,7 +329,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                 <textbutton
                   Size={new UDim2(0, 100, 0, 50)}
                   Position={new UDim2(0, 0, 0, 50)}
-                  Text={`Upgrade Tower (${upgradeCost} coins)`}
+                  Text={`Upgrade (${upgradeCost} coins)`}
                   Event={{
                     Activated: () => {
                       setDisableRaycast(false);
@@ -287,6 +338,21 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                   }}
                 />
               )}
+              <frame Position={new UDim2(0, 100, 0, 0)} Size={new UDim2(0, 100, 0, 100)}>
+                <uilistlayout FillDirection="Vertical" />
+                <textlabel
+                  Size={new UDim2(0, 100, 0, 25)}
+                  Text={`Damage: ${Tower.getTypeStats(selectedTower.type).damage}`}
+                />
+                <textlabel
+                  Size={new UDim2(0, 100, 0, 25)}
+                  Text={`Range: ${Tower.getTypeStats(selectedTower.type).range}`}
+                />
+                <textlabel
+                  Size={new UDim2(0, 100, 0, 25)}
+                  Text={`Attacks/Second: ${TICKS_PER_SECOND / Tower.getTypeStats(selectedTower.type).ticksBetweenAttacks}`}
+                />
+              </frame>
             </frame>
           </billboardgui>,
           game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui")!,

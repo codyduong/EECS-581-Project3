@@ -24,12 +24,12 @@
  * [2024.November.18]{@revision Improve prologue and inline comments (no logical changes)}
  */
 
-import Guard from "shared/modules/guard/Guard";
+import Guard, { Check } from "shared/modules/guard/Guard";
 import { Noob0, Noob1 } from "./noob";
 
 export type TowerType = "Noob0" | "Noob1";
 
-export const TOWER_TYPE_GUARD = Guard.Union(Guard.Literal("Noob0"), Guard.Literal("Noob1"));
+export const TOWER_TYPE_GUARD: Check<TowerType> = Guard.Union(Guard.Literal("Noob0"), Guard.Literal("Noob1"));
 export const TOWER_TYPE0_GUARD = Guard.Union(Guard.Literal("Noob0"));
 
 export const TYPE_TO_META: Record<TowerType, TowerMeta> = {
@@ -37,10 +37,13 @@ export const TYPE_TO_META: Record<TowerType, TowerMeta> = {
   Noob1: Noob1,
 };
 
+// todo add other attack variants like projectile (ie. moving towards, or constant attacks like a poision field)
+export type AttackType = "raycast" | "bomb";
+
 export type TowerStats = {
   damage: number;
   ticksBetweenAttacks: number; // see TICK_DELAY
-  attackType: "raycast"; // todo add other attack variants like projectile (ie. moving towards, or constant attacks like a poision field)
+  attackType: AttackType;
   range: number; // Range in studs;
   cost: number;
   upgradesTo: TowerType | undefined;

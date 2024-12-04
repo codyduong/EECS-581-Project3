@@ -41,7 +41,7 @@ root.render(
     <PlayersContext>
       <PlayerDataContext>
         <GameContext>
-          <PlayerHeadGui />
+          {/* <PlayerHeadGui /> */}
           <ScreenGui>
             <DebugGame />
             <TowerSelect />
