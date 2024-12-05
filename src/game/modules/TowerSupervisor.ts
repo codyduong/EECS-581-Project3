@@ -38,7 +38,7 @@ export default class TowerSupervisor {
       "TowerSupervisor singleton already exists. Did we call `Destroy()` on the old TowerSupervisor?",
     );
     singletonExisting = true;
-    let maybeFolder = game.Workspace.FindFirstChild("towerFolder");
+    let maybeFolder = game.Workspace.FindFirstChild("TowerFolder");
     if (!maybeFolder) {
       maybeFolder = new Instance("Folder");
       maybeFolder.Name = "TowerFolder";
