@@ -93,6 +93,7 @@ export default class EnemySupervisor {
     enemyActor.SetAttribute("modelOffset", enemy.modelOffset);
     enemyActor.SetAttribute("Position", enemy.model.GetPivot().Position);
     enemyActor.SetAttribute("distanceTravelled", 0);
+    enemyActor.SetAttribute("pendingDmg", 0);
 
     this.enemies.push(enemyActor);
 

@@ -224,7 +224,8 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
         <textbutton
           Size={new UDim2(0, 100, 0, 50)}
           Position={new UDim2(0, 0, 0, 0)}
-          Text={"Place Basic Tower (2 coins)"}
+          Text={`Place Basic Tower (${Tower.getTypeStats("Noob0").cost} coins)`}
+          TextWrapped
           Event={{
             Activated: () => {
               if (placing === undefined) {
@@ -248,12 +249,13 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
         <textbutton
           Size={new UDim2(0, 100, 0, 50)}
           Position={new UDim2(0, 100, 0, 0)}
-          Text={"Place Bomb Tower (2 coins)"}
+          Text={`Place Bomb Tower (${Tower.getTypeStats("Bomb0").cost} coins)`}
+          TextWrapped
           Event={{
             Activated: () => {
               if (placing === undefined) {
                 // Clone the "Noob" model as a preview
-                const tower = new Tower({ type: "Noob0", ephermal: true });
+                const tower = new Tower({ type: "Bomb0", ephermal: true });
                 const model = tower.model;
                 model.Parent = game.Workspace;
                 setModelTransparency(model, 0.5); // Make it semi-transparent as a visual cue
@@ -272,7 +274,8 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
         <textbutton
           Size={new UDim2(0, 100, 0, 50)}
           Position={new UDim2(0, 200, 0, 0)}
-          Text={"Place Sniper Tower (2 coins)"}
+          Text={"Place Sniper Tower (N/A)"}
+          TextWrapped
           Active={false}
           Event={{
             Activated: () => {

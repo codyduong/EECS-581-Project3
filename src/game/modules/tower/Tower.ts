@@ -26,19 +26,29 @@
 
 import Guard, { Check } from "shared/modules/guard/Guard";
 import { Noob0, Noob1 } from "./noob";
+import { Bomb0, Bomb1 } from "./bomb";
 
-export type TowerType = "Noob0" | "Noob1";
+export type TowerType = "Noob0" | "Noob1" | "Bomb0" | "Bomb1";
 
-export const TOWER_TYPE_GUARD: Check<TowerType> = Guard.Union(Guard.Literal("Noob0"), Guard.Literal("Noob1"));
-export const TOWER_TYPE0_GUARD = Guard.Union(Guard.Literal("Noob0"));
+export const TOWER_TYPE_GUARD: Check<TowerType> = Guard.Union(
+  Guard.Literal("Noob0"),
+  Guard.Literal("Noob1"),
+  Guard.Literal("Bomb0"),
+  Guard.Literal("Bomb1"),
+);
+export const TOWER_TYPE0_GUARD = Guard.Union(Guard.Literal("Noob0"), Guard.Literal("Bomb0"));
 
-export const TYPE_TO_META: Record<TowerType, TowerMeta> = {
+export const TYPE_TO_META = {
   Noob0: Noob0,
   Noob1: Noob1,
-};
+  Bomb0: Bomb0,
+  Bomb1: Bomb1,
+} as const satisfies Record<TowerType, TowerMeta>;
 
 // todo add other attack variants like projectile (ie. moving towards, or constant attacks like a poision field)
 export type AttackType = "raycast" | "bomb";
+
+export const ATTACK_TYPE_GUARD: Check<AttackType> = Guard.Union(Guard.Literal("raycast"), Guard.Literal("bomb"));
 
 export type TowerStats = {
   damage: number;
@@ -47,7 +57,7 @@ export type TowerStats = {
   range: number; // Range in studs;
   cost: number;
   upgradesTo: TowerType | undefined;
-};
+} & ({ attackType: "raycast" } | { attackType: "bomb"; bombRange: number; bombSpeed: number });
 
 export type TowerMeta = {
   stats: TowerStats;
@@ -173,7 +183,7 @@ export class Tower {
    *
    * @todo this should either be a instance method, or a private static method + instance method
    */
-  public static getTypeStats(t: TowerType): TowerStats {
+  public static getTypeStats<T extends TowerType>(t: T): (typeof TYPE_TO_META)[T]["stats"] {
     return TYPE_TO_META[t].stats;
   }
 }

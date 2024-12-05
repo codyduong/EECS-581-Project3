@@ -5,6 +5,7 @@ export type EnemyStats = {
   speed: number; // studs per tick
   model: Model;
   modelOffset: Vector3;
+  reward: number; // coins given upon death
 };
 
 export const Enemies = {

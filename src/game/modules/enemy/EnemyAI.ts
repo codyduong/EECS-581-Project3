@@ -20,6 +20,7 @@
  * [2024.November.4]{@revision Initial creation to support enemy movement}
  * [2024.November.11]{@revision Use {@link Actor.BindToMessageParallel} to improve performance}
  * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
+ * [2024.December.2]{@revision Fix targeting to use furthest along rather than oldest}
  */
 
 import { path } from "game/modules/EnemySupervisor";
@@ -29,7 +30,7 @@ import Guard from "shared/modules/guard/Guard";
 const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
   const actor = script.GetActor()!;
 
-  const _health = Guard.Number(actor.GetAttribute("health"));
+  const health = Guard.Number(actor.GetAttribute("health"));
   const speed = Guard.Number(actor.GetAttribute("speed"));
   const goalNodeKey = Guard.Vector3(actor.GetAttribute("goalNode"));
   const modelOffset = Guard.Vector3(actor.GetAttribute("modelOffset"));
@@ -49,11 +50,16 @@ const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
     });
   }
 
+  if (health <= 0) {
+    cleanup();
+    return;
+  }
+
   // find the direction we need to be going in;
   // const currPos = enemyModel.GetPivot().Position;
   let goalNode = path.get(PathGenerator.vector3ToKey(goalNodeKey));
   if (goalNode === undefined) {
-    // this should never happen unless regeneration is done while AI is running. TODO rather than catch this behavior
+    // this should never happen unless map regeneration is done while AI is running. TODO rather than catch this behavior
     // here we should add a new function to cleanup enemyAI explicitly
     cleanup();
     return;

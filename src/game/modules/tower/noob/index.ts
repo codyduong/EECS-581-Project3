@@ -20,18 +20,18 @@ export const Noob0 = {
     ticksBetweenAttacks: 40, // 1 attacks per second, if tick rate is 1/40
     attackType: "raycast",
     range: 10,
-    cost: 1,
+    cost: 30,
     upgradesTo: "Noob1",
   },
   model: script.WaitForChild("Noob0") as Model,
 } satisfies TowerMeta;
 export const Noob1 = {
   stats: {
-    damage: 1,
+    damage: 2,
     ticksBetweenAttacks: 20, // 2 attacks per second, if tick rate is 1/40
     attackType: "raycast",
     range: 10,
-    cost: 2,
+    cost: 60,
     upgradesTo: undefined,
   },
   model: script.WaitForChild("Noob1") as Model,
