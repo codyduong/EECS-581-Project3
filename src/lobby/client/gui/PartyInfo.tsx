@@ -50,19 +50,6 @@ export default function PartyInfo(_props: PartyInfoProps): JSX.Element {
               },
             }}
           />
-          {(inParty.owner === localPlayer.UserId || !inParty) && (
-            <textbutton
-              LayoutOrder={100001}
-              Text={`Start Game`}
-              Size={new UDim2(1, 0, 0, 50)}
-              Event={{
-                Activated: () => {
-                  // todo
-                  print("starting game");
-                },
-              }}
-            />
-          )}
         </>
       ) : (
         <>
@@ -81,6 +68,19 @@ export default function PartyInfo(_props: PartyInfoProps): JSX.Element {
               />
             ))}
         </>
+      )}
+      {(inParty ? inParty.owner === localPlayer.UserId : !inParty) && (
+        <textbutton
+          LayoutOrder={100001}
+          Text={`Start Game`}
+          Size={new UDim2(1, 0, 0, 50)}
+          Event={{
+            Activated: () => {
+              // todo
+              print("starting game");
+            },
+          }}
+        />
       )}
     </Frame>
   );
