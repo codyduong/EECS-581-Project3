@@ -6,6 +6,7 @@ import Guard from "shared/modules/guard/Guard";
 type wave = {
   ticksTilReady: number;
   fns: ((enemySupervisor: EnemySupervisor) => thread[])[];
+  reward: number;
 };
 
 const createEnemyAtInterval = (
@@ -33,10 +34,12 @@ const WAVES: wave[] = [
   {
     ticksTilReady: 400,
     fns: [(e) => createEnemyAtInterval(e, "BasicEnemy", 10, 30)],
+    reward: 20,
   },
   {
     ticksTilReady: 400,
     fns: [(e) => createEnemyAtInterval(e, "BasicEnemy", 20, 20)],
+    reward: 40,
   },
 ];
 
@@ -44,7 +47,7 @@ export default function createWave(
   waveNumber: number,
   enemySupervisor: EnemySupervisor,
   threads: thread[],
-  makeReadyForNextWave: () => void,
+  makeReadyForNextWave: (waveReward: number) => void,
 ): boolean {
   Guard.NumberMin(1)(waveNumber);
   const [hasWave, wave] = Guard.Check(Guard.NonNil<wave>)(WAVES[waveNumber - 1]);
@@ -54,7 +57,7 @@ export default function createWave(
   }
 
   wave.fns.forEach((f) => f(enemySupervisor).forEach((t) => threads.push(t)));
-  threads.push(task.delay(TICK_DELAY * wave.ticksTilReady, () => makeReadyForNextWave()));
+  threads.push(task.delay(TICK_DELAY * wave.ticksTilReady, () => makeReadyForNextWave(wave.reward)));
 
   return true;
 }

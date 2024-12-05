@@ -153,8 +153,11 @@ GameActor!.BindToMessageParallel("StartWave", () => {
   gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   const wave = gameInfo.wave;
 
-  const makeReadyForNextWave = (): void => {
+  const makeReadyForNextWave = (waveReward: number): void => {
     gameInfo.timeUntilWaveStart = -1;
+    for (const [playerId, _] of pairs(gameInfo.coins)) {
+      gameInfo.coins[playerId] += waveReward;
+    }
     gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   };
 

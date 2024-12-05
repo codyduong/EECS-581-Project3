@@ -2,7 +2,7 @@ import { gameInfoEvent } from "game/modules/events";
 import { GameInfo, serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { Tower } from "game/modules/tower/Tower";
 
-const COINS_INITIAL = 10;
+const COINS_INITIAL = 80;
 
 const DEFAULT_GAME_INFO = {
   towers: [] as Tower[],

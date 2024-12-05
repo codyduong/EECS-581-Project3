@@ -28,7 +28,8 @@
  */
 
 import Guard from "shared/modules/guard/Guard";
-import { TICK_DELAY } from "game/modules/consts";
+import { TICK_DELAY, TICKS_PER_SECOND } from "game/modules/consts";
+import { ATTACK_TYPE_GUARD } from "./Tower";
 
 // 1st precondition
 const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(...u: unknown[]) => void>;
@@ -96,6 +97,7 @@ const _connection = event.OnClientEvent.ConnectParallel(
   (maybeAttacked, maybeEnemyPos) => {
     const attacked = Guard.Boolean(maybeAttacked);
     const enemyPos = Guard.Vector3(maybeEnemyPos);
+    const tower = script.Parent as Actor;
 
     const towerPos = towerModel.GetPivot().Position;
     // set at the same height as enemy, such that we don't pivot in the vertical direction
@@ -114,11 +116,55 @@ const _connection = event.OnClientEvent.ConnectParallel(
 
     if (attacked) {
       // check if we already have an attackLaser and destroy it
-      script.Parent?.FindFirstChild("attackLaser")?.Destroy();
-      const attackLaser = debugLaser.Clone();
-      attackLaser.Parent = script.Parent;
-      attackLaser.Color = new Color3(1, 0, 0);
-      attackLaser.Name = "attackLaser";
+      const attackType = ATTACK_TYPE_GUARD(tower.GetAttribute("attackType"));
+
+      if (attackType === "raycast") {
+        script.Parent?.FindFirstChild("attackLaser")?.Destroy();
+        const attackLaser = debugLaser.Clone();
+        attackLaser.Parent = script.Parent;
+        attackLaser.Color = new Color3(1, 0, 0);
+        attackLaser.Name = "attackLaser";
+      }
+
+      if (attackType === "bomb") {
+        script.Parent?.FindFirstChild("projectile")?.Destroy();
+        const projectile = new Instance("Part");
+        projectile.Name = "projectile";
+        projectile.Parent = script.Parent;
+        projectile.Anchored = true;
+        projectile.CastShadow = false;
+        projectile.CanCollide = false;
+        projectile.CanQuery = false;
+        projectile.Transparency = 0.5;
+        projectile.Color = new Color3(0.5, 0.5, 0.5);
+        projectile.Size = new Vector3(0.5, 0.5, 0.5);
+        projectile.Position = adjustedPos;
+
+        const projectileSpeed = Guard.Number(tower.GetAttribute("bombSpeed"));
+        const projectileSize = Guard.Number(tower.GetAttribute("bombRange"));
+
+        const projectileTimeToIntercept = distance / (projectileSpeed * TICKS_PER_SECOND);
+
+        // print(projectileTimeToIntercept);
+
+        task.delay(projectileTimeToIntercept, () => {
+          const explosion = new Instance("Part");
+          explosion.Name = "explosion";
+          explosion.Parent = script.Parent;
+          explosion.Anchored = true;
+          explosion.CastShadow = false;
+          explosion.CanCollide = false;
+          explosion.CanQuery = false;
+          explosion.Transparency = 0.5;
+          explosion.Color = new Color3(1, 0, 0);
+          explosion.Size = new Vector3(projectileSize, projectileSize, projectileSize);
+          explosion.Position = enemyPos;
+          task.delay(10 * TICK_DELAY, () => {
+            explosion.Destroy();
+          });
+        });
+      }
+
       // todo make the attack laser disappear after certain number of ticks
     }
 

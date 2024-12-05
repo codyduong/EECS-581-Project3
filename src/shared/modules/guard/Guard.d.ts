@@ -1,6 +1,7 @@
 /**
  * @author Cody Duong <cody.qd@gmail.com>
  * @file Contains type definitions for {@link https://util.redblox.dev/guard.html red-blox/guard}
+ * @todo we should prefer asserts?
  */
 
 export type Check<T> = (Value: any) => T;
@@ -41,7 +42,7 @@ declare const Module: {
   Check<T extends (Value: any) => any>(
     this: void,
     check: T,
-  ): (Value: unknown) => LuaTuple<[pass: boolean, value: ReturnType<T>]>;
+  ): (Value: unknown) => LuaTuple<[pass: true, value: ReturnType<T>] | [pass: false, value: undefined]>;
   // these are not part of the default library. Read the Guard.luau for implementation details
   Record<T extends Record<string, Check<any>>>(
     this: void,
