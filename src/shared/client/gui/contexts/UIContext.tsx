@@ -23,8 +23,6 @@ export default function UIContext(props: UIContextProps): JSX.Element {
 
   const [inUI, setInUI] = useState(false);
 
-  print(inUI);
-
   const enterUI = useCallback(() => {
     setInUI(true);
   }, [setInUI]);

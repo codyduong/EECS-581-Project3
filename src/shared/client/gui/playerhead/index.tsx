@@ -8,7 +8,7 @@
  *   properties to allow this to display above every players' heads.
  */
 
-import React from "@rbxts/react";
+import React, { createContext, useContext } from "@rbxts/react";
 import { createPortal } from "@rbxts/react-roblox";
 import PlayerHead from "./PlayerHead";
 import { usePlayers } from "shared/client/gui/contexts/PlayersContext";
@@ -22,12 +22,24 @@ function getHead(character: Model | undefined): MeshPart | undefined {
   return character?.GetChildren().find((child): child is MeshPart => child.Name === "Head" && child.IsA("MeshPart"));
 }
 
+const PlayerHeadGuiContext = createContext<Player>(undefined!);
+
+export function usePlayerHead(): Player {
+  return useContext(PlayerHeadGuiContext);
+}
+
+interface PlayerHeadGuiProps {
+  children?: React.ReactNode;
+}
+
 /**
  * Function component for PlayerHeadGui
  * @param {undefined} _props Does not support any props
  * @returns {JSX.Element}
  */
-export default function PlayerHeadGui(_props: unknown): JSX.Element {
+export default function PlayerHeadGui(props: PlayerHeadGuiProps): JSX.Element {
+  const { children } = props;
+
   const players = usePlayers();
 
   return (
@@ -37,10 +49,12 @@ export default function PlayerHeadGui(_props: unknown): JSX.Element {
           <billboardgui
             Active
             Adornee={getHead(player.Character)}
-            Size={new UDim2(0, 200, 0, 50)}
+            Size={new UDim2(0, 200, 0, 100)}
             StudsOffset={new Vector3(0, 4, 0)}
           >
-            <PlayerHead />
+            <PlayerHeadGuiContext.Provider value={player}>
+              <PlayerHead player={player}>{children}</PlayerHead>
+            </PlayerHeadGuiContext.Provider>
           </billboardgui>,
           game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui")!,
           `${player.UserId}`,

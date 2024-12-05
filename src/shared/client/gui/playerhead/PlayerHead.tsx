@@ -1,24 +1,17 @@
-import React, { useState } from "@rbxts/react";
+import React from "@rbxts/react";
 import Frame from "shared/client/gui/frame";
 
 interface PlayerHeadProps {
+  player: Player;
+  children: React.ReactNode;
   initialCount?: number;
 }
 
-export default function PlayerHead({ initialCount = 0 }: PlayerHeadProps): JSX.Element {
-  const [count, setCount] = useState(initialCount);
-
+export default function PlayerHead({ player, children }: PlayerHeadProps): JSX.Element {
   return (
-    <Frame Size={new UDim2(1, 0, 1, 0)}>
-      <textbutton
-        Text={`Count: ${count}`}
-        AnchorPoint={new Vector2(0.5, 0.5)}
-        Size={new UDim2(0, 100, 0, 50)}
-        Position={new UDim2(0.5, 0, 0.5, 0)}
-        Event={{
-          Activated: () => setCount(count + 1),
-        }}
-      />
+    <Frame Size={new UDim2(1, 0, 0, 100)}>
+      <textlabel Size={new UDim2(1, 0, 0, 50)} Localize={false} Text={player.Name}></textlabel>
+      {children}
     </Frame>
   );
 }

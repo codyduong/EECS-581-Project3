@@ -3,7 +3,6 @@
  * @file This code is compiled and executed in the "lobby" place on the server
  */
 
-import { lobby_info_msg } from "lobby/modules/lobby";
+import setupEvents from "./events";
 
-// TODO @codyduong remove
-lobby_info_msg();
+setupEvents();
