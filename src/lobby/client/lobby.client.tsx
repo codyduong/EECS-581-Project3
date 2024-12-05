@@ -17,6 +17,9 @@ import ScreenGui from "shared/client/gui/screen";
 import PlayerDataContext from "shared/client/gui/contexts/PlayerDataContext";
 import DebugLobby from "./gui/DebugLobby";
 import UIContext from "shared/client/gui/contexts/UIContext";
+import PartyContext from "./contexts/PartyContext";
+import PartyInfo from "./gui/PartyInfo";
+import PartyInviteGui from "./gui/PartyInviteGui";
 
 let root = createRoot(new Instance("Folder"));
 root.render(
@@ -24,10 +27,16 @@ root.render(
     <PlayersContext>
       <PlayerDataContext>
         <UIContext>
-          <PlayerHeadGui />
-          <ScreenGui>
-            <DebugLobby />
-          </ScreenGui>
+          {/* Lobby specific contexts */}
+          <PartyContext>
+            <PlayerHeadGui>
+              <PartyInviteGui />
+            </PlayerHeadGui>
+            <ScreenGui>
+              <DebugLobby />
+              <PartyInfo />
+            </ScreenGui>
+          </PartyContext>
         </UIContext>
       </PlayerDataContext>
     </PlayersContext>

@@ -20,15 +20,17 @@ import gameInfo from "./GameInfo";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { GameActor } from "game/server/Game/Game";
 
-const guardRequestTower = (v: unknown): TowerPropsSerializable =>
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const guardRequestTower = (v: unknown) =>
   Guard.Record({
     guid: Guard.String,
     cframe: Guard.CFrame,
     type: TOWER_TYPE_GUARD,
-  })(v);
+  })(v) satisfies TowerPropsSerializable;
 
-const guardType = (v: unknown): RequestTowerAction =>
-  Guard.Union(Guard.Literal("buy"), Guard.Literal("sell"), Guard.Literal("upgrade"))(v);
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const guardType = (v: unknown) =>
+  Guard.Union(Guard.Literal("buy"), Guard.Literal("sell"), Guard.Literal("upgrade"))(v) satisfies RequestTowerAction;
 
 let hasSetup = false;
 /**

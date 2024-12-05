@@ -10,7 +10,7 @@ export default function DebugLobby(_props: DebugLobbyProps): JSX.Element {
   print(data);
 
   return (
-    <Frame Size={new UDim2(0, 100, 0, 500)}>
+    <Frame Size={new UDim2(0, 100, 0, 500)} Position={new UDim2(1, -100, 0, 0)}>
       <uilistlayout FillDirection={"Vertical"} />
       <textbox Text={"Debug Menu"} Size={new UDim2(0, 100, 0, 50)} Interactable={false} />
       <textbutton

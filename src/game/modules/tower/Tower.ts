@@ -30,12 +30,12 @@ import { Bomb0, Bomb1 } from "./bomb";
 
 export type TowerType = "Noob0" | "Noob1" | "Bomb0" | "Bomb1";
 
-export const TOWER_TYPE_GUARD: Check<TowerType> = Guard.Union(
+export const TOWER_TYPE_GUARD = Guard.Union(
   Guard.Literal("Noob0"),
   Guard.Literal("Noob1"),
   Guard.Literal("Bomb0"),
   Guard.Literal("Bomb1"),
-);
+) satisfies Check<TowerType>;
 export const TOWER_TYPE0_GUARD = Guard.Union(Guard.Literal("Noob0"), Guard.Literal("Bomb0"));
 
 export const TYPE_TO_META = {
@@ -48,7 +48,10 @@ export const TYPE_TO_META = {
 // todo add other attack variants like projectile (ie. moving towards, or constant attacks like a poision field)
 export type AttackType = "raycast" | "bomb";
 
-export const ATTACK_TYPE_GUARD: Check<AttackType> = Guard.Union(Guard.Literal("raycast"), Guard.Literal("bomb"));
+export const ATTACK_TYPE_GUARD = Guard.Union(
+  Guard.Literal("raycast"),
+  Guard.Literal("bomb"),
+) satisfies Check<AttackType>;
 
 export type TowerStats = {
   damage: number;

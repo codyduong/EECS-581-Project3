@@ -42,8 +42,9 @@ root.render(
   <StrictMode>
     <PlayersContext>
       <PlayerDataContext>
-        <GameContext>
-          <UIContext>
+        <UIContext>
+          {/* Game specific contexts */}
+          <GameContext>
             {/* <PlayerHeadGui /> */}
             <ScreenGui>
               <DebugGame />
@@ -51,8 +52,8 @@ root.render(
               <Coins />
               <WaveStartButton />
             </ScreenGui>
-          </UIContext>
-        </GameContext>
+          </GameContext>
+        </UIContext>
       </PlayerDataContext>
     </PlayersContext>
   </StrictMode>,
