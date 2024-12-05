@@ -14,12 +14,13 @@ const createEnemyAtInterval = (
   enemy: EnemyType,
   quantity: number,
   interval: number,
+  offset: number = 0,
 ): thread[] => {
   Guard.NumberMin(0)(quantity);
   const res: thread[] = [];
   for (let i = 0; i < quantity; i++) {
     res.push(
-      task.delay(TICK_DELAY * interval * i, () => {
+      task.delay(offset + TICK_DELAY * interval * i, () => {
         const [success] = pcall(() => enemySupervisor.createEnemy(enemy));
         if (!success) {
           error("Enemy failed to generate");
@@ -32,14 +33,46 @@ const createEnemyAtInterval = (
 
 const WAVES: wave[] = [
   {
-    ticksTilReady: 400,
+    ticksTilReady: 300,
     fns: [(e) => createEnemyAtInterval(e, "BasicEnemy", 10, 30)],
     reward: 20,
   },
   {
-    ticksTilReady: 400,
-    fns: [(e) => createEnemyAtInterval(e, "BasicEnemy", 20, 20)],
+    ticksTilReady: 600,
+    fns: [(e) => createEnemyAtInterval(e, "BasicEnemy", 20, 30)],
     reward: 40,
+  },
+  {
+    ticksTilReady: 400,
+    fns: [
+      (e) => createEnemyAtInterval(e, "BasicEnemy", 10, 10, 0),
+      (e) => createEnemyAtInterval(e, "Enemy2", 10, 20, 200),
+    ],
+    reward: 80,
+  },
+  {
+    ticksTilReady: 400,
+    fns: [(e) => createEnemyAtInterval(e, "Enemy2", 20, 20, 0)],
+    reward: 120,
+  },
+  {
+    ticksTilReady: 400,
+    fns: [
+      (e) => createEnemyAtInterval(e, "BasicEnemy", 10, 20, 0),
+      (e) => createEnemyAtInterval(e, "Enemy2", 10, 10, 5),
+      (e) => createEnemyAtInterval(e, "Enemy3", 3, 15, 100),
+    ],
+    reward: 140,
+  },
+  {
+    ticksTilReady: 300,
+    fns: [(e) => createEnemyAtInterval(e, "Enemy3", 20, 15, 0)],
+    reward: 240,
+  },
+  {
+    ticksTilReady: 300,
+    fns: [(e) => createEnemyAtInterval(e, "Enemy3", 20, 15, 0), (e) => createEnemyAtInterval(e, "Enemy4", 5, 20, 200)],
+    reward: 240,
   },
 ];
 

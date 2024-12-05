@@ -18,6 +18,10 @@ const updateStats = (actor: Actor, stats: TowerStats): void => {
   actor.SetAttribute("ticksBetweenAttacks", stats.ticksBetweenAttacks);
   actor.SetAttribute("attackType", stats.attackType);
   actor.SetAttribute("range", stats.range);
+  if (stats.attackType === "bomb") {
+    actor.SetAttribute("bombRange", stats.bombRange);
+    actor.SetAttribute("bombSpeed", stats.bombSpeed);
+  }
 };
 
 let singletonExisting = false;
