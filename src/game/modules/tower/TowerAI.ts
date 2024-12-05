@@ -220,7 +220,10 @@ const _connection = tower.BindToMessageParallel(
     if (tick > lastAttacked + ticksBetweenAttacks) {
       tower.SetAttribute("lastAttacked", tick);
       const enemyHealth = Guard.Number(firstAliveEnemy.GetAttribute("health"));
-      assert(enemyHealth > 0);
+      // assert(enemyHealth > 0);
+      if (enemyHealth <= 0) {
+        return;
+      }
 
       // if we are using a delayed method, instead set to pendingDmg
       if (attackType === "bomb") {

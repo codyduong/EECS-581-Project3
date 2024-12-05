@@ -1,4 +1,7 @@
 import BasicEnemy from "./BasicEnemy";
+import Enemy2 from "./Enemy2";
+import Enemy3 from "./Enemy3";
+import Enemy4 from "./Enemy4";
 
 export type EnemyStats = {
   health: number;
@@ -10,6 +13,9 @@ export type EnemyStats = {
 
 export const Enemies = {
   BasicEnemy: BasicEnemy,
+  Enemy2: Enemy2,
+  Enemy3: Enemy3,
+  Enemy4: Enemy4,
 } as const;
 
 export type EnemyType = keyof typeof Enemies;
