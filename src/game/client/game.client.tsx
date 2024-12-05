@@ -29,11 +29,13 @@ import PlayersContext from "shared/client/gui/contexts/PlayersContext";
 import ScreenGui from "shared/client/gui/screen";
 import PlayerDataContext from "shared/client/gui/contexts/PlayerDataContext";
 import DebugGame from "./gui/DebugGame";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import PlayerHeadGui from "shared/client/gui/playerhead";
 import Coins from "./gui/Coins";
 import GameContext from "./gui/contexts/GameContext";
 import TowerSelect from "./gui/TowerSelect";
 import WaveStartButton from "./gui/WaveStartButton";
+import UIContext from "shared/client/gui/contexts/UIContext";
 
 let root = createRoot(new Instance("Folder"));
 root.render(
@@ -41,13 +43,15 @@ root.render(
     <PlayersContext>
       <PlayerDataContext>
         <GameContext>
-          {/* <PlayerHeadGui /> */}
-          <ScreenGui>
-            <DebugGame />
-            <TowerSelect />
-            <Coins />
-            <WaveStartButton />
-          </ScreenGui>
+          <UIContext>
+            {/* <PlayerHeadGui /> */}
+            <ScreenGui>
+              <DebugGame />
+              <TowerSelect />
+              <Coins />
+              <WaveStartButton />
+            </ScreenGui>
+          </UIContext>
         </GameContext>
       </PlayerDataContext>
     </PlayersContext>

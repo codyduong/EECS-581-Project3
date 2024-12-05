@@ -18,6 +18,7 @@
 
 import React, { useState } from "@rbxts/react";
 import { regenerateMap } from "game/modules/events";
+import Frame from "shared/client/gui/frame";
 
 interface DebugGameProps {}
 
@@ -25,7 +26,7 @@ export default function DebugGame(_props: DebugGameProps): JSX.Element {
   const [voting, _setVoting] = useState(true);
 
   return (
-    <frame Size={new UDim2(0, 100, 0, 500)} Position={new UDim2(1, -100, 0, 0)}>
+    <Frame Size={new UDim2(0, 100, 0, 500)} Position={new UDim2(1, -100, 0, 0)}>
       <uilistlayout FillDirection={"Vertical"} />
       <textbox Text={"Debug Menu"} Size={new UDim2(0, 100, 0, 50)} Interactable={false} />
       <textbutton
@@ -39,6 +40,6 @@ export default function DebugGame(_props: DebugGameProps): JSX.Element {
           },
         }}
       />
-    </frame>
+    </Frame>
   );
 }

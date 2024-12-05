@@ -17,6 +17,8 @@
  * [2024.November.4]{@revision Add upgrade tower}
  * [2024.November.24]{@revision Improve prologue and inline comments (no logical changes)}
  * [2024.December.4]{@revision Add tower stats}
+ * [2024.December.5]{@revision Bugfixing with regards to tower placing at the same time as selecting a tower
+ *                   (prioritize selection gui over placement)}
  */
 
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
@@ -25,6 +27,8 @@ import { Tower } from "game/modules/tower/Tower";
 import { requestTower } from "game/modules/events";
 import { createPortal } from "@rbxts/react-roblox";
 import { TICKS_PER_SECOND } from "game/modules/consts";
+import { useUI } from "shared/client/gui/contexts/UIContext";
+import Frame from "shared/client/gui/frame";
 
 function anchorModel(model: Model): void {
   model.GetDescendants().forEach((descendant) => {
@@ -66,9 +70,10 @@ raycastParams.FilterType = Enum.RaycastFilterType.Exclude;
 interface TowerSelectProps {}
 
 export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
+  const { inUI: disableRaycast } = useUI();
+
   const [placing, setPlacing] = useState<string>();
   const [previewTower, setPreviewTower] = useState<Tower>();
-  const [disableRaycast, setDisableRaycast] = useState(false);
   const [selectedTower, setSelectedTower] = useState<Tower>();
   const upgradeCost = useMemo(() => {
     if (selectedTower) {
@@ -191,12 +196,27 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
         }),
       );
     }
+
+    if (selectedTower && disableRaycast) {
+      events.push(
+        userInputService.InputBegan.Connect((input) => {
+          if (input.UserInputType === Enum.UserInputType.MouseButton1) {
+            // there is a race-con, where if we unset the tower to early, then we can't perform any actions
+            // dependent on the tower. todo this should be removed somehow
+            task.delay(0.1, () => {
+              pcall(() => setSelectedTower(undefined));
+            });
+          }
+        }),
+      );
+    }
+
     return () => {
       events.forEach((event) => {
         event.Disconnect();
       });
     };
-  }, [gameInfo.towers, disableRaycast]);
+  }, [gameInfo.towers, disableRaycast, selectedTower]);
 
   const sellSelectedTower = (): void => {
     if (selectedTower) {
@@ -220,7 +240,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
 
   return (
     <>
-      <frame Size={new UDim2(0, 300, 0, 50)} Position={new UDim2(0.5, -150, 1, -50)}>
+      <Frame Size={new UDim2(0, 300, 0, 50)} Position={new UDim2(0.5, -150, 1, -50)}>
         <textbutton
           Size={new UDim2(0, 100, 0, 50)}
           Position={new UDim2(0, 0, 0, 0)}
@@ -229,6 +249,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
           Event={{
             Activated: () => {
               if (placing === undefined) {
+                setSelectedTower(undefined);
                 // Clone the "Noob" model as a preview
                 const tower = new Tower({ type: "Noob0", ephermal: true });
                 const model = tower.model;
@@ -254,6 +275,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
           Event={{
             Activated: () => {
               if (placing === undefined) {
+                setSelectedTower(undefined);
                 // Clone the "Noob" model as a preview
                 const tower = new Tower({ type: "Bomb0", ephermal: true });
                 const model = tower.model;
@@ -280,6 +302,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
           Event={{
             Activated: () => {
               if (placing === undefined) {
+                setSelectedTower(undefined);
                 // Clone the "Noob" model as a preview
                 const tower = new Tower({ type: "Noob0", ephermal: true });
                 const model = tower.model;
@@ -297,7 +320,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
             },
           }}
         />
-      </frame>
+      </Frame>
       {selectedTower &&
         createPortal(
           <billboardgui
@@ -306,24 +329,13 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
             StudsOffset={new Vector3(0, 2, 0)}
             Adornee={selectedTower.model.FindFirstChild("Head")! as BasePart}
           >
-            <frame
-              Size={new UDim2(1, 0, 0.5, 0)}
-              Event={{
-                MouseEnter: () => {
-                  setDisableRaycast(true);
-                },
-                MouseLeave: () => {
-                  setDisableRaycast(false);
-                },
-              }}
-            >
+            <Frame Size={new UDim2(1, 0, 0.5, 0)} Event={{}}>
               <textbutton
                 Size={new UDim2(0, 100, 0, 50)}
                 Position={new UDim2(0, 0, 0, 0)}
                 Text={`Sell (${math.floor(Tower.getTypeStats(selectedTower.type).cost * 0.5)} coins)`}
                 Event={{
                   Activated: () => {
-                    setDisableRaycast(false);
                     sellSelectedTower();
                   },
                 }}
@@ -335,13 +347,12 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                   Text={`Upgrade (${upgradeCost} coins)`}
                   Event={{
                     Activated: () => {
-                      setDisableRaycast(false);
                       upgradeSelectedTower();
                     },
                   }}
                 />
               )}
-              <frame Position={new UDim2(0, 100, 0, 0)} Size={new UDim2(0, 100, 0, 100)}>
+              <Frame Position={new UDim2(0, 100, 0, 0)} Size={new UDim2(0, 100, 0, 100)}>
                 <uilistlayout FillDirection="Vertical" />
                 <textlabel
                   Size={new UDim2(0, 100, 0, 25)}
@@ -355,8 +366,8 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
                   Size={new UDim2(0, 100, 0, 25)}
                   Text={`Attacks/Second: ${TICKS_PER_SECOND / Tower.getTypeStats(selectedTower.type).ticksBetweenAttacks}`}
                 />
-              </frame>
-            </frame>
+              </Frame>
+            </Frame>
           </billboardgui>,
           game.GetService("Players").LocalPlayer.FindFirstChild("PlayerGui")!,
         )}
