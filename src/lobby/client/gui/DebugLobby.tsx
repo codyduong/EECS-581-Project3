@@ -1,5 +1,6 @@
 import React from "@rbxts/react";
 import { usePlayerData } from "shared/client/gui/contexts/PlayerDataContext";
+import Frame from "shared/client/gui/frame";
 
 interface DebugLobbyProps {}
 
@@ -9,7 +10,7 @@ export default function DebugLobby(_props: DebugLobbyProps): JSX.Element {
   print(data);
 
   return (
-    <frame Size={new UDim2(0, 100, 0, 500)}>
+    <Frame Size={new UDim2(0, 100, 0, 500)}>
       <uilistlayout FillDirection={"Vertical"} />
       <textbox Text={"Debug Menu"} Size={new UDim2(0, 100, 0, 50)} Interactable={false} />
       <textbutton
@@ -21,6 +22,6 @@ export default function DebugLobby(_props: DebugLobbyProps): JSX.Element {
           },
         }}
       />
-    </frame>
+    </Frame>
   );
 }

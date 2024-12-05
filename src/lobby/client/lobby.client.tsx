@@ -16,16 +16,19 @@ import PlayerHeadGui from "shared/client/gui/playerhead";
 import ScreenGui from "shared/client/gui/screen";
 import PlayerDataContext from "shared/client/gui/contexts/PlayerDataContext";
 import DebugLobby from "./gui/DebugLobby";
+import UIContext from "shared/client/gui/contexts/UIContext";
 
 let root = createRoot(new Instance("Folder"));
 root.render(
   <StrictMode>
     <PlayersContext>
       <PlayerDataContext>
-        <PlayerHeadGui />
-        <ScreenGui>
-          <DebugLobby />
-        </ScreenGui>
+        <UIContext>
+          <PlayerHeadGui />
+          <ScreenGui>
+            <DebugLobby />
+          </ScreenGui>
+        </UIContext>
       </PlayerDataContext>
     </PlayersContext>
   </StrictMode>,

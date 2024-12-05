@@ -18,6 +18,7 @@
 
 import React from "@rbxts/react";
 import { useGame } from "./contexts/GameContext";
+import Frame from "shared/client/gui/frame";
 
 interface CoinsProps {}
 
@@ -28,13 +29,13 @@ export default function Coins(_props: CoinsProps): JSX.Element {
   const labelSize = new UDim2(0, 100, 0, 50);
 
   return (
-    <frame Size={frameSize} Position={new UDim2(0.5, -frameSize.X.Offset / 2, 0, 0)}>
+    <Frame Size={frameSize} Position={new UDim2(0.5, -frameSize.X.Offset / 2, 0, 0)}>
       <textlabel
         Size={labelSize}
         Position={new UDim2(0, 0, 0, 0)}
         Text={`Coins: ${gameInfo.coins[`${game.GetService("Players").LocalPlayer.UserId}`]}`}
       />
       <textlabel Size={labelSize} Position={new UDim2(0.0, labelSize.X.Offset, 0, 0)} Text={`Wave: ${gameInfo.wave}`} />
-    </frame>
+    </Frame>
   );
 }
