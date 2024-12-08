@@ -28,6 +28,7 @@ import { ATTACK_TYPE_GUARD } from "./Tower";
 import { path } from "game/modules/EnemySupervisor";
 import { PathGenerator } from "game/modules/Path";
 import { TICKS_PER_SECOND } from "game/modules/consts";
+import { calculateTicksToIntercept } from "./utils";
 
 function calculateFuturePosition(
   enemy: Actor,
@@ -65,7 +66,8 @@ function calculateFuturePosition(
       return undefined;
     }
 
-    const timeToIntercept = distanceToTower / projectileSpeed;
+    // projectiles go faster the further the enemy is, from [0.8, 1.2] base speed
+    const timeToIntercept = calculateTicksToIntercept(distanceToTower, projectileSpeed, "curved", towerRange);
 
     // If intercept happens before reaching the goal
     if (remainingTime + timeToGoal >= timeToIntercept) {

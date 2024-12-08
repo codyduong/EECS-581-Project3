@@ -25,11 +25,13 @@
  * [2024.November.11]{@revision Initial creation to support tower attacks}
  * [2024.November.18]{@revision Improve prologue and inline comments (no logical changes)}
  * [2024.November.27]{@revision Add initial attack animation indicator (simple debug laser)}
+ * [2024.December.8]{@revision Add sounds/animations}
  */
 
 import Guard from "shared/modules/guard/Guard";
 import { TICK_DELAY, TICKS_PER_SECOND } from "game/modules/consts";
 import { TOWER_TYPE_GUARD, TYPE_TO_META } from "./Tower";
+import { calculateTicksToIntercept } from "./utils";
 
 // 1st precondition
 const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(...u: unknown[]) => void>;
@@ -64,6 +66,8 @@ const getTowerModel = (): void => {
 };
 // 2nd precondition
 getTowerModel();
+
+const tweenService = game.GetService("TweenService");
 
 /**
  * @todo Remove {@link debugLaser}. It is simply a vizualization of the attack. This should go hand-in-hand with
@@ -149,8 +153,7 @@ const _connection = event.OnClientEvent.ConnectParallel(
         projectile.CastShadow = false;
         projectile.CanCollide = false;
         projectile.CanQuery = false;
-        projectile.Transparency = 0.5;
-        projectile.Color = new Color3(0.5, 0.5, 0.5);
+        projectile.Color = new Color3(0, 0, 0);
         projectile.Size = new Vector3(0.5, 0.5, 0.5);
         projectile.Position = adjustedPos;
 
@@ -166,12 +169,40 @@ const _connection = event.OnClientEvent.ConnectParallel(
 
         const projectileSpeed = Guard.Number(tower.GetAttribute("bombSpeed"));
         const projectileSize = Guard.Number(tower.GetAttribute("bombRange"));
+        const range = Guard.Number(tower.GetAttribute("range"));
 
-        const projectileTimeToIntercept = distance / (projectileSpeed * TICKS_PER_SECOND);
+        const projectileTicksToIntercept = calculateTicksToIntercept(distance, projectileSpeed, "curved", range);
+        const projectileTimeToIntercept = projectileTicksToIntercept / TICKS_PER_SECOND;
+
+        const projectileXZ = new Instance("Vector3Value");
+        projectileXZ.Value = adjustedPos;
+        const projectileTweenXZ = tweenService.Create(
+          projectileXZ,
+          new TweenInfo(projectileTimeToIntercept, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0),
+          {
+            Value: enemyPos,
+          },
+        );
+        const projectileY = new Instance("NumberValue");
+        projectileY.Value = adjustedPos.Y;
+        const projectileTweenY = tweenService.Create(
+          projectileY,
+          new TweenInfo(projectileTimeToIntercept / 2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, true, 0),
+          {
+            // this is basically, saying closer we are higher we shoot, otherwise shoot more shallow
+            Value: adjustedPos.Y + math.min(8, 4 * (4 / enemyPos.sub(adjustedPos).Magnitude)),
+          },
+        );
+        projectileXZ.GetPropertyChangedSignal("Value").Connect(() => {
+          projectile.PivotTo(new CFrame(new Vector3(projectileXZ.Value.X, projectileY.Value, projectileXZ.Value.Z)));
+        });
+        projectileTweenXZ.Play();
+        projectileTweenY.Play();
 
         // print(projectileTimeToIntercept);
 
         task.delay(projectileTimeToIntercept, () => {
+          projectile.Transparency = 1;
           const explosion = new Instance("Part");
           explosion.Name = "explosion";
           explosion.Parent = script.Parent;
@@ -214,11 +245,13 @@ const _connection = event.OnClientEvent.ConnectParallel(
     });
 
     // setup animating pointing the tower at the enemy
-    const tween = game
-      .GetService("TweenService")
-      .Create(cFrameValue, new TweenInfo(TICK_DELAY, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+    const tween = tweenService.Create(
+      cFrameValue,
+      new TweenInfo(TICK_DELAY, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0),
+      {
         Value: newCFrame,
-      });
+      },
+    );
 
     // play the animation
     tween.Play();

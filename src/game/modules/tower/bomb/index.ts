@@ -17,7 +17,7 @@ export const Bomb0 = {
     ticksBetweenAttacks: 100, // 0.4 attacks per second, if tick rate is 1/40
     attackType: "bomb",
     bombRange: 2.5,
-    bombSpeed: 0.1,
+    bombSpeed: 0.15,
     range: 10,
     cost: 50,
     upgradesTo: "Bomb1",
@@ -37,9 +37,9 @@ export const Bomb1 = {
     damage: 10,
     ticksBetweenAttacks: 80, // 0.4 attacks per second, if tick rate is 1/40
     attackType: "bomb",
-    bombRange: 4.5,
-    bombSpeed: 0.1,
-    range: 20,
+    bombRange: 4,
+    bombSpeed: 0.15,
+    range: 15,
     cost: 100,
     upgradesTo: undefined,
   },
