@@ -6,12 +6,11 @@
  */
 
 import { assertServer } from "shared/modules/utils";
-import waveStartVote from "game/modules/events/WaveStartVote/WaveStartVote";
-import Guard from "shared/modules/guard/Guard";
+import waveStartVote, { WaveStartType } from "game/modules/events/WaveStartVote/WaveStartVote";
+import Guard, { Check } from "shared/modules/guard/Guard";
 import gameInfo from "./GameInfo";
 import { gameInfoEvent } from "game/modules/events";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
-import { players } from "shared/server/events/PlayersEvent";
 import { WaveManagerActor } from "game/server/WaveManager/WaveManager";
 
 /**
@@ -21,7 +20,7 @@ import { WaveManagerActor } from "game/server/WaveManager/WaveManager";
  * @param {Player} player, the current player to add or remove a vote for
  * @param {boolean} vote, either to add (true) or remove (false) a player's vote
  */
-const checkWaveCountdown = (player: Player, vote: boolean): void => {
+const changeWaveStart = (player: Player, vote: boolean): void => {
   const index = gameInfo.waveStartVotes.findIndex((id) => id === player.UserId);
 
   // if voted for and has no vote already
@@ -37,30 +36,27 @@ const checkWaveCountdown = (player: Player, vote: boolean): void => {
   // if voted for and has vote already -> do nothing
 
   // if voted against (ie. removing vote) and has no vote -> do nothing
+};
 
-  // if we have all votes then start the wave start timer
+const changeAutoWaveStart = (player: Player, vote: boolean): void => {
+  const index = gameInfo.waveAutostartVotes.findIndex((id) => id === player.UserId);
 
-  // if we have -1 (ie. 0th wave, then start timer when one player votes to start)
-  // if (gameInfo.wave === 0) {
-  //   if (gameInfo.waveStartVotes.size() > 0 && gameInfo.timeUntilWaveStart === -1) {
-  //     gameInfo.timeUntilWaveStart = 30;
-  //     hasChanged = true;
-  //   }
-  //   if (gameInfo.waveStartVotes.size() === 0 && gameInfo.timeUntilWaveStart !== -1) {
-  //     gameInfo.timeUntilWaveStart = -1;
-  //     hasChanged = true;
-  //   }
-  // }
-
-  if (gameInfo.waveStartVotes.size() >= players.size()) {
-    gameInfo.timeUntilWaveStart = 5;
-    WaveManagerActor.SendMessage("StartCountdown");
-  } else {
-    gameInfo.timeUntilWaveStart = -1;
+  // if voted for and has no vote already
+  if (vote && index === -1) {
+    gameInfo.waveAutostartVotes.push(player.UserId);
   }
 
-  gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+  // if voted against (ie. removing vote) and has vote
+  if (!vote && index !== -1) {
+    gameInfo.waveAutostartVotes.remove(index);
+  }
+
+  // if voted for and has vote already -> do nothing
+
+  // if voted against (ie. removing vote) and has no vote -> do nothing
 };
+
+const GuardWaveStartType: Check<WaveStartType> = Guard.Union(Guard.Literal("Start"), Guard.Literal("Auto"));
 
 let hasSetup = false;
 /**
@@ -71,13 +67,28 @@ export function setupWaveStartVote(): void {
   assert(hasSetup === false);
   hasSetup = true;
 
-  waveStartVote.OnServerEvent.Connect((player, maybeBool) => {
+  waveStartVote.OnServerEvent.Connect((player, maybeType, maybeBool) => {
+    const t = GuardWaveStartType(maybeType);
     const vote = Guard.Boolean(maybeBool);
 
-    checkWaveCountdown(player, vote);
+    if (t === "Start") {
+      changeWaveStart(player, vote);
+    } else {
+      changeWaveStart(player, vote);
+      changeAutoWaveStart(player, vote);
+    }
+    gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+    WaveManagerActor.SendMessage("CheckWaveStartStatus");
   });
 
   game.GetService("Players").PlayerRemoving.Connect((player) => {
-    checkWaveCountdown(player, false);
+    changeWaveStart(player, false);
+    changeAutoWaveStart(player, false);
+    gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
+    WaveManagerActor.SendMessage("CheckWaveStartStatus");
+  });
+
+  gameInfo.waveReady.Changed.Connect((_) => {
+    WaveManagerActor.SendMessage("CheckWaveStartStatus");
   });
 }

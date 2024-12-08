@@ -73,6 +73,7 @@ interface TowerSelectProps {}
 export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   const { inUI: disableRaycast, exitUI } = useUI();
 
+  // todo combine placing and previewTower to dedupe info
   const [placing, setPlacing] = useState<string>();
   const [previewTower, setPreviewTower] = useState<Tower>();
   const [selectedTower, setSelectedTower] = useState<Tower>();
@@ -90,17 +91,14 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   const gameInfo = useGame();
 
   const part = useMemo(() => new Instance("Part"), []);
-  part.Anchored = true;
-  part.CanQuery = false;
-  part.CanCollide = false;
-  part.CastShadow = false;
+  const rangeIndicator = useMemo(() => new Instance("Part"), []);
 
-  const updatePreviewPosition = (part: Part, previewTower: Tower): void => {
+  const updatePreviewPosition = (part: Part, previewTower: Tower, rangeIndicator: Part): void => {
     /* TODO, replace with better collision by unioning parts into CGG which is a supported shapecast. -@codyduong */
     const [orientation, size] = previewTower.model.GetBoundingBox();
     part.PivotTo(orientation);
     part.Size = size;
-    raycastParams.AddToFilter([previewTower.model, part]);
+    raycastParams.AddToFilter([previewTower.model, part, rangeIndicator]);
 
     const mouseLocation = userInputService.GetMouseLocation();
     const ray = game.Workspace.CurrentCamera?.ViewportPointToRay(mouseLocation.X, mouseLocation.Y);
@@ -124,13 +122,17 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
     // const shapecastResult = game.Workspace.Shapecast(part, new Vector3(0, -1000, 0), raycastParams);
 
     if (shapecastResult) {
-      previewTower.model.PivotTo(
-        // TODO we are off by 0.25, why is this? -@codyduong 2024/11/07
-        // ^ this is only true near edges. todo prune edge positions from being allowed -@codyduong 2024/11/14
-        new CFrame(shapecastResult.Position)
-          .mul(previewTower.model.GetPivot().Rotation)
-          .add(new Vector3(0, part.Size.div(2).Y, 0)),
-      );
+      // TODO we are off by 0.25, why is this? -@codyduong 2024/11/07
+      // ^ this is only true near edges. todo prune edge positions from being allowed -@codyduong 2024/11/14
+      const previewResult = new CFrame(shapecastResult.Position)
+        .mul(previewTower.model.GetPivot().Rotation)
+        .add(new Vector3(0, part.Size.div(2).Y, 0));
+
+      previewTower.model.PivotTo(previewResult);
+
+      const range = Tower.getTypeStats(previewTower.type).range * 2;
+      rangeIndicator.Size = new Vector3(range, range, range);
+      rangeIndicator.PivotTo(previewResult);
     }
   };
 
@@ -151,13 +153,32 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   };
 
   useEffect(() => {
+    if (previewTower) {
+      rangeIndicator.Transparency = 0.5;
+    } else {
+      rangeIndicator.Transparency = 1;
+    }
+  }, [previewTower, rangeIndicator]);
+
+  useEffect(() => {
+    if (selectedTower) {
+      rangeIndicator.PivotTo(selectedTower.model.GetPivot());
+      const range = Tower.getTypeStats(selectedTower.type).range * 2;
+      rangeIndicator.Size = new Vector3(range, range, range);
+      rangeIndicator.Transparency = 0.5;
+    } else {
+      rangeIndicator.Transparency = 1;
+    }
+  }, [selectedTower, rangeIndicator]);
+
+  useEffect(() => {
     const events: RBXScriptConnection[] = [];
     // Update preview position as mouse moves
     if (placing !== undefined && previewTower !== undefined) {
       events.push(
         userInputService.InputChanged.Connect((input) => {
           if (placing !== undefined && input.UserInputType === Enum.UserInputType.MouseMovement) {
-            updatePreviewPosition(part, previewTower);
+            updatePreviewPosition(part, previewTower, rangeIndicator);
           }
         }),
       );
@@ -183,7 +204,7 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
         event.Disconnect();
       });
     };
-  }, [placing, previewTower, part]);
+  }, [placing, previewTower, part, rangeIndicator]);
 
   useEffect(() => {
     const events: RBXScriptConnection[] = [];
@@ -236,10 +257,24 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
   }, [gameInfo.towers, disableRaycast, selectedTower]);
 
   useEffect(() => {
+    part.Anchored = true;
+    part.CanQuery = false;
+    part.CanCollide = false;
+    part.CastShadow = false;
+    rangeIndicator.Shape = Enum.PartType.Ball;
+    rangeIndicator.Anchored = true;
+    rangeIndicator.CanQuery = false;
+    rangeIndicator.CanCollide = false;
+    rangeIndicator.CastShadow = false;
+    rangeIndicator.Parent = game.Workspace;
+    rangeIndicator.Color = new Color3(1, 0, 0);
+    rangeIndicator.TopSurface = Enum.SurfaceType.Smooth;
+    rangeIndicator.BottomSurface = Enum.SurfaceType.Smooth;
     return () => {
       part.Destroy();
+      rangeIndicator.Destroy();
     };
-  }, [part]);
+  }, [part, rangeIndicator]);
 
   return (
     <>

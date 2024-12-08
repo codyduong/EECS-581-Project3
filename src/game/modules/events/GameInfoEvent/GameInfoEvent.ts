@@ -15,7 +15,9 @@ export type GameInfoSerializable = {
   towers: TowerPropsSerializable[];
   coins: Record<number, number>;
   wave: number;
+  waveReady: boolean;
   waveStartVotes: number[];
+  waveAutostartVotes: number[];
   timeUntilWaveStart: number;
   restartVotes: number[];
   health: number;
@@ -25,7 +27,9 @@ export type GameInfo = {
   towers: Tower[];
   coins: Record<number, number>;
   wave: number;
+  waveReady: BoolValue; // if we are ready to generate next wave
   waveStartVotes: number[];
+  waveAutostartVotes: number[];
   timeUntilWaveStart: number;
   restartVotes: number[];
   health: number;
@@ -37,7 +41,9 @@ export const serializeGameInfo = (gameInfo: GameInfo): GameInfoSerializable => {
     towers: gameInfo.towers.map((t) => t.toSerializable()),
     coins: gameInfo.coins,
     wave: gameInfo.wave,
+    waveReady: gameInfo.waveReady.Value,
     waveStartVotes: gameInfo.waveStartVotes,
+    waveAutostartVotes: gameInfo.waveAutostartVotes,
     timeUntilWaveStart: gameInfo.timeUntilWaveStart,
     restartVotes: gameInfo.restartVotes,
     health: gameInfo.health,

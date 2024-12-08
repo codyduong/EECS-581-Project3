@@ -10,6 +10,7 @@ export type PartyContext = {
   inviteParty: (userId: number) => void;
   kickParty: (userId: number) => void;
   leaveParty: () => void;
+  startGame: () => void;
 };
 
 export const defaultPartyContext = {
@@ -20,6 +21,7 @@ export const defaultPartyContext = {
   leaveParty: () => {},
   inviteParty: () => {},
   kickParty: () => {},
+  startGame: () => {},
 } as const satisfies PartyContext;
 
 const PartyContextActual = createContext<PartyContext>(defaultPartyContext);
@@ -75,9 +77,13 @@ export default function PartyContext(props: PartyContextProps): JSX.Element {
     partyEvent.FireServer("invite", userId);
   };
 
+  const startGame = (): void => {
+    partyEvent.FireServer("start");
+  };
+
   return (
     <PartyContextActual.Provider
-      value={{ parties, inParty, requestParty, joinParty, leaveParty, kickParty, inviteParty }}
+      value={{ parties, inParty, requestParty, joinParty, leaveParty, kickParty, inviteParty, startGame }}
     >
       {children}
     </PartyContextActual.Provider>

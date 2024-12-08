@@ -24,7 +24,7 @@ export type Parties = Party[];
 
 export type PartyCallback = (data: Parties) => void;
 
-export type PartyAction = "request" | "join" | "leave" | "kick" | "invite";
+export type PartyAction = "request" | "join" | "leave" | "kick" | "invite" | "start";
 
 export const GUARD_PARTY_ACTION = Guard.Union(
   Guard.Literal("request"),
@@ -32,9 +32,12 @@ export const GUARD_PARTY_ACTION = Guard.Union(
   Guard.Literal("leave"),
   Guard.Literal("kick"),
   Guard.Literal("invite"),
+  Guard.Literal("start"),
 ) satisfies Check<PartyAction>;
 
-export type PartyServerArgs = [action: Exclude<PartyAction, "leave">, userId: number] | [action: "leave"];
+export type PartyServerArgs =
+  | [action: Exclude<PartyAction, "leave" | "start">, userId: number]
+  | [action: "leave" | "start"];
 
 const partyEvent = script.Parent as RemoteEvent<PartyCallback> & {
   FireServer(this: RemoteEvent<PartyCallback>, ...args: PartyServerArgs): void;

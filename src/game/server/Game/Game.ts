@@ -13,7 +13,7 @@ import TowerSupervisor from "game/server/TowerSupervisor";
 import { WaveFunctionCollapse } from "game/modules/WFC";
 import gameInfo, { resetGameInfo } from "game/server/events/GameInfo";
 import Guard from "shared/modules/guard/Guard";
-import createWave from "./Waves";
+import createWave, { WAVE_MAX } from "./Waves";
 
 // 1459599628, guranteed contradiction { x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2, seed: 1459599628 }
 
@@ -137,7 +137,14 @@ GameActor!.BindToMessageParallel("StartWave", () => {
   const wave = gameInfo.wave;
 
   const makeReadyForNextWave = (waveReward: number): void => {
-    gameInfo.timeUntilWaveStart = -1;
+    gameInfo.timeUntilWaveStart = 3;
+    gameInfo.waveReady.Value = true;
+    // move the autostart into regular votes
+    gameInfo.waveAutostartVotes.forEach((id) => {
+      if (!(id in gameInfo.waveStartVotes)) {
+        gameInfo.waveStartVotes.push(id);
+      }
+    });
     for (const [playerId, _] of pairs(gameInfo.coins)) {
       gameInfo.coins[playerId] += waveReward;
     }
@@ -145,6 +152,11 @@ GameActor!.BindToMessageParallel("StartWave", () => {
   };
 
   const madeWave = createWave(wave, enemySupervisor, threads, makeReadyForNextWave);
+
+  const isLastWave = gameInfo.wave === WAVE_MAX;
+  if (isLastWave) {
+    error("Last Wave!");
+  }
 
   if (!madeWave) {
     error("failed to make wave, add end game screen");

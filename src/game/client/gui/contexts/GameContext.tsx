@@ -29,11 +29,14 @@ export const defaultGamesInfo = {
   towers: [],
   coins: {},
   wave: 0,
+  waveReady: new Instance("BoolValue"),
   waveStartVotes: [],
-  timeUntilWaveStart: -1,
+  waveAutostartVotes: [],
+  timeUntilWaveStart: 3,
   restartVotes: [],
   health: 100,
 } as const satisfies GameInfo;
+defaultGamesInfo.waveReady.Value = true;
 
 const GameContextActual = createContext<GameInfo>(defaultGamesInfo);
 
@@ -78,11 +81,16 @@ export default function GameContext(props: GameContextProps): JSX.Element {
           }
         });
 
+        const waveReady = new Instance("BoolValue");
+        waveReady.Value = info.waveReady;
+
         setGameInfo({
           towers: mergedTowers,
           coins: info.coins,
           wave: info.wave,
+          waveReady,
           waveStartVotes: info.waveStartVotes,
+          waveAutostartVotes: info.waveAutostartVotes,
           timeUntilWaveStart: info.timeUntilWaveStart,
           restartVotes: info.restartVotes,
           health: info.health,

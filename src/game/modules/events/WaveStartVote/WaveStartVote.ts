@@ -7,7 +7,9 @@
  * @see {@link https://rojo.space/docs/v6/sync-details/#json-models}
  */
 
-export type WaveStartVoteArgs = [boolean];
+export type WaveStartType = "Start" | "Auto";
+
+export type WaveStartVoteArgs = [WaveStartType, boolean];
 
 export type WaveStartVoteCallback = (...args: WaveStartVoteArgs) => void;
 

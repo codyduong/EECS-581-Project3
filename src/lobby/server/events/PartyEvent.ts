@@ -70,6 +70,31 @@ export function setupPartyEvent(): void {
       return;
     }
 
+    if (action === "start") {
+      const opts = new Instance("TeleportOptions");
+      opts.ShouldReserveServer = true;
+
+      if (party) {
+        assert(isOwner, "only owner can start");
+
+        game
+          .GetService("TeleportService")
+          .TeleportAsync(
+            125665205874769,
+            [
+              game.GetService("Players").GetPlayerByUserId(party.owner),
+              ...party.members.mapFiltered((id) => game.GetService("Players").GetPlayerByUserId(id)),
+            ].filterUndefined(),
+            opts,
+          );
+      } else {
+        game.GetService("TeleportService").TeleportAsync(125665205874769, [player], opts);
+      }
+
+      fireAllClients();
+      return;
+    }
+
     assert(hasUserId, `There was no userId provided with action: ${action}`);
 
     if (action === "invite") {

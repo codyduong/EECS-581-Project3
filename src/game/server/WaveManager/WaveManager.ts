@@ -7,8 +7,9 @@ import { gameInfoEvent } from "game/modules/events";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import gameInfo from "game/server/events/GameInfo";
 import { GameActor } from "game/server/Game/Game";
+import { players } from "shared/server/events/PlayersEvent";
 
-export type WaveManagerActorTopic = "StartCountdown";
+export type WaveManagerActorTopic = "CheckWaveStartStatus";
 
 export interface WaveManagerActor extends Model {
   readonly _nominal_Actor: unique symbol;
@@ -23,33 +24,33 @@ export interface WaveManagerActor extends Model {
 
 export const WaveManagerActor = script.GetActor()! as unknown as WaveManagerActor;
 
-const waveManagerSharedTable = new SharedTable();
-
 let threads: thread[] = [];
 
 /**
  * @modifies {@link threads|`threads`}
  */
 const callback = (): void => {
+  if (gameInfo.waveStartVotes.size() < players.size()) {
+    return;
+  }
+
   if (gameInfo.timeUntilWaveStart > 0) {
     gameInfo.timeUntilWaveStart -= 1;
     task.synchronize();
     gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
-  }
-  if (gameInfo.timeUntilWaveStart === 0) {
+    threads.push(task.delay(1, callback));
+  } else if (gameInfo.timeUntilWaveStart === 0) {
     GameActor.SendMessage("StartWave");
     gameInfo.waveStartVotes = [];
-    gameInfo.timeUntilWaveStart = -2;
+    // on last call for some reason it is parallel? idk... just pcall this
+    gameInfo.waveReady.Value = false;
     gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
   }
-  threads.push(task.delay(1, callback));
 };
 
-WaveManagerActor.BindToMessageParallel("StartCountdown", () => {
+WaveManagerActor.BindToMessageParallel("CheckWaveStartStatus", () => {
   threads.forEach((thread) => task.cancel(thread));
   threads = [];
 
   threads.push(task.delay(1, callback));
-
-  waveManagerSharedTable["runningCountdown"] = false;
 });

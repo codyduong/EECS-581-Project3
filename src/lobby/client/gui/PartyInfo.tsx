@@ -12,12 +12,12 @@ const getName = (userId: number): string => {
 interface PartyInfoProps {}
 
 export default function PartyInfo(_props: PartyInfoProps): JSX.Element {
-  const { inParty, parties, joinParty, leaveParty } = usePartyService();
+  const { inParty, parties, joinParty, leaveParty, startGame } = usePartyService();
 
   const localPlayer = Players.LocalPlayer;
 
   return (
-    <Frame Size={new UDim2(0, 100, 0, 500)} Position={new UDim2(0, 0, 0, 0)}>
+    <Frame Size={new UDim2(0, 200, 0, 500)} Position={new UDim2(0, 0.1, 0, 0)}>
       <uilistlayout FillDirection={"Vertical"} SortOrder={"LayoutOrder"} />
       <textbox Text={`Party Info`} Size={new UDim2(1, 0, 0, 50)} Interactable={false} LayoutOrder={-10} />
       {inParty !== undefined ? (
@@ -78,6 +78,7 @@ export default function PartyInfo(_props: PartyInfoProps): JSX.Element {
             Activated: () => {
               // todo
               print("starting game");
+              startGame();
             },
           }}
         />

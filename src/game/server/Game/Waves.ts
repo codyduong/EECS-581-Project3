@@ -78,6 +78,8 @@ const WAVES: wave[] = [
   },
 ];
 
+export const WAVE_MAX = WAVES.size();
+
 export default function createWave(
   waveNumber: number,
   enemySupervisor: EnemySupervisor,

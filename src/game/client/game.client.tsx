@@ -28,9 +28,8 @@ import { createRoot } from "@rbxts/react-roblox";
 import PlayersContext from "shared/client/gui/contexts/PlayersContext";
 import ScreenGui from "shared/client/gui/screen";
 import PlayerDataContext from "shared/client/gui/contexts/PlayerDataContext";
-import DebugGame from "./gui/DebugGame";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import PlayerHeadGui from "shared/client/gui/playerhead";
+// import DebugGame from "./gui/DebugGame";
+// import PlayerHeadGui from "shared/client/gui/playerhead";
 import Coins from "./gui/Coins";
 import GameContext from "./gui/contexts/GameContext";
 import TowerSelect from "./gui/TowerSelect";
@@ -47,7 +46,7 @@ root.render(
           <GameContext>
             {/* <PlayerHeadGui /> */}
             <ScreenGui>
-              <DebugGame />
+              {/* <DebugGame /> */}
               <TowerSelect />
               <Coins />
               <WaveStartButton />
