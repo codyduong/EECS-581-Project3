@@ -30,8 +30,8 @@
 
 import Guard from "shared/modules/guard/Guard";
 import { TICK_DELAY, TICKS_PER_SECOND } from "game/modules/consts";
-import { TOWER_TYPE_GUARD, TYPE_TO_META } from "./Tower";
-import { calculateTicksToIntercept } from "./utils";
+import { TOWER_TYPE_GUARD, TYPE_TO_META } from "game/modules/tower/Tower";
+import { calculateTicksToIntercept } from "game/modules/tower/utils";
 
 // 1st precondition
 const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(...u: unknown[]) => void>;

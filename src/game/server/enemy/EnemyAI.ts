@@ -23,9 +23,12 @@
  * [2024.December.2]{@revision Fix targeting to use furthest along rather than oldest}
  */
 
-import { path } from "game/modules/EnemySupervisor";
+import { path } from "game/server/EnemySupervisor";
 import { PathGenerator } from "game/modules/Path";
 import Guard from "shared/modules/guard/Guard";
+import gameInfo from "game/server/events/GameInfo";
+import { gameInfoEvent } from "game/modules/events";
+import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 
 const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
   const actor = script.GetActor()!;
@@ -36,6 +39,7 @@ const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
   const modelOffset = Guard.Vector3(actor.GetAttribute("modelOffset"));
   const currPos = Guard.Vector3(actor.GetAttribute("Position"));
   const distanceTravelled = Guard.Number(actor.GetAttribute("distanceTravelled"));
+  const reward = Guard.Number(actor.GetAttribute("reward"));
 
   // TOOD we need to change this to the new model;
   const enemyModel = actor.FindFirstChildOfClass("Model");
@@ -51,6 +55,11 @@ const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
   }
 
   if (health <= 0) {
+    for (const [key, _] of pairs(gameInfo.coins)) {
+      gameInfo.coins[key] += reward;
+    }
+    task.synchronize();
+    gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
     cleanup();
     return;
   }
@@ -77,6 +86,9 @@ const connection = script.GetActor()!.BindToMessageParallel("tick", () => {
     if (goalNode === undefined) {
       // we reached either a contradiction which should have been prevented from generating at all, or the end
       // TODO remove health from player
+      gameInfo.health -= health;
+      task.synchronize();
+      gameInfoEvent.FireAllClients(serializeGameInfo(gameInfo));
       cleanup();
       return;
     }

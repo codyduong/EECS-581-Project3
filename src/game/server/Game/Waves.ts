@@ -1,6 +1,6 @@
 import { TICK_DELAY } from "game/modules/consts";
 import { EnemyType } from "game/modules/enemy/Enemy";
-import EnemySupervisor from "game/modules/EnemySupervisor";
+import EnemySupervisor from "game/server/EnemySupervisor";
 import Guard from "shared/modules/guard/Guard";
 
 type wave = {

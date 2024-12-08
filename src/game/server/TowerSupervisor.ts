@@ -3,15 +3,12 @@
  *
  * @file This is a singleton class which should manage the tower AI. It helps delegate multithreaded control of each
  *       tower into one file.
- *
- * @todo like towerSupervisor this maybe should only be serverside? w/e
  */
 
-import { assertServer } from "shared/modules/utils";
-import { Tower, TowerType } from "./tower/Tower";
-import { TowerAI, TowerAnimation } from "./tower";
+import { Tower, TowerType } from "game/modules/tower/Tower";
+import { TowerAI, TowerAnimation } from "game/server/tower";
 import Guard from "shared/modules/guard/Guard";
-import { TICKS_PER_SECOND } from "./consts";
+import { TICKS_PER_SECOND } from "game/modules/consts";
 
 const updateStats = (actor: Actor, tt: TowerType): void => {
   const stats = Tower.getTypeStats(tt);
@@ -34,7 +31,6 @@ export default class TowerSupervisor {
   private destroyed = false;
 
   constructor() {
-    assertServer();
     assert(
       singletonExisting === false,
       "TowerSupervisor singleton already exists. Did we call `Destroy()` on the old TowerSupervisor?",

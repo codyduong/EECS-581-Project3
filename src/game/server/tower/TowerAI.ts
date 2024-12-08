@@ -24,11 +24,11 @@
  */
 
 import Guard from "shared/modules/guard/Guard";
-import { ATTACK_TYPE_GUARD } from "./Tower";
-import { path } from "game/modules/EnemySupervisor";
+import { ATTACK_TYPE_GUARD } from "game/modules/tower/Tower";
+import { path } from "game/server/EnemySupervisor";
 import { PathGenerator } from "game/modules/Path";
 import { TICKS_PER_SECOND } from "game/modules/consts";
-import { calculateTicksToIntercept } from "./utils";
+import { calculateTicksToIntercept } from "game/modules/tower/utils";
 
 function calculateFuturePosition(
   enemy: Actor,
@@ -159,6 +159,8 @@ const _connection = tower.BindToMessageParallel(
 
     // print(`Tower: ${guid} is thinking`); // <-- I/O actually causes significant latency
 
+    // this needs to be synchronized when we determine enemy for targetting, otherwise async means unpredictable
+    task.synchronize();
     const aliveEnemiesInRange = Guard.NonNil(game.Workspace.FindFirstChild("EnemyFolder"))
       .GetChildren()
       .mapFiltered<[Actor, futurePosition: Vector3 | undefined] | undefined>((enemy) => {
@@ -212,9 +214,6 @@ const _connection = tower.BindToMessageParallel(
     }
 
     let attacked = false;
-
-    // this needs to be synchronized when we determine enemy for targetting, otherwise async means unpredictable
-    task.synchronize();
 
     // we need to calculate where the enemy will be
     const futurePosition = maybeFuturePos ?? Guard.Vector3(firstAliveEnemy.GetAttribute("Position"));

@@ -4,12 +4,12 @@
  */
 
 import { TICK_DELAY } from "game/modules/consts";
-import EnemySupervisor from "game/modules/EnemySupervisor";
+import EnemySupervisor from "game/server/EnemySupervisor";
 import { gameInfoEvent } from "game/modules/events";
 import { serializeGameInfo } from "game/modules/events/GameInfoEvent/GameInfoEvent";
 import { PathGenerator } from "game/modules/Path";
 import { Tower } from "game/modules/tower/Tower";
-import TowerSupervisor from "game/modules/TowerSupervisor";
+import TowerSupervisor from "game/server/TowerSupervisor";
 import { WaveFunctionCollapse } from "game/modules/WFC";
 import gameInfo, { resetGameInfo } from "game/server/events/GameInfo";
 import Guard from "shared/modules/guard/Guard";

@@ -32,6 +32,7 @@ export const defaultGamesInfo = {
   waveStartVotes: [],
   timeUntilWaveStart: -1,
   restartVotes: [],
+  health: 100,
 } as const satisfies GameInfo;
 
 const GameContextActual = createContext<GameInfo>(defaultGamesInfo);
@@ -51,6 +52,8 @@ export default function GameContext(props: GameContextProps): JSX.Element {
       gameInfoEvent.OnClientEvent.Connect((info) => {
         // todo here, this should be a custom hook, rather than a useEffect here? Or is it fine since it is a context...
         // w/e -codyduong 2024, Nov 24
+
+        // todo towers should not be set up in a ui component, seperate this out -codyduong 2024, Dec 8
         const mergedTowers = info.towers.map((props) => {
           let tower = Tower.fromGuid(props.guid);
           if (!tower) {
@@ -82,6 +85,7 @@ export default function GameContext(props: GameContextProps): JSX.Element {
           waveStartVotes: info.waveStartVotes,
           timeUntilWaveStart: info.timeUntilWaveStart,
           restartVotes: info.restartVotes,
+          health: info.health,
         });
       }),
     );

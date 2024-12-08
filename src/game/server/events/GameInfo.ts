@@ -16,6 +16,7 @@ const DEFAULT_GAME_INFO = {
    */
   timeUntilWaveStart: -1,
   restartVotes: [] as number[],
+  health: 100,
 } satisfies GameInfo;
 
 const gameInfo = table.clone(DEFAULT_GAME_INFO);
@@ -31,6 +32,7 @@ export const resetGameInfo = (): void => {
   gameInfo.waveStartVotes = [];
   gameInfo.timeUntilWaveStart = -1;
   gameInfo.restartVotes = [];
+  gameInfo.health = DEFAULT_GAME_INFO.health;
 };
 
 let hasSetup = false;

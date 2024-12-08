@@ -18,6 +18,7 @@ export type GameInfoSerializable = {
   waveStartVotes: number[];
   timeUntilWaveStart: number;
   restartVotes: number[];
+  health: number;
 };
 
 export type GameInfo = {
@@ -27,6 +28,7 @@ export type GameInfo = {
   waveStartVotes: number[];
   timeUntilWaveStart: number;
   restartVotes: number[];
+  health: number;
 };
 
 export const serializeGameInfo = (gameInfo: GameInfo): GameInfoSerializable => {
@@ -38,6 +40,7 @@ export const serializeGameInfo = (gameInfo: GameInfo): GameInfoSerializable => {
     waveStartVotes: gameInfo.waveStartVotes,
     timeUntilWaveStart: gameInfo.timeUntilWaveStart,
     restartVotes: gameInfo.restartVotes,
+    health: gameInfo.health,
   };
 };
 

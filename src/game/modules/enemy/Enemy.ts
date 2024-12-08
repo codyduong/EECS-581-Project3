@@ -34,6 +34,7 @@ export default class Enemy {
   readonly speed: number;
   readonly model: Model;
   readonly modelOffset: Vector3;
+  readonly reward: number;
 
   constructor(props: EnemyProps) {
     this.guid = props.guid ?? game.GetService("HttpService").GenerateGUID();
@@ -47,5 +48,6 @@ export default class Enemy {
     model.Parent = props.parent;
     model.PivotTo(new CFrame(props.position).add(this.modelOffset).mul(model.GetPivot().Rotation));
     this.model = model;
+    this.reward = enemyStats.reward;
   }
 }

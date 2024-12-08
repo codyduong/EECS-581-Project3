@@ -2,15 +2,11 @@
  * @author Cody Duong
  * @file This is a singleton class which should manage the enemy AI. It helps delegate multithreaded control of each
  *       enemy into one file.
- *
- * @todo this should really be serversided only. This is constrained by EnemyAI requiring `path` to know where to animate
- * next
  */
 
-import { EnemyAI, EnemyAnimation } from "game/modules/enemy";
+import { EnemyAI, EnemyAnimation } from "game/server/enemy";
 import Enemy, { EnemyType } from "game/modules/enemy/Enemy";
 import { Node, Vector3Key } from "game/modules/Path";
-import { assertServer } from "shared/modules/utils";
 
 export let path: Map<Vector3Key, Node>; // idk if this is a good idea... this should only be used by enemy
 
@@ -32,7 +28,6 @@ export default class EnemySupervisor {
   private enemyNumber = 0;
 
   constructor(props: EnemySupervisorProps) {
-    assertServer();
     assert(
       singletonExisting === false,
       "EnemySupervisor singleton already exists. Did we call `Destroy()` on the old EnemySupervisor?",
@@ -94,6 +89,7 @@ export default class EnemySupervisor {
     enemyActor.SetAttribute("Position", enemy.model.GetPivot().Position);
     enemyActor.SetAttribute("distanceTravelled", 0);
     enemyActor.SetAttribute("pendingDmg", 0);
+    enemyActor.SetAttribute("reward", enemy.reward);
 
     this.enemies.push(enemyActor);
 
