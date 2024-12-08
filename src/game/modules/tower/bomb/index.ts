@@ -22,7 +22,7 @@ export const Bomb0 = {
     cost: 50,
     upgradesTo: "Bomb1",
   },
-  model: script.WaitForChild("Noob0") as Model,
+  model: script.WaitForChild("Bomb0") as Model,
   sounds: {
     explode: [
       script.WaitForChild("BombExplode0") as Sound,
@@ -43,7 +43,7 @@ export const Bomb1 = {
     cost: 100,
     upgradesTo: undefined,
   },
-  model: script.WaitForChild("Noob0") as Model,
+  model: script.WaitForChild("Bomb1") as Model,
   sounds: {
     explode: [
       script.WaitForChild("BombExplode0") as Sound,
