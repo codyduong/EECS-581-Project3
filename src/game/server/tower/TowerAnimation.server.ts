@@ -118,6 +118,9 @@ const _connection = event.OnClientEvent.ConnectParallel(
     debugLaser.Size = new Vector3(0.1, 0.1, distance);
     debugLaser.CFrame = CFrame.lookAt(adjustedPos.Lerp(enemyPos, 0.5), enemyPos, new Vector3(0, 1, 0));
 
+    // it can be jarring if two towers fire at the exact same time, so add some random delay [0, 0.1) seconds
+    const soundOffset = math.random() * 0.1;
+
     if (attacked) {
       // check if we already have an attackLaser and destroy it
       // const attackType = ATTACK_TYPE_GUARD(tower.GetAttribute("attackType"));
@@ -133,15 +136,33 @@ const _connection = event.OnClientEvent.ConnectParallel(
         attackLaser.Color = new Color3(1, 0, 0);
         attackLaser.Name = "attackLaser";
 
-        const fireSound = sounds?.fire[math.random(0, sounds.fire.size() - 1)].Clone();
+        const fireSound = sounds.fire[math.random(0, sounds.fire.size() - 1)].Clone();
         assert(fireSound);
         fireSound.Parent = towerModel;
-        // ranged [0.95, 1.05) so it isn't always the same
-        fireSound.PlaybackSpeed = (0.95 + math.random() * 0.1) * fireSound.PlaybackSpeed;
-        fireSound.Play();
-        fireSound.Ended.Connect(() => {
+        // ranged [0.9, 1.1) so it isn't always the same
+        fireSound.PlaybackSpeed = (0.9 + math.random() * 0.2) * fireSound.PlaybackSpeed;
+        task.delay(soundOffset, () => {
+          fireSound.Play();
+        });
+        fireSound.Ended.Once(() => {
           fireSound.Destroy();
         });
+
+        if (towerType === "Sniper0") {
+          const boltRack = 0.4 + math.random() * 0.25;
+          const boltSound =
+            "reload" in sounds ? sounds.reload[math.random(0, sounds.reload.size() - 1)].Clone() : undefined;
+          assert(boltSound);
+          boltSound.Parent = towerModel;
+          // ranged [0.9, 1.1) so it isn't always the same
+          boltSound.PlaybackSpeed = (0.9 + math.random() * 0.2) * fireSound.PlaybackSpeed;
+          task.delay(boltRack, () => {
+            boltSound.Play();
+          });
+          boltSound.Ended.Once(() => {
+            boltSound.Destroy();
+          });
+        }
       }
 
       if (attackType === "bomb") {
@@ -162,8 +183,10 @@ const _connection = event.OnClientEvent.ConnectParallel(
         fireSound.Parent = towerModel;
         // ranged [0.9, 1.1) so it isn't always the same
         fireSound.PlaybackSpeed = (0.9 + math.random() * 0.2) * fireSound.PlaybackSpeed;
-        fireSound.Play();
-        fireSound.Ended.Connect(() => {
+        task.delay(soundOffset, () => {
+          fireSound.Play();
+        });
+        fireSound.Ended.Once(() => {
           fireSound.Destroy();
         });
 
@@ -220,7 +243,9 @@ const _connection = event.OnClientEvent.ConnectParallel(
           explosionSound.Parent = explosion;
           // ranged [0.95, 1.05) so it isn't always the same
           explosionSound.PlaybackSpeed = (0.95 + math.random() * 0.1) * explosionSound.PlaybackSpeed;
-          explosionSound.Play();
+          task.delay(soundOffset, () => {
+            explosionSound.Play();
+          });
 
           task.delay(10 * TICK_DELAY, () => {
             explosion.Transparency = 1;

@@ -27,14 +27,16 @@
 import Guard, { Check } from "shared/modules/guard/Guard";
 import { Noob0, Noob1 } from "./noob";
 import { Bomb0, Bomb1 } from "./bomb";
+import { Sniper0 } from "./sniper";
 
-export type TowerType = "Noob0" | "Noob1" | "Bomb0" | "Bomb1";
+export type TowerType = "Noob0" | "Noob1" | "Bomb0" | "Bomb1" | "Sniper0";
 
 export const TOWER_TYPE_GUARD = Guard.Union(
   Guard.Literal("Noob0"),
   Guard.Literal("Noob1"),
   Guard.Literal("Bomb0"),
   Guard.Literal("Bomb1"),
+  Guard.Literal("Sniper0"),
 ) satisfies Check<TowerType>;
 export const TOWER_TYPE0_GUARD = Guard.Union(Guard.Literal("Noob0"), Guard.Literal("Bomb0"));
 
@@ -43,6 +45,7 @@ export const TYPE_TO_META = {
   Noob1: Noob1,
   Bomb0: Bomb0,
   Bomb1: Bomb1,
+  Sniper0: Sniper0,
 } as const satisfies Record<TowerType, TowerMeta>;
 
 // todo add other attack variants like projectile (ie. moving towards, or constant attacks like a poision field)

@@ -1,0 +1,10 @@
+{
+  "className": "Sound",
+  "properties": {
+    "Name": "Reload1",
+    "SoundId": "rbxassetid://9116357621",
+    "Volume": 0.025,
+    "IsLoaded": true,
+    "PlaybackSpeed": 1
+  }
+}
