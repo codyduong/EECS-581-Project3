@@ -17,7 +17,7 @@ import createWave from "./Waves";
 
 // 1459599628, guranteed contradiction { x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2, seed: 1459599628 }
 
-const wfc = new WaveFunctionCollapse({ x: 12, y: 1, z: 12, pathLength: 24, horizontalPadding: 2 });
+const wfc = new WaveFunctionCollapse({ x: 12, y: 1, z: 12, pathLength: 12, horizontalPadding: 2 });
 
 export type GameActorTopic = keyof GameActorTopicsToCallback;
 
