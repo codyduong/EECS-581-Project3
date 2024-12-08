@@ -83,36 +83,19 @@ function startGame(): void {
     task.spawn(() => {
       let tick = 0;
       while (true) {
-        const [success] = pcall(() => enemySupervisor.tick());
-        const [success2, msg] = pcall(() => towerSupervisor.tick(tick));
+        const [success, msg] = pcall(() => enemySupervisor.tick());
+        const [success2, msg2] = pcall(() => towerSupervisor.tick(tick));
         if (!success) {
-          error("Enemy AI failed to run");
+          error(`Enemy AI failed to run: ${msg}`);
         }
         if (!success2) {
-          print(msg);
-          error("Tower AI failed to run");
+          error(`Tower AI failed to run: ${msg2}`);
         }
         task.wait(TICK_DELAY);
         tick += 1;
       }
     }),
   );
-
-  // we have to wait to spawn these threads seperate from each other... if we don't we will create two enemies
-  // "too" close to each other, before tick is ready and running
-  task.wait(1);
-
-  // threads.push(
-  //   task.spawn(() => {
-  //     while (true) {
-  //       const [success] = pcall(() => enemySupervisor.createEnemy());
-  //       if (!success) {
-  //         error("Enemy failed to generate");
-  //       }
-  //       task.wait(0.5);
-  //     }
-  //   }),
-  // );
 }
 
 GameActor!.BindToMessageParallel("StartGame", () => {

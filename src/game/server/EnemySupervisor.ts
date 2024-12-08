@@ -23,6 +23,8 @@ export default class EnemySupervisor {
   private path: Map<Vector3Key, Node>;
   private enemyFolder: Folder;
   private enemies: Actor[] = [];
+  private pendingEnemies: Record<number, number> = {};
+  private waveCompleteConnection: Record<number, BoolValue> = {};
   private destroyed = false;
 
   private enemyNumber = 0;
@@ -53,7 +55,15 @@ export default class EnemySupervisor {
    *
    * @todo: should this be here, or should the Enemy constructor create all of this?
    */
-  public createEnemy(t: EnemyType): void {
+  public createEnemy(t: EnemyType, wave: number): void {
+    assert(
+      this.pendingEnemies[wave] && this.pendingEnemies[wave] > 0,
+      "Did we register this enemy before creating it?",
+    );
+    this.pendingEnemies[wave] -= 1;
+    if (this.pendingEnemies[wave] === 0) {
+      this.waveCompleteConnection[wave].Value = true;
+    }
     this.AssertNotDestroyed();
 
     // create the enemy actor
@@ -137,5 +147,21 @@ export default class EnemySupervisor {
     this.enemies.forEach((enemy) => {
       enemy.Destroy();
     });
+  }
+
+  /**
+   * Registers that # of enemies will be created for a wave
+   */
+  public registerEnemies(waveNumber: number, enemies: number): void {
+    this.pendingEnemies[waveNumber] = this.pendingEnemies[waveNumber]
+      ? this.pendingEnemies[waveNumber] + enemies
+      : enemies;
+  }
+
+  public registerConnection(waveNumber: number): BoolValue {
+    assert(this.waveCompleteConnection[waveNumber] === undefined, "Already registered");
+    const boolValue = new Instance("BoolValue");
+    this.waveCompleteConnection[waveNumber] = boolValue;
+    return boolValue;
   }
 }
