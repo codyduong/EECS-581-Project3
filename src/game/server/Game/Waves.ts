@@ -13,14 +13,14 @@ const createEnemyAtInterval = (
   enemySupervisor: EnemySupervisor,
   enemy: EnemyType,
   quantity: number,
-  interval: number,
-  offset: number = 0,
+  interval: number, // in ticks
+  offset: number = 0, // in ticks
 ): thread[] => {
   Guard.NumberMin(0)(quantity);
   const res: thread[] = [];
   for (let i = 0; i < quantity; i++) {
     res.push(
-      task.delay(offset + TICK_DELAY * interval * i, () => {
+      task.delay(TICK_DELAY * offset + TICK_DELAY * interval * i, () => {
         const [success] = pcall(() => enemySupervisor.createEnemy(enemy));
         if (!success) {
           error("Enemy failed to generate");
@@ -89,7 +89,18 @@ export default function createWave(
     return false;
   }
 
-  wave.fns.forEach((f) => f(enemySupervisor).forEach((t) => threads.push(t)));
+  // for (const f of wave.fns) {
+  //   print("gen" f);
+  //   for (const t of f(enemySupervisor)) {
+  //     threads.push(t);
+  //   }
+  // }
+
+  // idk this is broken?
+  wave.fns.forEach((f, idx) => {
+    print(idx);
+    f(enemySupervisor).forEach((t) => threads.push(t));
+  });
   threads.push(task.delay(TICK_DELAY * wave.ticksTilReady, () => makeReadyForNextWave(wave.reward)));
 
   return true;

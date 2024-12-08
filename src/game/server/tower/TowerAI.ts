@@ -245,7 +245,8 @@ const _connection = tower.BindToMessageParallel(
             if (otherEnemyFuturePos === undefined) {
               return false;
             }
-            if (otherEnemyFuturePos.sub(futurePosition).Magnitude > bombRange) {
+            // eslint-disable-next-line prettier/prettier
+            if (otherEnemyFuturePos.sub(futurePosition).Magnitude > (bombRange / 2)) {
               return false;
             }
             return true;
