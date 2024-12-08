@@ -24,6 +24,14 @@ export const Noob0 = {
     upgradesTo: "Noob1",
   },
   model: script.WaitForChild("Noob0") as Model,
+  sounds: {
+    fire: [
+      script.WaitForChild("Fire0") as Sound,
+      script.WaitForChild("Fire1") as Sound,
+      script.WaitForChild("Fire2") as Sound,
+      script.WaitForChild("Fire3") as Sound,
+    ],
+  },
 } satisfies TowerMeta;
 export const Noob1 = {
   stats: {
@@ -35,4 +43,12 @@ export const Noob1 = {
     upgradesTo: undefined,
   },
   model: script.WaitForChild("Noob1") as Model,
+  sounds: {
+    fire: [
+      script.WaitForChild("Fire0") as Sound,
+      script.WaitForChild("Fire1") as Sound,
+      script.WaitForChild("Fire2") as Sound,
+      script.WaitForChild("Fire3") as Sound,
+    ],
+  },
 } satisfies TowerMeta;

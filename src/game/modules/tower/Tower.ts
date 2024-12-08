@@ -65,6 +65,7 @@ export type TowerStats = {
 export type TowerMeta = {
   stats: TowerStats;
   model: Model;
+  sounds: Record<string, Sound[]>;
 };
 
 export type TowerProps = {

@@ -29,7 +29,7 @@
 
 import Guard from "shared/modules/guard/Guard";
 import { TICK_DELAY, TICKS_PER_SECOND } from "game/modules/consts";
-import { ATTACK_TYPE_GUARD } from "./Tower";
+import { TOWER_TYPE_GUARD, TYPE_TO_META } from "./Tower";
 
 // 1st precondition
 const event = script.Parent!.FindFirstChildOfClass("RemoteEvent")! as RemoteEvent<(...u: unknown[]) => void>;
@@ -116,7 +116,11 @@ const _connection = event.OnClientEvent.ConnectParallel(
 
     if (attacked) {
       // check if we already have an attackLaser and destroy it
-      const attackType = ATTACK_TYPE_GUARD(tower.GetAttribute("attackType"));
+      // const attackType = ATTACK_TYPE_GUARD(tower.GetAttribute("attackType"));
+      const towerType = TOWER_TYPE_GUARD(tower.GetAttribute("type"));
+      const meta = TYPE_TO_META[towerType];
+      const attackType = meta.stats.attackType;
+      const sounds = meta.sounds;
 
       if (attackType === "raycast") {
         script.Parent?.FindFirstChild("attackLaser")?.Destroy();
@@ -124,6 +128,16 @@ const _connection = event.OnClientEvent.ConnectParallel(
         attackLaser.Parent = script.Parent;
         attackLaser.Color = new Color3(1, 0, 0);
         attackLaser.Name = "attackLaser";
+
+        const fireSound = sounds?.fire[math.random(0, sounds.fire.size() - 1)].Clone();
+        assert(fireSound);
+        fireSound.Parent = towerModel;
+        // ranged [0.95, 1.05) so it isn't always the same
+        fireSound.PlaybackSpeed = (0.95 + math.random() * 0.1) * fireSound.PlaybackSpeed;
+        fireSound.Play();
+        fireSound.Ended.Connect(() => {
+          fireSound.Destroy();
+        });
       }
 
       if (attackType === "bomb") {
@@ -139,6 +153,16 @@ const _connection = event.OnClientEvent.ConnectParallel(
         projectile.Color = new Color3(0.5, 0.5, 0.5);
         projectile.Size = new Vector3(0.5, 0.5, 0.5);
         projectile.Position = adjustedPos;
+
+        const fireSound = sounds?.fire[math.random(0, sounds.fire.size() - 1)].Clone();
+        assert(fireSound);
+        fireSound.Parent = towerModel;
+        // ranged [0.9, 1.1) so it isn't always the same
+        fireSound.PlaybackSpeed = (0.9 + math.random() * 0.2) * fireSound.PlaybackSpeed;
+        fireSound.Play();
+        fireSound.Ended.Connect(() => {
+          fireSound.Destroy();
+        });
 
         const projectileSpeed = Guard.Number(tower.GetAttribute("bombSpeed"));
         const projectileSize = Guard.Number(tower.GetAttribute("bombRange"));
@@ -159,8 +183,22 @@ const _connection = event.OnClientEvent.ConnectParallel(
           explosion.Color = new Color3(1, 0, 0);
           explosion.Size = new Vector3(projectileSize, projectileSize, projectileSize);
           explosion.Position = enemyPos;
+          assert("explode" in sounds);
+          const explosionSound = sounds.explode[math.random(0, sounds.explode.size() - 1)].Clone();
+          assert(explosionSound);
+          explosionSound.Parent = explosion;
+          // ranged [0.95, 1.05) so it isn't always the same
+          explosionSound.PlaybackSpeed = (0.95 + math.random() * 0.1) * explosionSound.PlaybackSpeed;
+          explosionSound.Play();
+
           task.delay(10 * TICK_DELAY, () => {
-            explosion.Destroy();
+            explosion.Transparency = 1;
+            if (explosionSound.IsPlaying) {
+              explosionSound.Ended.Wait();
+              explosion.Destroy();
+            } else {
+              explosion.Destroy();
+            }
           });
         });
       }

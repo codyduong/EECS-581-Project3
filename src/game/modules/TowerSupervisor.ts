@@ -8,12 +8,13 @@
  */
 
 import { assertServer } from "shared/modules/utils";
-import { Tower, TowerStats } from "./tower/Tower";
+import { Tower, TowerType } from "./tower/Tower";
 import { TowerAI, TowerAnimation } from "./tower";
 import Guard from "shared/modules/guard/Guard";
 import { TICKS_PER_SECOND } from "./consts";
 
-const updateStats = (actor: Actor, stats: TowerStats): void => {
+const updateStats = (actor: Actor, tt: TowerType): void => {
+  const stats = Tower.getTypeStats(tt);
   actor.SetAttribute("damage", stats.damage);
   actor.SetAttribute("ticksBetweenAttacks", stats.ticksBetweenAttacks);
   actor.SetAttribute("attackType", stats.attackType);
@@ -22,6 +23,7 @@ const updateStats = (actor: Actor, stats: TowerStats): void => {
     actor.SetAttribute("bombRange", stats.bombRange);
     actor.SetAttribute("bombSpeed", stats.bombSpeed);
   }
+  actor.SetAttribute("type", tt);
 };
 
 let singletonExisting = false;
@@ -75,17 +77,11 @@ export default class TowerSupervisor {
     const towerAnimationEvent = new Instance("RemoteEvent"); // TODO should this be here or in a *.json for rojo?
     towerAnimationEvent.Parent = towerActor;
 
-    const stats = Tower.getTypeStats(tower.type);
-
     // add some data about the tower to the actor to access
     towerActor.SetAttribute("guid", tower.guid);
     towerActor.SetAttribute("Position", tower.model.GetPivot().Position);
     towerActor.SetAttribute("lastAttacked", -TICKS_PER_SECOND - 1); // the tick we last attacked, uses -TICK_DELAY since we can and want to be able to attack at tick 0
-    if (stats.attackType === "bomb") {
-      towerActor.SetAttribute("bombRange", stats.bombRange);
-      towerActor.SetAttribute("bombSpeed", stats.bombSpeed);
-    }
-    updateStats(towerActor, stats);
+    updateStats(towerActor, tower.type);
 
     this.towers.push(towerActor);
   }
@@ -121,8 +117,7 @@ export default class TowerSupervisor {
       }),
     );
 
-    const stats = Tower.getTypeStats(tower.type);
-    updateStats(towerActor, stats);
+    updateStats(towerActor, tower.type);
   }
 
   /**

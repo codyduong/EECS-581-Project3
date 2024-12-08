@@ -1,0 +1,10 @@
+{
+  "className": "Sound",
+  "properties": {
+    "Name": "BombExplode2",
+    "SoundId": "rbxassetid://5564342147",
+    "Volume": 0.1,
+    "IsLoaded": true,
+    "PlaybackSpeed": 1.2
+  }
+}

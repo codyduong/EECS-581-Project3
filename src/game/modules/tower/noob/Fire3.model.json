@@ -1,0 +1,10 @@
+{
+  "className": "Sound",
+  "properties": {
+    "Name": "Fire3",
+    "SoundId": "rbxassetid://9114690482",
+    "Volume": 0.2,
+    "IsLoaded": true,
+    "PlaybackSpeed": 1
+  }
+}
