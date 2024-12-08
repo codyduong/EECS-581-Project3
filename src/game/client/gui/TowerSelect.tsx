@@ -19,6 +19,7 @@
  * [2024.December.4]{@revision Add tower stats}
  * [2024.December.5]{@revision Bugfixing with regards to tower placing at the same time as selecting a tower
  *                   (prioritize selection gui over placement)}
+ * [2024.December.7]{@revision Fix tower upgrading breaking inUi context}
  */
 
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
@@ -70,7 +71,7 @@ raycastParams.FilterType = Enum.RaycastFilterType.Exclude;
 interface TowerSelectProps {}
 
 export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
-  const { inUI: disableRaycast } = useUI();
+  const { inUI: disableRaycast, exitUI } = useUI();
 
   const [placing, setPlacing] = useState<string>();
   const [previewTower, setPreviewTower] = useState<Tower>();
@@ -130,6 +131,22 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
           .mul(previewTower.model.GetPivot().Rotation)
           .add(new Vector3(0, part.Size.div(2).Y, 0)),
       );
+    }
+  };
+
+  const sellSelectedTower = (): void => {
+    if (selectedTower) {
+      requestTower.FireServer(selectedTower.toSerializable(), "sell");
+      setSelectedTower(undefined);
+      exitUI();
+    }
+  };
+
+  const upgradeSelectedTower = (): void => {
+    if (selectedTower) {
+      requestTower.FireServer(selectedTower.toSerializable(), "upgrade");
+      setSelectedTower(undefined);
+      exitUI();
     }
   };
 
@@ -217,20 +234,6 @@ export default function TowerSelect(_props: TowerSelectProps): JSX.Element {
       });
     };
   }, [gameInfo.towers, disableRaycast, selectedTower]);
-
-  const sellSelectedTower = (): void => {
-    if (selectedTower) {
-      requestTower.FireServer(selectedTower.toSerializable(), "sell");
-      setSelectedTower(undefined);
-    }
-  };
-
-  const upgradeSelectedTower = (): void => {
-    if (selectedTower) {
-      requestTower.FireServer(selectedTower.toSerializable(), "upgrade");
-      setSelectedTower(undefined);
-    }
-  };
 
   useEffect(() => {
     return () => {
